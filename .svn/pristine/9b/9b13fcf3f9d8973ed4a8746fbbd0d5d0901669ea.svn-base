@@ -1,0 +1,90 @@
+package com.ccx.models.manager;
+
+import com.ccx.models.bean.Base;
+import com.ccx.models.bean.Field;
+import com.ccx.models.bean.ProgramOutPutBean;
+import com.ccx.models.mapper.dataexchange.DataExchangeMapper;
+import com.ccx.models.util.HttpClientUtil;
+import com.ccx.models.util.JsonUtils;
+import com.ccx.models.util.PropertiesUtil;
+import com.ccx.models.util.SignTools;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+@Component
+public class HttpDataExchangeManager {
+
+    private  Logger log = LogManager.getLogger(this.getClass());
+
+
+    @Autowired
+    private DataExchangeMapper dataExchangeMapper;
+
+    /**
+     * 获取项目数据并传递给模型组
+     * @param id
+     * @param type
+     * @return
+     */
+    public Map<String ,Object> sendMsgToModel(Integer id, Integer type){
+        ProgramOutPutBean bean=new ProgramOutPutBean();
+        bean.setBase(dataExchangeMapper.selectModelData(id));
+        bean.setFields(dataExchangeMapper.selectModelFieldData(id));
+        bean.setType(type);
+        String json=httpjson(PropertiesUtil.getData("prop/resource-template.properties","model.http.url"),bean);
+        return  JsonUtils.fromJson(json,Map.class);
+    }
+    /**
+     *调用模型组Http服务
+     * @param url
+     * @param data
+     * @return
+     */
+    public  String httpjson(String url,Object data) {
+        Map<String, Object> map = new HashMap<>();
+        String res="";
+        try {
+            /*String account="";
+            String reqTid="";
+            String privateKey="";
+            String sign=getSisn(account,reqTid,privateKey);
+            Map<String,Object> passData=new HashMap<>();
+            passData.put("account",account);
+            passData.put("reqTid",reqTid);
+            passData.put("data",data);
+            passData.put("sign",sign);*/
+            res= HttpClientUtil.sendPostSSLRequest(url,
+                    JsonUtils.toJson(data), "UTF-8","application/json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            log.info("调用模型服务，url:"+url+",参数"+JsonUtils.toJson(data));
+        }
+        return res;
+    }
+
+    /**
+     * 获取签名
+     * @param account
+     * @param reqTid
+     * @param privateKey
+     * @return
+     */
+    private  String getSisn(String account,String reqTid,String privateKey){
+        Map<String, String> parammap = new HashMap<String, String>();
+        parammap.put("account",account);
+        parammap.put("reqTid",reqTid);
+        return SignTools.getSignature((HashMap<String, String>) parammap,privateKey);
+    }
+}

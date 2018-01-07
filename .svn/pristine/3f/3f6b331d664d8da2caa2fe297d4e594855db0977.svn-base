@@ -1,0 +1,21 @@
+#������֤��
+#credit_risk_sendsms_account=wxfy-neibu-api
+#credit_risk_sendsms_privateKey=94a17533217e6893
+credit_risk_sendsms_account=xinyongfengxian
+credit_risk_sendsms_privateKey=2b61b261d76b4d659ba4033cb9bd9103
+credit_risk_sendSms_url=http://192.168.100.111:7080/data-service/sms/general
+credit_risk_sendSms_count=50
+credit_risk_sendSms_SeriesErrcount=10
+credit_risk_pw_seriesErr_count=5
+
+#analy_template_temporary_path = C:/mnt/nfs/ccx_risk-crm/export/financialAnalytemplate/temporary/excel/
+#model_excel_save_dir=E://data//model.xlsx
+model_excel_save_dir=/data/risk_crm_data/model.xlsx
+financial_analy_template_temporary_path = /data/risk_crm_data/analy/temporary/excel/
+
+data_file_store_path = D:/export/exportCSV/
+#data_file_store_path =/data/risk_crm_data/type/
+model_user_fileBasePath=/data/model/
+
+
+model.http.url=http://192.168.100.35:8765/cashflow/9

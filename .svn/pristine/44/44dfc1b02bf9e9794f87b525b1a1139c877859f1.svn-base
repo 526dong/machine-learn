@@ -1,0 +1,113 @@
+package com.ccx.models.laboratory;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.laboratory.ModelsReportApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.util.UsedUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsReport")
+public class ModelsReportController extends BaseController {
+
+	private static Logger logger = LogManager.getLogger(ModelsReportController.class);
+
+	@Autowired
+	private ModelsReportApi modelsReportApi;
+
+	/**
+	 * 跳转到模型报告页面
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/toModelsReportPage")
+	public String toModelsReportPage(HttpServletRequest request){
+		Long programId = (long) Integer.parseInt(request.getParameter("programId"));
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+		//根据项目id获取项目基本信息
+		LinkedHashMap<String,Object> programBasicInfoMap = new LinkedHashMap<String,Object>();
+		//根据项目id获取模型数据分析结果list
+		List<LinkedHashMap<String,Object>> modelDateAnalyInfoList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取模型数据评价指标list
+		List<LinkedHashMap<String,Object>> modelDateEvaluateIndexList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据数据文件id获取变量重要性排序list
+		List<LinkedHashMap<String,Object>> varImportanceSortList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取Score分组详情list
+		List<LinkedHashMap<String,Object>> scoreGroupList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取概率分箱list
+		List<LinkedHashMap<String,Object>> probabilityBinningList = new ArrayList<LinkedHashMap<String,Object>>();
+		//该项目采用算法name list
+		String[] arithmeticList = null;
+		//该项目采用算法id list
+		String[] arithmeticIdList = null;
+		try{
+			programBasicInfoMap = modelsReportApi.getProgramMapById(programId);
+			//判断项目信息是否为空
+			if(null != programBasicInfoMap && !programBasicInfoMap.isEmpty()){
+				modelDateAnalyInfoList = modelsReportApi.getModelDateAnalyInfoById(programId);
+				modelDateEvaluateIndexList = modelsReportApi.getModelDateEvaluateIndexById(programId);
+				scoreGroupList = modelsReportApi.getScoreGroupListById(programId);
+				probabilityBinningList = modelsReportApi.getProbabilityBinningListById(programId);
+				//该项目所采用算法名称字符串
+				String arithmeticNames = (String) programBasicInfoMap.get("arithmeticNames");
+				//该项目所采用算法id字符串
+				String arithmeticIds = (String) programBasicInfoMap.get("arithmeticIds");
+				//该项目创建时间
+				Date createTime = (Date) programBasicInfoMap.get("createTime");
+				if(UsedUtil.isNotNull(arithmeticNames)){
+					programBasicInfoMap.put("arithmeticNames",arithmeticNames.replace(",","/"));
+					//该项目采用算法name list
+					arithmeticList = arithmeticNames.split(",");
+					logger.info("该项目采用算法name list========="+JSON.toJSONString(arithmeticList));
+				}
+				if(null != createTime){
+					programBasicInfoMap.put("createTime",formatter.format(createTime));
+				}
+				if(UsedUtil.isNotNull(arithmeticIds)){
+					//该项目采用算法id list
+					arithmeticIdList = arithmeticIds.split(",");
+					logger.info("该项目采用算法id list========="+JSON.toJSONString(arithmeticIdList));
+				}
+				//该项目数据文件id
+				int dataFileId = (Integer) programBasicInfoMap.get("dataFileId");
+				varImportanceSortList = modelsReportApi.getVarImportanceSortById(Long.valueOf(dataFileId));
+				//如果算法id数组不为空，则循环list查找该项目下每个算法四种曲线图的数据
+//				if(null != arithmeticIdList && arithmeticIdList.length>0){
+//					for (int i=0;i<arithmeticIdList.length;i++){
+//						int arithmeticId = Integer.parseInt(arithmeticIdList[i]);
+//						List<LinkedHashMap<String,Object>> rocKsLineList1 = new ArrayList<LinkedHashMap<String,Object>>();
+//						rocKsLineList1 = modelsReportApi.getRocKsLineList1ById(programId,Long.valueOf(arithmeticId));
+//					}
+//				}
+			}
+		}catch (Exception e){
+			logger.info("实验室-----模型报告-----根据项目id获取项目基本信息失败",e);
+		}
+		request.setAttribute("programBasicInfoMap",programBasicInfoMap);
+		request.setAttribute("arithmeticList",arithmeticList);
+		request.setAttribute("arithmeticIdList",JSON.toJSONString(arithmeticIdList));
+		request.setAttribute("modelDateAnalyInfoList",JSON.toJSONString(modelDateAnalyInfoList));
+		request.setAttribute("modelDateEvaluateIndexList",JSON.toJSONString(modelDateEvaluateIndexList));
+		request.setAttribute("varImportanceSortList",JSON.toJSONString(varImportanceSortList));
+		request.setAttribute("scoreGroupList",JSON.toJSONString(scoreGroupList));
+		request.setAttribute("probabilityBinningList",JSON.toJSONString(probabilityBinningList));
+		return "laboratory/modelReport";
+	}
+
+
+}

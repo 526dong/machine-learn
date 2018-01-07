@@ -1,0 +1,16 @@
+package com.ccx.models.service.impl.dataexchange;
+
+import com.ccx.models.model.ModelsProgram;
+
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+public interface PutOutExchangeService {
+    Map<String,Object> sendTOModel(ModelsProgram program);
+
+    void saveOutPut(String bean);
+}

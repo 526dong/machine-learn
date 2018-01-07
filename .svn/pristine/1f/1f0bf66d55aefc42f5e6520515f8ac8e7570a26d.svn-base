@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsTrainLine2Mapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsTrainLine2" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="abscissa" property="abscissa" jdbcType="DECIMAL" />
+    <result column="auc" property="auc" jdbcType="DECIMAL" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, program_id, arithmetic_id, abscissa, auc, creater, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_train_line_2
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_train_line_2
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="List" >
+    insert into models_train_line_2 ( program_id, arithmetic_id,
+      abscissa, auc, creater, 
+      create_time)
+      SELECT  * FROM
+    <foreach collection="list" item="item" index="index" open="(" close=")" separator="union all">
+      SELECT #{item.programId,jdbcType=BIGINT} a, #{item.arithmeticId,jdbcType=BIGINT} b,
+      #{item.abscissa,jdbcType=DECIMAL} c, #{item.auc,jdbcType=DECIMAL} d, #{item.creater,jdbcType=VARCHAR} e,
+      #{item.createTime,jdbcType=TIMESTAMP} f FROM DUAL
+    </foreach>
+    t
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsTrainLine2" >
+    insert into models_train_line_2
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="abscissa != null" >
+        abscissa,
+      </if>
+      <if test="auc != null" >
+        auc,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="abscissa != null" >
+        #{abscissa,jdbcType=DECIMAL},
+      </if>
+      <if test="auc != null" >
+        #{auc,jdbcType=DECIMAL},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsTrainLine2" >
+    update models_train_line_2
+    <set >
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="abscissa != null" >
+        abscissa = #{abscissa,jdbcType=DECIMAL},
+      </if>
+      <if test="auc != null" >
+        auc = #{auc,jdbcType=DECIMAL},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsTrainLine2" >
+    update models_train_line_2
+    set program_id = #{programId,jdbcType=BIGINT},
+      arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      abscissa = #{abscissa,jdbcType=DECIMAL},
+      auc = #{auc,jdbcType=DECIMAL},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

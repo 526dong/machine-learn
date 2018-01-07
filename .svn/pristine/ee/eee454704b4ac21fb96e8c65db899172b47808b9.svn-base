@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsModelDataBaseInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsModelDataBaseInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="model_data_name" property="modelDataName" jdbcType="VARCHAR" />
+    <result column="sample_num" property="sampleNum" jdbcType="DECIMAL" />
+    <result column="dimensionality" property="dimensionality" jdbcType="DECIMAL" />
+    <result column="deficiency_rate" property="deficiencyRate" jdbcType="DECIMAL" />
+    <result column="data_file_id" property="dataFileId" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, model_data_name, sample_num, dimensionality, deficiency_rate, data_file_id, creater, 
+    create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_model_data_base_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_model_data_base_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsModelDataBaseInfo" >
+    insert into models_model_data_base_info (id, model_data_name, sample_num, 
+      dimensionality, deficiency_rate, data_file_id, 
+      creater, create_time)
+    values (#{id,jdbcType=BIGINT}, #{modelDataName,jdbcType=VARCHAR}, #{sampleNum,jdbcType=DECIMAL}, 
+      #{dimensionality,jdbcType=DECIMAL}, #{deficiencyRate,jdbcType=DECIMAL}, #{dataFileId,jdbcType=INTEGER}, 
+      #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsModelDataBaseInfo" >
+    insert into models_model_data_base_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="modelDataName != null" >
+        model_data_name,
+      </if>
+      <if test="sampleNum != null" >
+        sample_num,
+      </if>
+      <if test="dimensionality != null" >
+        dimensionality,
+      </if>
+      <if test="deficiencyRate != null" >
+        deficiency_rate,
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="modelDataName != null" >
+        #{modelDataName,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleNum != null" >
+        #{sampleNum,jdbcType=DECIMAL},
+      </if>
+      <if test="dimensionality != null" >
+        #{dimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="deficiencyRate != null" >
+        #{deficiencyRate,jdbcType=DECIMAL},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsModelDataBaseInfo" >
+    update models_model_data_base_info
+    <set >
+      <if test="modelDataName != null" >
+        model_data_name = #{modelDataName,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleNum != null" >
+        sample_num = #{sampleNum,jdbcType=DECIMAL},
+      </if>
+      <if test="dimensionality != null" >
+        dimensionality = #{dimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="deficiencyRate != null" >
+        deficiency_rate = #{deficiencyRate,jdbcType=DECIMAL},
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsModelDataBaseInfo" >
+    update models_model_data_base_info
+    set model_data_name = #{modelDataName,jdbcType=VARCHAR},
+      sample_num = #{sampleNum,jdbcType=DECIMAL},
+      dimensionality = #{dimensionality,jdbcType=DECIMAL},
+      deficiency_rate = #{deficiencyRate,jdbcType=DECIMAL},
+      data_file_id = #{dataFileId,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectJoinDataFile" parameterType="long" resultMap="BaseResultMap">
+    SELECT info.id, dimensionality, info.deficiency_rate, info.data_file_id,
+	  f.name model_data_name, f.size sample_num, f.description, f.creator_name creater, f.create_date create_time
+    FROM models_model_data_base_info info, models_data_file f
+      WHERE info.data_file_id = f.id and f.is_delete_flag = 0 and info.data_file_id = #{0}
+  </select>
+</mapper>

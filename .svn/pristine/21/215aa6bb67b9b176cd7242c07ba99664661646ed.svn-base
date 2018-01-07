@@ -1,0 +1,71 @@
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%--shiro 标签 --%>
+<%@taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>  
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme() + "://"+ request.getServerName() + ":" + request.getServerPort()+ path ;
+request.setAttribute("ctx",basePath);
+%>
+<script src="${ctx}/resources/js/jquery-1.7.1.min.js"></script>
+<script	src="${ctx}/resources/old-js/jquery.validate.js"></script>
+<script type="text/javascript">
+//全局ajax session 过期 跳转登陆
+jQuery(function($){
+	 //首先备份下jquery的ajax方法
+    var _ajax=$.ajax;
+
+    //重写jquery的ajax方法
+    $.ajax=function(opt){
+        //备份opt中error和success方法
+        var fn = {
+            error:function(XMLHttpRequest, textStatus, errorThrown){},
+            success:function(data, textStatus){}
+        }
+        if(opt.error){
+            fn.error=opt.error;
+        }
+        if(opt.success){
+            fn.success=opt.success;
+        }
+
+        //扩展增强处理
+        var_opt = $.extend(opt,{
+            error:function(XMLHttpRequest, textStatus, errorThrown){
+                //错误方法增强处理
+                fn.error(XMLHttpRequest, textStatus, errorThrown);
+            },
+            success:function(data, textStatus){
+                //成功回调方法增强处理
+                if("300" == data.user_status){
+                    onlinePersonjAlert('您的账号在其它设备登录，您已下线，请重新登录！',function(){
+                        $.post('${ctx}/logout', function(result) {
+                            window.location.href='${ctx }/login';
+                        }, 'json');
+                    })
+            	}else{
+            		fn.success(data, textStatus);
+            	}
+            }
+        });
+        return _ajax(opt);
+    };
+});
+
+
+
+function onlinePersonjAlert(msg,fn){
+    var html = '<div class="confirm" style="z-index:999"><div class="confirm-bg"></div><div class="confirm-modal"><p class="confirm-info">'+msg+'</p><div class="confirm-options"><span class="j-button confirm-sure">确认</span></div></div></div>';
+    $('body').append(html);
+    $(document).on('click','.confirm-options .j-button',function(){
+        var confirmButton = $(this);//本this指向当前被点击按钮元素
+        if(confirmButton.hasClass('confirm-sure')){
+            fn();
+        }
+        confirmButton.parents('.confirm').fadeOut(200).remove();
+    });
+}
+</script>

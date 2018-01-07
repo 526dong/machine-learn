@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsExtractTestRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsExtractTestRecord" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="models_extract_info_id" property="modelsExtractInfoId" jdbcType="BIGINT" />
+    <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+    <result column="file_path" property="filePath" jdbcType="VARCHAR" />
+    <result column="file_size" property="fileSize" jdbcType="INTEGER" />
+    <result column="file_type" property="fileType" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="sample_num" property="sampleNum" jdbcType="INTEGER" />
+    <result column="test_type" property="testType" jdbcType="INTEGER" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.ccx.models.model.ModelsExtractTestRecord" extends="BaseResultMap" >
+    <result column="title_value" property="titleValue" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, models_extract_info_id, file_name, file_path, file_size, file_type, description, 
+    sample_num, test_type, del_flag, creater, create_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    title_value
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from models_extract_test_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_extract_test_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsExtractTestRecord" >
+    insert into models_extract_test_record (id, models_extract_info_id, file_name, 
+      file_path, file_size, file_type, 
+      description, sample_num, test_type, 
+      del_flag, creater, create_time, 
+      title_value)
+    values (#{id,jdbcType=BIGINT}, #{modelsExtractInfoId,jdbcType=BIGINT}, #{fileName,jdbcType=VARCHAR}, 
+      #{filePath,jdbcType=VARCHAR}, #{fileSize,jdbcType=INTEGER}, #{fileType,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{sampleNum,jdbcType=INTEGER}, #{testType,jdbcType=INTEGER}, 
+      #{delFlag,jdbcType=INTEGER}, #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{titleValue,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsExtractTestRecord" >
+    insert into models_extract_test_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="modelsExtractInfoId != null" >
+        models_extract_info_id,
+      </if>
+      <if test="fileName != null" >
+        file_name,
+      </if>
+      <if test="filePath != null" >
+        file_path,
+      </if>
+      <if test="fileSize != null" >
+        file_size,
+      </if>
+      <if test="fileType != null" >
+        file_type,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="sampleNum != null" >
+        sample_num,
+      </if>
+      <if test="testType != null" >
+        test_type,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="titleValue != null" >
+        title_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="modelsExtractInfoId != null" >
+        #{modelsExtractInfoId,jdbcType=BIGINT},
+      </if>
+      <if test="fileName != null" >
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null" >
+        #{fileSize,jdbcType=INTEGER},
+      </if>
+      <if test="fileType != null" >
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleNum != null" >
+        #{sampleNum,jdbcType=INTEGER},
+      </if>
+      <if test="testType != null" >
+        #{testType,jdbcType=INTEGER},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="titleValue != null" >
+        #{titleValue,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsExtractTestRecord" >
+    update models_extract_test_record
+    <set >
+      <if test="modelsExtractInfoId != null" >
+        models_extract_info_id = #{modelsExtractInfoId,jdbcType=BIGINT},
+      </if>
+      <if test="fileName != null" >
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        file_path = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null" >
+        file_size = #{fileSize,jdbcType=INTEGER},
+      </if>
+      <if test="fileType != null" >
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="sampleNum != null" >
+        sample_num = #{sampleNum,jdbcType=INTEGER},
+      </if>
+      <if test="testType != null" >
+        test_type = #{testType,jdbcType=INTEGER},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="titleValue != null" >
+        title_value = #{titleValue,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ccx.models.model.ModelsExtractTestRecord" >
+    update models_extract_test_record
+    set models_extract_info_id = #{modelsExtractInfoId,jdbcType=BIGINT},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_path = #{filePath,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=INTEGER},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      sample_num = #{sampleNum,jdbcType=INTEGER},
+      test_type = #{testType,jdbcType=INTEGER},
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      title_value = #{titleValue,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsExtractTestRecord" >
+    update models_extract_test_record
+    set models_extract_info_id = #{modelsExtractInfoId,jdbcType=BIGINT},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_path = #{filePath,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=INTEGER},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      sample_num = #{sampleNum,jdbcType=INTEGER},
+      test_type = #{testType,jdbcType=INTEGER},
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

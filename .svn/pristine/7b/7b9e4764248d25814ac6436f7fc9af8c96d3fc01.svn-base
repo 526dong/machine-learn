@@ -1,0 +1,305 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模型库-模型详情</title>
+    <link rel="stylesheet" href="${ctx}/resources/css/style.css">
+	<script src="${ctx}/resources/js/main.js"></script>
+	<script type="text/javascript">
+	
+		/*页面初始化*/
+	    $(function(){
+	        /*获取企业基本信息*/
+	        getCombaseList();
+	    });
+		
+		//获取企业基本信息
+		function getCombaseList(){
+			var idArr = '${idArr}';
+			var idList = idArr.split(",");
+			var modelNameArr = '${modelNameArr}';
+			var nameList = modelNameArr.split(",");
+			var len = idList.length;
+			for (var i = 0; i < len; i++) {
+				$.ajax({
+	 	            url:"${ctx}/modelsCompared/showComparedDetails",
+		            type:'POST',
+		            data:{
+		            	idList : idList[i]
+		            },
+		            dataType : "json",
+		            async: false,
+		            success:function(data){
+		            	//展示企业基本信息模块
+		                showComBaseList(data.programBasicInfoMap,data.modelDateAnalyMap,
+		                		data.arithmeticIdList,nameList[i]);
+		            	//初始化模型指标评价数据
+		            	showTargetList(data.modelDateEvaluateIndexList,data.arithmeticIdList,nameList[i]);
+		            	//变量重要性排序
+		            	showSortList(data.varImportanceSortList,data.arithmeticIdList,nameList[i]);
+		            }
+		        });
+			}
+			
+		}
+		
+		
+		
+		//展示企业基本信息模块
+		function showComBaseList(data,modelDateAnalyInfoList,arithmeticIdList,nameList){
+			var htmlContent = '';
+			var index = 0;
+			if(null != data && "" != data){
+				 htmlContent += '<tr>';
+                 htmlContent += '<td>'+nameList+'</td>';
+                 htmlContent += '<td>'+data.dataFileName+'</td>';
+                 htmlContent += '<td>'+data.dataSampleNum+'</td>';
+                 htmlContent += '<td>'+data.arithmeticNames+'</td>';
+                 htmlContent += '<td>'+data.modelConf+'</td>';
+
+                 if(null != modelDateAnalyInfoList && modelDateAnalyInfoList.length>0){
+                	 
+                     for(var i = 0; i<arithmeticIdList.length;i++){
+                         for(var j = 0; j<modelDateAnalyInfoList.length;j++){
+                             if(arithmeticIdList[i] == modelDateAnalyInfoList[j].arithmeticId ){
+                                 //类型：0：训练集；1：测试集
+                                 if(modelDateAnalyInfoList[j].type == 0){
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].sampleNum == null ? "" : modelDateAnalyInfoList[j].sampleNum)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].sumDimensionality == null ? "" : modelDateAnalyInfoList[j].sumDimensionality)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].intoDimensionality == null ? "" : modelDateAnalyInfoList[j].intoDimensionality)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].importanceVar == null ? "" : modelDateAnalyInfoList[j].importanceVar)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].plusMinusRate == null ? "" : parseFloat(modelDateAnalyInfoList[j].plusMinusRate).toFixed(4))+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].plusRate == null ? "" : parseFloat((modelDateAnalyInfoList[j].plusRate)*100).toFixed(2)+'%')+'</td>';
+                                     index += 1;
+                                 }
+                                 if(modelDateAnalyInfoList[j].type == 1){
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].sampleNum == null ? "" : modelDateAnalyInfoList[j].sampleNum)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].sumDimensionality == null ? "" : modelDateAnalyInfoList[j].sumDimensionality)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].intoDimensionality == null ? "" : modelDateAnalyInfoList[j].intoDimensionality)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].importanceVar == null ? "" : modelDateAnalyInfoList[j].importanceVar)+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].plusMinusRate == null ? "" : parseFloat(modelDateAnalyInfoList[j].plusMinusRate).toFixed(4))+'</td>';
+                                     htmlContent += '<td>'+(modelDateAnalyInfoList[j].plusRate == null ? "" : parseFloat((modelDateAnalyInfoList[j].plusRate)*100).toFixed(2)+'%')+'</td>';
+                                     index += 1;
+                                 }
+                             }else{
+                            	 if(index == 0 && j == modelDateAnalyInfoList.length-1){
+                            		 htmlContent += '<td></td><td></td><td></td><td></td><td></td><td></td>';
+                                     htmlContent += '<td></td><td></td><td></td><td></td><td></td><td></td>';
+                            	 }
+                             }
+                         }
+                     }
+                 }
+                 htmlContent += '<td>'+data.createTime+'</td>';
+                 htmlContent += '<td>'+data.castTime+'</td>';
+                 htmlContent += '</tr>';
+			}
+			$("#comBaseList").append(htmlContent);
+		}
+		
+		/**
+         * 初始化模型指标评价数据
+         */
+		function showTargetList(modelDateEvaluateIndexList,arithmeticIdList,nameList){
+			var htmlContent = '';
+			var index = 0;
+            if(null != modelDateEvaluateIndexList && modelDateEvaluateIndexList.length>0){
+            	htmlContent += '<tr>';
+            	htmlContent += '<td>'+nameList+'</td>';
+                for(var i = 0; i<arithmeticIdList.length;i++){
+                    
+                    for(var j = 0; j<modelDateEvaluateIndexList.length;j++){
+                        if(arithmeticIdList[i] == modelDateEvaluateIndexList[j].arithmeticId ){
+                            //类型：0：训练集；1：测试集
+                            if(modelDateEvaluateIndexList[j].type == 0){
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].auc == null ? "" : parseFloat(modelDateEvaluateIndexList[j].auc).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].ks == null ? "" : parseFloat(modelDateEvaluateIndexList[j].ks).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].gini == null ? "" : parseFloat(modelDateEvaluateIndexList[j].gini).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].precisions == null ? "" : parseFloat(modelDateEvaluateIndexList[j].precisions).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].recall == null ? "" : parseFloat(modelDateEvaluateIndexList[j].recall).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].f1Score == null ? "" : parseFloat(modelDateEvaluateIndexList[j].f1Score).toFixed(4))+'</td>';
+                                index += 1;
+                            }
+                            if(modelDateEvaluateIndexList[j].type == 1){
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].auc == null ? "" : parseFloat(modelDateEvaluateIndexList[j].auc).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].ks == null ? "" : parseFloat(modelDateEvaluateIndexList[j].ks).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].gini == null ? "" : parseFloat(modelDateEvaluateIndexList[j].gini).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].precisions == null ? "" : parseFloat(modelDateEvaluateIndexList[j].precisions).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].recall == null ? "" : parseFloat(modelDateEvaluateIndexList[j].recall).toFixed(4))+'</td>';
+                                htmlContent += '<td>'+(modelDateEvaluateIndexList[j].f1Score == null ? "" : parseFloat(modelDateEvaluateIndexList[j].f1Score).toFixed(4))+'</td>';
+                                index += 1;
+                            }
+                        }else{
+	                       	 if(index == 0 && j == modelDateEvaluateIndexList.length-1){
+	                    		 htmlContent += '<td></td><td></td><td></td><td></td><td></td><td></td>';
+	                             htmlContent += '<td></td><td></td><td></td><td></td><td></td><td></td>';
+	                    	 }
+	                     }
+                    }
+                }
+                htmlContent += '</tr>';
+            }else{
+            	htmlContent += '<tr><td></td><td></td><td></td><td></td><td></td><td></td>';
+            	htmlContent += '<td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+            }
+            $("#comTargetList").append(htmlContent);
+		}
+		//序号
+		 var int = 0;
+		
+		//变量重要性排序
+		function showSortList(varImportanceSortList,arithmeticIdList,nameList){
+			var htmlContent = '';
+		    if(null != varImportanceSortList && varImportanceSortList.length>0){
+		      
+               for(var i = 0; i<arithmeticIdList.length;i++){
+                  
+                   var htmlContent = '';
+                   for(var j = 0; j<varImportanceSortList.length;j++){
+                       if(arithmeticIdList[i] == varImportanceSortList[j].arithmeticId ){
+                           int += 1;
+                           htmlContent += '<tr>';
+                           htmlContent += '<td>'+nameList+'</td>';
+                           htmlContent += '<td>'+int+'</td>';
+                           htmlContent += '<td>'+(varImportanceSortList[j].varName == null ? "" : varImportanceSortList[j].varName)+'</td>';
+                           htmlContent += '</tr>';
+                       }
+                   }
+               }
+              
+           }else{
+        	   htmlContent += '<tr>';
+               htmlContent += '<td style="text-align:center" colspan="2">暂无数据</td>';
+               htmlContent += '</tr>';
+           }
+		    $("#sortList").append(htmlContent);
+		}
+	</script>
+	
+	
+	
+	
+</head>
+
+<body class="body_bg" >
+<!-- <div id="loader"> -->
+<!--     <div class="cssload-loader">加载中</div> -->
+<!-- </div> -->
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <%--头文件====结束--%>
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+
+
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>模型库</h3>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div class="model-report">
+                <div class="model-base-info">
+                </div>
+            </div>
+            <div class="model-report-details">
+				<div class="model-report-contents">
+					<div class="model-report-content" style="display: block">
+						<div class="module-subtitle">
+							<i></i> <span>基本信息</span>
+						</div>
+						<div class="model-data-overview">
+							<table class="j-table">
+								<thead>
+									<tr>
+										<th>what模型</th>
+										<th>数据表</th>
+										<th>样本量</th>
+										<th>算法</th>
+										<th>模型配置</th>
+										<th>训练集样本量</th>
+										<th>训练模型总维度</th>
+										<th>训练入模维度</th>
+										<th>训练重要变量</th>
+										<th>训练正负样本比</th>
+										<th>训练正样本率</th>
+										<th>测试集样本量</th>
+										<th>测试模型总维度</th>
+										<th>测试入模维度</th>
+										<th>测试重要变量</th>
+										<th>测试正负样本比</th>
+										<th>测试正样本率</th>
+										<th>创建时间</th>
+										<th>训练用时</th>
+									</tr>
+								</thead>
+								<tbody id="comBaseList">
+								</tbody>
+							</table>
+						</div>
+						<div class="module-subtitle">
+							<i></i> <span>模型评价指标</span>
+						</div>
+						<div class="model-data-overview">
+							<table class="j-table">
+								<thead>
+									<tr>
+										<th>what模型</th>
+										<th>AUG</th>
+										<th>KS</th>
+										<th>gini</th>
+										<th>precision</th>
+										<th>recall</th>
+										<th>f1-score</th>
+										<th>AUC</th>
+										<th>KS</th>
+										<th>gini</th>
+										<th>precision</th>
+										<th>recall</th>
+										<th>f1-score</th>
+									</tr>
+								</thead>
+								<tbody id="comTargetList">
+								</tbody>
+							</table>
+						</div>
+						
+						<div class="module-subtitle">
+							<i></i> <span>次序</span>
+						</div>
+						<div class="model-data-overview">
+							<table class="j-table">
+								<thead>
+									<tr>
+										<th>what模型</th>
+										<th>序号</th>
+										<th>变量名称</th>
+									</tr>
+								</thead>
+								<tbody id="sortList">
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+				</div>
+			</div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+
+</body>
+</html>

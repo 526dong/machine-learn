@@ -1,0 +1,219 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>数据文件-数据文件列表</title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    /*页面初始化*/
+    $(function(){
+        /*列表数据*/
+        getData();
+    });
+    /*列表数据*/
+    function getData(){
+        $.ajax({
+            url:"${ctx}/modelsDataFile/findAll",
+            type:'POST',
+            /*data:{
+             "pageNo":pageNo,
+             "pageSize":pageSize,
+             "keyWord":$("#keyWord").val(),//关键字搜索
+             "startDate":$("#startDate").val(),
+             "endDate":$("#endDate").val()
+             },*/
+            async: false,
+            success:function(data){
+                if (200 == data.code) {
+                    $("#dataFileContent").html("");
+                    //ul li
+                    var htmlContent = createLi(data.data);
+                    $("#dataFileContent").html(htmlContent);
+                } else {
+                    /*alert(data.msg);
+                     console.error(data.msg);*/
+                }
+            }
+        });
+    }
+    //数据文件列表
+    function createLi(data){
+        var htmlContent = "";
+        for(var i = 0;i < data.length;i++) {
+            htmlContent += "<li>";
+            htmlContent += "<div class='file-card'>";
+            htmlContent += "<i class='file-card-del' onclick='delFileInfo("+data[i].id+")'></i>";
+            htmlContent += "<div class='file-info'>";
+            htmlContent += "<div class='file-type-icon'></div>";
+            htmlContent += "<div class='file-abstact'>";
+            htmlContent += "<em>" + data[i].name + "</em>";
+            htmlContent += "<div class='file-size-date'><b>" + data[i].size + "</b><i>" + data[i].createDate + "</i></div>";
+            htmlContent += "</div>";
+            htmlContent += "</div>";
+            htmlContent += "<div class='file-desc'>";
+            htmlContent += "<span class='file-desc-label'>描述:</span>";
+            htmlContent += "<div class='file-desc-right'><p>" + data[i].description + "</p><a href='' onclick='fileInfo("+data[i].id+")'>>></a></div>";
+            htmlContent += "</div>";
+            htmlContent += "</div>";
+            htmlContent += "</li>";
+        }
+
+        return htmlContent;
+    }
+    //删除文件信息
+    function delFileInfo(id) {
+        if (isValueNull(id)) {
+            window.location.href = "${ctx}/modelsDataFile/delete?id="+id;
+        } else {
+            console.error("数据文件id为空！")
+        }
+    }
+    //查看详情
+    function fileInfo(id){
+        debugger;
+        if (isValueNull(id)) {
+            window.location.href = "${ctx}/modelsDataFile/fileInfo?id="+id;
+        } else {
+            console.error("数据文件id为空！")
+        }
+    }
+    //判断是否为空
+    function isValueNull(obj) {
+        var flag = true;
+        if (obj == null || obj == "" || obj == undefined) {
+            flag = false;
+        }
+        return flag;
+    }
+    //显示弹框
+    function showAlert(obj) {
+        //遮罩层
+        $("#layer").show();
+        $(obj).show();
+    }
+    //关闭弹框
+    function hideAlert(obj) {
+        //遮罩层
+        $("#layer").hide();
+        $(obj).hide();
+    }
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <div class="header" id="header">
+        <div class="header-content">
+            <a class="header-logo" href="index.html"></a>
+            <a class="logo-name" href="index.html">机器学习平台</a>
+            <div class="header-crtl">
+                <span class="header-crtl-arrow"></span>
+                <ul class="header-crtl-list">
+                    <li>资料一</li>
+                    <li>资料一</li>
+                    <li>退出</li>
+                </ul>
+            </div>
+            <span class="login-name">system user</span>
+        </div>
+    </div>
+    <!-- //header -->
+    <div class="content">
+        <div class="side-nav">
+            <ul>
+                <li>
+                    <div class="side-item selected"><span class="highlight-bar"></span><span class="side-nav-icon"></span><span class="side-nav-name">数据文件</span><span class="side-nav-arrow"></span></div>
+                    <ul class="side-sub-nav" style="display: block;">
+                        <li class="selected"><a href="${ctx}/modelsDataFile/list">文件列表</a></li>
+                        <li><a href="${ctx}/modelsDataFile/findFileInfo">文件详情</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="side-item"><span class="highlight-bar"></span><span class="side-nav-icon"></span><span class="side-nav-name">实验室</span><span class="side-nav-arrow"></span></div>
+                    <ul class="side-sub-nav">
+                        <li><a href="">文件列表</a></li>
+                        <li><a href="">文件列表</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="side-item"><span class="highlight-bar"></span><span class="side-nav-icon"></span><span class="side-nav-name">模型库</span><span class="side-nav-arrow"></span></div>
+                    <ul class="side-sub-nav">
+                        <li><a href="">文件列表</a></li>
+                        <li><a href="">文件列表</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="side-item"><span class="highlight-bar"></span><span class="side-nav-icon"></span><span class="side-nav-name">开发者</span><span class="side-nav-arrow"></span></div>
+                    <ul class="side-sub-nav">
+                        <li><a href="">文件列表</a></li>
+                        <li><a href="">文件列表</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>数据文件</h3>
+                    <p>文件列表</p>
+                </div>
+                <!-- //page-title -->
+                <div class="query-box">
+                    <div class="srch-box">
+                        <i class="input-enter-icon"></i>
+                        <input class="j-input srch-ipt" type="text">
+                        <div class="srch-match">
+                            <ul >
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a class="j-button import-file" onclick="importDataFile();">
+                        <i class="add-file-icon"></i>
+                        <span>导入</span>
+                    </a>
+                </div>
+                <!-- //query-box -->
+            </div>
+            <!-- //main-header -->
+            <div class="file-list">
+                <ul id="dataFileContent">
+                    <%--<li>
+                        <div class="file-card">
+                            <i class="file-card-del"></i>
+                            <div class="file-info">
+                                <div class="file-type-icon"></div>
+                                <div class="file-abstact">
+                                    <em>评分卡标准化数据</em>
+                                    <div class="file-size-date"><b>100,000,000</b><i>2017/11/18</i></div>
+                                </div>
+                            </div>
+                            <div class="file-desc">
+                                <span class="file-desc-label">描述:</span>
+                                <div class="file-desc-right"><p>
+                                    该文件为10月份申请人标准化数据，计划用于申请评...
+                                </p><a href="">>></a></div>
+                            </div>
+                        </div>
+                    </li>--%>
+                </ul>
+            </div>
+            <!-- file-list -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+</body>
+</html>

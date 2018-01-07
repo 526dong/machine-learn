@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.datafile.GetFileValueMapper" >
+  <resultMap id="DataFileResultMap" type="com.ccx.models.model.datafile.ModelsDataFile" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="size" property="size" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_delete_flag" property="deleteFlag" jdbcType="TINYINT" />
+  </resultMap>
+
+  <resultMap id="FileInfoResultMap" type="com.ccx.models.model.datafile.ModelsFileInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="file_id" property="fileId" jdbcType="INTEGER" />
+  </resultMap>
+
+  <resultMap id="FileValueResultMap" type="com.ccx.models.model.datafile.ModelsFileValue" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="value" property="value" jdbcType="DOUBLE" />
+    <result column="file_info_id" property="fileInfoId" jdbcType="INTEGER" />
+    <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_delete_flag" property="deleteFlag" jdbcType="TINYINT" />
+  </resultMap>
+
+  <sql id="DataFile_Column_List" >
+    id, name, size, type, file_url, description, creator_name, create_date, is_delete_flag
+  </sql>
+
+  <sql id="FileInfo_Column_List" >
+    id, name, type, file_id
+  </sql>
+
+  <sql id="FileValue_Column_List" >
+    id, value, file_info_id, creator_name, create_date, is_delete_flag
+  </sql>
+
+  <!--通过id查询文件信息-->
+  <select id="findById" resultMap="DataFileResultMap" parameterType="java.lang.Integer">
+    select
+    <include refid="DataFile_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+    and id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <!--通过数据文件id查询文件中变量的值-->
+  <select id="findFileInfoByDataFileId" resultMap="FileInfoResultMap" parameterType="java.lang.Integer">
+    select
+    <include refid="FileInfo_Column_List" />
+    from models_file_info
+    where file_id = #{dataFileId,jdbcType=INTEGER}
+  </select>
+
+  <!--通过文件id获取文件中变量以及变量值-->
+  <select id="findFileValueByDataFileId" resultMap="FileValueResultMap" parameterType="java.lang.Integer">
+    SELECT b.*
+    FROM models_file_info a, models_file_value b
+    WHERE a.id = b.file_info_id
+    AND a.file_id = #{dataFileId,jdbcType=INTEGER}
+    ORDER BY a.id
+  </select>
+</mapper>

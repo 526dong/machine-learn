@@ -1,0 +1,27 @@
+#������֤��
+#credit_risk_sendsms_account=wxfy-neibu-api
+#credit_risk_sendsms_privateKey=94a17533217e6893
+credit_risk_sendsms_account=xinyongfengxian
+credit_risk_sendsms_privateKey=2b61b261d76b4d659ba4033cb9bd9103
+credit_risk_sendSms_url=http://192.168.100.111:7080/data-service/sms/general
+credit_risk_sendSms_count=50
+credit_risk_sendSms_SeriesErrcount=10
+credit_risk_pw_seriesErr_count=5
+
+#analy_template_temporary_path = C:/mnt/nfs/ccx_risk-crm/export/financialAnalytemplate/temporary/excel/
+#model_excel_save_dir=E://data//model.xlsx
+model_excel_save_dir=/data/risk_crm_data/model.xlsx
+financial_analy_template_temporary_path = /data/risk_crm_data/analy/temporary/excel/
+
+#正式
+#data_file_store_path =/data/model/filedata/
+#model_user_fileBasePath=/data/model/
+#model_config_path=/ccxMLogE/conf/
+#model.http.url=http://127.0.0.1:6060/ccxModelApi
+
+#测试
+data_file_store_path =/data/model/filedata/
+model_user_fileBasePath=d:/data/model/
+model_config_path=d:/data/model/conf/
+model.http.url=http://10.0.5.32:6060/ccxModelApi
+model.http.contract.url=http://10.0.5.32:6060/ccxModelApi/predict

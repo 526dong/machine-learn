@@ -1,0 +1,178 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模型库-模型对比列表</title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    /*页面初始化*/
+    $(function(){
+        /*列表数据*/
+        getData();
+    });
+
+    /*列表数据*/
+    function getData(){
+        $.ajax({
+            url:"${ctx}/modelsLibrary/getModelsList",
+            type:'POST',
+            data:{
+                "keyWord":"",//关键字搜索
+                "pageSize":12,//每页展示数
+                "pageNum":$("#currentPage").val(),//当前页
+            },
+            async: false,
+            success:function(data){
+                if (200 == data.code) {
+                    var modelList = data.data;
+
+                    var htmlContent = createTable(modelList.list);
+                    $("#modelListContent").html(htmlContent);
+                    var pageStr = createPage(modelList.total, modelList.pageNum,modelList.pages);
+                    $("#pageDiv").html(pageStr);
+                } else {
+                    jAlert(data.msg);
+                }
+            }
+        });
+    }
+    //数据模型列表
+    function createTable(data){
+        var htmlContent = "";
+        for(var i = 0;i < data.length;i++) {
+            htmlContent += "<li>";
+            htmlContent += "<div class='file-card'>";
+            htmlContent += "<input type='checkbox'"
+            	+" id='"+(data[i].id)+"' name='"+data[i].modelName+"' onclick='addThisId(this);'/>";
+            htmlContent += "<div class='file-info'>";
+            htmlContent += "<div class='file-abstact'>";
+
+            if (!isValueNull(data[i].modelName)) {
+                htmlContent += "<em></em>";
+            } else {
+                var modelName = data[i].modelName;
+                if(modelName.length>8){
+                    modelName = modelName.substring(0,8)+"...";
+                }
+                htmlContent += "<em title='"+data[i].modelName+"' >"+modelName+"</em>"
+            }
+
+            htmlContent += "<i>" + (data[i].createTimeStr == null ? '' : data[i].createTimeStr) + "</i>";
+            htmlContent += "<div class='file-size-date'><b>所属项目</b>";
+            if (!isValueNull(data[i].programName)) {
+                htmlContent += "<i></i>";
+            } else {
+                var programName = data[i].programName;
+                if(programName.length>14){
+                    programName = programName.substring(0,14)+"...";
+                }
+                htmlContent += "<i title='"+data[i].programName+"'>"+programName+"</i>";
+            }
+            htmlContent += "</div></div></div></div></li>";
+        }
+
+        return htmlContent;
+    }
+
+    //判断是否为空
+    function isValueNull(obj) {
+        var flag = true;
+        if (obj == null || obj == "" || obj == undefined) {
+            flag = false;
+        }
+        return flag;
+    }
+
+    //分页跳转
+    function jumpToPage(curPage){
+        if(typeof(curPage) != "undefined"){
+            $("#currentPage").val(curPage);
+        }else{
+            $("#currentPage").val(1);
+        }
+        //查询
+        getData();
+    }
+    var idArr = new Array();//id集合
+    var modelNameArr = new Array();//项目名字集合
+    
+    function addThisId(obj){
+  		if(obj.checked){
+	   		idArr.push(obj.id);
+	   		modelNameArr.push(obj.name);
+	      	}else{
+	      		//checkbox取消选择移除当前项
+	      		for (var i = 0; i < idArr.length; i++) {
+				if(idArr[i] == obj.id){
+					idArr.splice(i,1);
+					modelNameArr.splice(i,1);
+				}
+			}
+      	}
+    	
+    }
+    
+  	//全选操作
+	function checkedAll() {
+		var len = idArr.length;
+    	if(len <= 5){
+    		if(len != 0){
+    			window.location.href = "${ctx}/modelsCompared/toComparedDetailsPage?idArr="+idArr+"&modelNameArr="+modelNameArr;
+    		}else{
+    			jAlert("您尚未选择，请选择模型进行对比");
+    		}
+    	}else{
+    		jAlert("模型最多可选择5条进行对比，请检查！");
+    	}
+		
+	}
+  
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>模型库</h3>
+                    <p>模型对比列表</p>
+                    <p onclick="checkedAll();">开始对比</p>
+                </div>
+                <!-- //page-title -->
+                
+            </div>
+            <!-- //main-header -->
+            <div class="file-list">
+                <ul id="modelListContent">
+
+                </ul>
+            </div>
+            <!-- file-list -->
+            <!-- 分页.html start -->
+            <input type="hidden" id="currentPage" name="currentPage" value="1"/>
+            <%@ include file="../commons/tabPage.jsp"%>
+            <!-- 分页.html end -->
+            <!-- file-list -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+
+</body>
+</html>

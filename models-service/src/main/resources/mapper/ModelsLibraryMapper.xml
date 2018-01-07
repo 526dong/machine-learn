@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.modelsLibrary.ModelsLibraryMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsExtract" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="program_name" property="programName" jdbcType="VARCHAR" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="arithmetic_name" property="arithmeticName" jdbcType="VARCHAR" />
+    <result column="model_name" property="modelName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="model_path" property="modelPath" jdbcType="VARCHAR" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, program_id, program_name, data_file_id, arithmetic_id, arithmetic_name, model_name, description, model_path, del_flag, creater, create_time
+  </sql>
+
+    <!-- 根据模型name获取模型list -->
+    <select id="getModelsExtractListByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+      <include refid="Base_Column_List" />
+    from models_extract_info
+    where del_flag = 0 AND model_name = #{modelName,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 通过模型项目id和算法id查找模型list -->
+    <select id="getModelsExtractListById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from models_extract_info
+        where
+          del_flag = 0
+          AND program_id = #{programId,jdbcType=BIGINT}
+          AND arithmetic_id = #{arithmeticId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 保存模型信息 -->
+    <insert id="saveModelsExtract" parameterType="com.ccx.models.model.ModelsExtract" >
+        insert into models_extract_info
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="programId != null" >
+                program_id,
+            </if>
+            <if test="programName != null" >
+                program_name,
+            </if>
+            <if test="dataFileId != null" >
+                data_file_id,
+            </if>
+            <if test="arithmeticId != null" >
+                arithmetic_id,
+            </if>
+            <if test="arithmeticName != null" >
+                arithmetic_name,
+            </if>
+            <if test="modelName != null" >
+                model_name,
+            </if>
+            <if test="description != null" >
+                description,
+            </if>
+            <if test="modelPath != null" >
+                model_path,
+            </if>
+            <if test="delFlag != null" >
+                del_flag,
+            </if>
+            <if test="creater != null" >
+                creater,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="programId != null" >
+                #{programId,jdbcType=BIGINT},
+            </if>
+            <if test="programName != null" >
+                #{programName,jdbcType=VARCHAR},
+            </if>
+            <if test="dataFileId != null" >
+                #{dataFileId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticId != null" >
+                #{arithmeticId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticName != null" >
+                #{arithmeticName,jdbcType=VARCHAR},
+            </if>
+            <if test="modelName != null" >
+                #{modelName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="modelPath != null" >
+                #{modelPath,jdbcType=VARCHAR},
+            </if>
+            <if test="delFlag != null" >
+                #{delFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creater != null" >
+                #{creater,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!--分页查询模型列表-->
+    <select id="getModelsPageList" parameterType="map" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" /> from models_extract_info
+        where
+        del_flag = 0
+        <if test="null != keyWord and '' != keyWord" >
+            and (model_name like CONCAT('%',#{keyWord},'%') or program_name like CONCAT('%',#{keyWord},'%'))
+        </if>
+        <if test="null != roleType and '' != roleType">
+            and creater = #{roleType, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!--查询所有数据-->
+    <select id="getModelsAllList"  resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" /> from models_extract_info
+        where del_flag = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!--更新模型信息模型-->
+    <update id="updateModelById" parameterType="com.ccx.models.model.ModelsExtract" >
+        update models_extract_info
+        <set >
+            <if test="programId != null" >
+                program_id = #{programId,jdbcType=BIGINT},
+            </if>
+            <if test="programName != null" >
+                program_name = #{programName,jdbcType=VARCHAR},
+            </if>
+            <if test="dataFileId != null" >
+                data_file_id = #{dataFileId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticId != null" >
+                arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticName != null" >
+                arithmetic_name = #{arithmeticName,jdbcType=VARCHAR},
+            </if>
+            <if test="modelName != null" >
+                model_name = #{modelName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="modelPath != null" >
+                model_path = #{modelPath,jdbcType=VARCHAR},
+            </if>
+            <if test="delFlag != null" >
+                del_flag = #{delFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creater != null" >
+                creater = #{creater,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 通过id获取模型基本信息 -->
+    <select id="getModelById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from models_extract_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 获取模型测试记录列表 -->
+    <select id="getModelTestRecordList" resultType="com.ccx.models.model.ModelsExtractTestRecord" parameterType="java.lang.Long" >
+        select
+        id, models_extract_info_id, file_name, file_path, file_size, file_type, description,
+        sample_num, test_type, del_flag, creater, create_time
+        from models_extract_test_record
+        where
+        del_flag = 0
+        <if test="null != modelId and '' != modelId">
+            and models_extract_info_id = #{modelId, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据模型id获取Score分组详情list -->
+    <select id="getModelTestLineListById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            models_extract_test_record_id modelRecordId,
+            bins_score binsScore,
+            good,
+            bad,
+            total,
+            factor,
+            iv,
+            bad_per badPer,
+            model_pvalue modelPvalue,
+            creater,
+            create_time,
+            model_data_name modelDataName
+        FROM
+            models_extract_score_group_statistics
+        WHERE
+            models_extract_test_record_id = #{modelRecordId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 据模型id获取获取有监督测试结果数据List -->
+    <select id="getModelTestYesResultDataList" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            index_name indexName,
+            predict_prob predictProb,
+            actual_prob actualProb,
+            row_value rowValue
+        FROM
+            (
+                SELECT
+                    'id' index_name,
+                    '预测结果' predict_prob,
+                    '实际结果' actual_prob,
+                    title_value row_value
+                FROM
+                    models_extract_test_record
+                WHERE
+                    id = #{modelRecordId,jdbcType=INTEGER}
+                UNION ALL
+                    SELECT
+                        b.index_name,
+                        CAST(c.predict_prob AS CHAR) predict_prob,
+                        CAST(c.actual_prob AS CHAR) actual_prob,
+                        b.row_value row_value
+                    FROM
+                        models_extract_import_row_value b,
+                        models_extract_target_value c
+                    WHERE
+                        c.id = b.id
+                    AND b.models_extract_test_record_id = #{modelRecordId,jdbcType=INTEGER}
+                    LIMIT 10
+        ) t
+    </select>
+
+    <!-- 根据模型id和测试类型和下载类型获取下载url -->
+    <select id="getDownloadUrlById" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+            id,
+            models_extract_test_record_id modelRecordId,
+            type,
+            file_path filePath,
+            create_time
+        FROM
+            models_extract_out_path
+        WHERE
+            models_extract_test_record_id = #{modelRecordId,jdbcType=INTEGER}
+            AND type = #{type,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据模型测试记录id获取获取基本信息 -->
+    <select id="getModelComparisonBasicData" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+            t1.arithmetic_name arithmeticName,
+            CASE
+            WHEN t2.model_conf = 0 THEN
+                '演示'
+            WHEN t2.model_conf = 1 THEN
+                '快速'
+            WHEN t2.model_conf = 2 THEN
+                '精确'
+            WHEN t2.model_conf = 3 THEN
+                '高可靠'
+            ELSE
+                ''
+            END modelConf,
+            t2.data_file_name dataFileName1,
+            t2.data_file_name dataFileName2,
+            t3.file_name dataFileName3,
+            t5.sample_num yangbenliang1,
+            t6.sample_num yangbenliang2,
+            t5.sum_dimensionality zongweidu1,
+            t6.sum_dimensionality zongweidu2,
+            t5.into_dimensionality rumoweidu1,
+            t6.into_dimensionality rumoweidu2,
+            t5.importance_var zhongyaobianliang1,
+            t6.importance_var zhongyaobianliang2,
+            t5.plus_minus_rate zhengfuyangbenbi1,
+            t6.plus_minus_rate zhengfuyangbenbi2,
+            t5.plus_rate zhnegfuyangbenlv1,
+            t6.plus_rate zhnegfuyangbenlv2,
+            t4.sample_num yangbenliang3,
+            t4.sum_dimensionality zongweidu3,
+            t4.into_dimensionality rumoweidu3,
+            t6.importance_var zhongyaobianliang3,
+            t4.plus_minus_rate zhengfuyangbenbi3,
+            t4.plus_rate zhnegfuyangbenlv3
+        FROM
+            models_extract_info t1
+        LEFT JOIN models_program t2 on t1.program_id=t2.id
+        LEFT JOIN models_extract_test_record t3 on t1.id=t3.models_extract_info_id
+        LEFT JOIN models_extract_data_analy_info t4 on t3.id=t4.models_extract_test_record_id
+        LEFT JOIN models_model_data_analy_info t5 on t1.program_id=t5.program_id AND t1.arithmetic_id=t5.arithmetic_id AND t5.type=0
+        LEFT JOIN models_model_data_analy_info t6 on t1.program_id=t6.program_id AND t1.arithmetic_id=t6.arithmetic_id AND t6.type=1
+        WHERE
+            t3.id = #{testRecordId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据模型测试记录id获取获取评价指标信息 -->
+    <select id="getModelDateEvaluateData" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+            t3.auc auc1,
+            t3.ks ks1,
+            t3.gini gini1,
+            t3.precisions precisions1,
+            t3.recall recall1,
+            t3.f1_score f1Score1,
+            t3.support support1,
+            t4.auc auc2,
+            t4.ks ks2,
+            t4.gini gini2,
+            t4.precisions precisions2,
+            t4.recall recall2,
+            t4.f1_score f1Score2,
+            t4.support support2,
+            t5.auc auc3,
+            t5.ks ks3,
+            t5.gini gini3,
+            t5.precisions precisions3,
+            t5.recall recall3,
+            t5.f1_score f1Score3,
+            t5.support support3
+        FROM
+            models_extract_info t1
+        LEFT JOIN models_extract_test_record t2 ON t1.id = t2.models_extract_info_id
+        LEFT JOIN models_model_data_evaluate_index t3 ON t1.program_id = t3.program_id AND t1.arithmetic_id = t3.arithmetic_id AND t3.type = 0
+        LEFT JOIN models_model_data_evaluate_index t4 ON t1.program_id = t4.program_id AND t1.arithmetic_id = t4.arithmetic_id AND t4.type = 1
+        LEFT JOIN models_extract_data_evaluate_index t5 ON t2.id = t5.models_extract_test_record_id
+        WHERE t2.id = #{testRecordId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据模型测试记录id获取变量重要性排序list -->
+    <select id="getModelVarImportanceSortList" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            t1.id,
+            t1.arithmetic_id arithmeticId,
+            t1.data_file_id dataFileId,
+            t1.field_id fieldId,
+            t1.var_name varName,
+            t1.gain,
+            t1.pct_importance pctImportance,
+            t1.create_time
+        FROM
+            models_important_count t1
+            LEFT JOIN models_extract_info t2 ON t2.program_id = t1.field_id
+            LEFT JOIN models_extract_test_record t3 ON t2.id = t3.models_extract_info_id
+        WHERE
+            t3.id = #{testRecordId,jdbcType=INTEGER}
+        ORDER BY
+            pct_importance DESC
+        LIMIT 20
+    </select>
+
+    <insert id="insertModelsExtractOutPath" parameterType="com.ccx.models.model.ModelsExtractOutPath" >
+        insert into models_extract_out_path (models_extract_test_record_id, type,
+        file_path, create_time)
+        values (#{modelsExtractTestRecordId,jdbcType=BIGINT}, #{type,jdbcType=TINYINT},
+        #{filePath,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+
+    <insert id="insertDataAnalyInfo" parameterType="com.ccx.models.model.ModelsExtractDataAnalyInfo" >
+        insert into models_extract_data_analy_info (type, sample_num,
+      sum_dimensionality, into_dimensionality,
+      importance_var, plus_minus_rate, plus_rate,
+      models_extract_test_record_id,
+      creater, create_time)
+    values (#{type,jdbcType=INTEGER}, #{sampleNum,jdbcType=DECIMAL},
+      #{sumDimensionality,jdbcType=DECIMAL}, #{intoDimensionality,jdbcType=DECIMAL},
+      #{importanceVar,jdbcType=DECIMAL}, #{plusMinusRate,jdbcType=DECIMAL}, #{plusRate,jdbcType=DECIMAL},
+      #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertDataEvaluateIndex" parameterType="com.ccx.models.model.ModelsExtractDataEvaluateIndex" >
+        insert into models_extract_data_evaluate_index (type, auc,
+      ks, precisions, recall,
+      f1_score, support, gini,
+      models_extract_test_record_id,
+      creater, create_time)
+    values (#{type,jdbcType=INTEGER}, #{auc,jdbcType=DECIMAL},
+      #{ks,jdbcType=DECIMAL}, #{precisions,jdbcType=DECIMAL}, #{recall,jdbcType=DECIMAL},
+      #{f1Score,jdbcType=DECIMAL}, #{support,jdbcType=DECIMAL}, #{gini,jdbcType=DECIMAL},
+      #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertScoreGroupStatistics" parameterType="java.util.List" >
+        insert into models_extract_score_group_statistics (models_extract_test_record_id, bins_score,
+        good, bad, total, factor,
+        iv, bad_per, model_pvalue,
+        creater, create_time, model_data_name
+        )
+        values
+        <foreach collection="list" item="bean" index="index" separator =",">
+            (#{bean.modelsExtractTestRecordId,jdbcType=BIGINT}, #{bean.binsScore,jdbcType=VARCHAR},
+            #{bean.good,jdbcType=DECIMAL}, #{bean.bad,jdbcType=DECIMAL}, #{bean.total,jdbcType=DECIMAL}, #{bean.factor,jdbcType=DECIMAL},
+            #{bean.iv,jdbcType=DECIMAL}, #{bean.badPer,jdbcType=DECIMAL}, #{bean.modelPvalue,jdbcType=DECIMAL},
+            #{bean.creater,jdbcType=VARCHAR}, #{bean.createTime,jdbcType=TIMESTAMP}, #{bean.modelDataName,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+
+</mapper>

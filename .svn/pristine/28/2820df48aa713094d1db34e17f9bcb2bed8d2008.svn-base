@@ -1,0 +1,162 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: zhaotm
+  Date: 2017/11/21
+  Time: 11:34
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>实验室-创建项目 </title>
+    <link type="text/css" href="${ctx}/resources/css/base.css" rel="stylesheet" />
+    <link type="text/css" href="${ctx}/resources/css/common.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/common.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            findProgram(1);
+        });
+
+        //
+        function jumpToPage(pageNo) {
+            findProgram(pageNo);
+        }
+
+        //查modelajax
+        function findProgram(pageNo) {
+            $.ajax({
+                url:"${ctx}/program/indexList",
+                type:"POST",
+                dataType:"json",
+                data: {
+                    pageSize: $("#pageSize").val(),//每页展示数
+                    pageNum: $("#currentPage").val(),//当前页
+                },
+                success:function (data) {
+                    if (200 == data.code) {
+                        var page = data.data;
+                        var rows = page.list;
+                        var pageNo = page.pageNum;
+                        var pageSize = page.pageSize;
+                        var totalPage = page.pages;
+
+                        $("#programContent").html("");
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            var tr = "<tr>";
+                            var status = row.status;
+                            var statusShow = status == 0? '未执行' : (status == 1? '计算中' : "完成");
+
+                            tr += "<td>"+(i+1+(pageNo-1)*pageSize)+"</td>";
+                            tr += "<td>"+row.name+"</td>";
+                            tr += "<td>"+row.dataFileName+"</td>";
+                            tr += "<td>"+row.dataSampleNum+"</td>";
+                            tr += "<td>"+row.arithmeticNames+"</td>";
+                            if (2 == status) {
+                                tr += "<td>"+row.castTime+"</td>";
+                            } else {
+                                tr += "<td></td>";
+                            }
+                            tr += "<td>"+row.createTimeStr+"</td>";
+                            tr += "<td>"+statusShow+"</td>";
+                            tr += "<td class='module_operate'>";
+                            tr += "<a class='operate_a3 delete_btn' title='删除' href='javascript:;' onclick='del("+row.id+");'></a>";
+                            tr += "</td>";
+                            tr += "</tr>";
+                            $("#programContent").append(tr);
+                        }
+
+                        if (0 ==rows.length) {
+                            $("#programContent").append('<tr><td colspan="7">暂无数据</td></tr>');
+                        }
+                        var pageStr = createPage(page.total, pageNo, totalPage);
+                        $("#page_p").html(pageStr);
+
+                    } else {
+                        alert("加载失败！")
+                    }
+                }
+            });
+        }
+
+        //删除
+        function del(id) {
+            confirm("你真的要删除项目项目么？", function () {
+                $.ajax({
+                    url: "${ctx}/program/del",
+                    type: "POST",
+                    dataType: "json",
+                    data: {"id": id},
+                    success: function (data) {
+                        if (200 == data.code) {
+                            alert("删除成功！", "${ctx}/businessMng/modelIndex")
+                        } else {
+                            alert("删除失败！")
+                        }
+                    }
+                })
+            });
+        }
+    </script>
+</head>
+<body class="body_bg">
+<div class="main">
+    <!--页面头部 start -->
+    <%@ include file="../commons/topHead.jsp"%>
+    <!--页面头部 end -->
+    <!-- center.html start -->
+    <div class="main_center">
+        <!--页面左侧导航栏 start -->
+        <%@ include file="../commons/leftNavigation.jsp"%>
+        <!-- 页面左侧导航栏 end -->
+
+        <!-- 右侧内容.html start -->
+        <div class="right_content">
+            <h3 class="place_title">
+                <span>当前位置：</span>
+                <a href="javascript:void(0);">实验室</a>
+                <span>></span>
+                <a href="javascript:void(0);">项目库</a>
+            </h3>
+            <div class="module_box">
+                <div class="module_search">
+                    <div class="fr assets_btn">
+                        <a href="${ctx}/program/addOrEdit?id=-1" class="bodyInfoUpdata">新增项目</a>
+                    </div>
+                </div>
+                <form>
+                    <div class="module_table">
+                        <table class="module_table">
+                            <thead>
+                            <table class="table_list">
+                                <tr>
+                                    <th class="table_width50">序号</th>
+                                    <th>项目名称</th>
+                                    <th>数据表</th>
+                                    <th>样本量</th>
+                                    <th>算法</th>
+                                    <th>用时</th>
+                                    <th>创建时间</th>
+                                    <th>状态</th>
+                                    <th class="table_width90">操作</th>
+                                </tr>
+                                <tbody id="programContent" class="tbody_tr"></tbody>
+                            </table>
+                        </table>
+                    </div>
+                <!-- 分页.html start -->
+                <input id="currentPage" name="currentPage" style="display: none;" type="text">
+                <%@ include file="../commons/tabPage.jsp"%>
+                <!-- 分页.html end -->
+                </form>
+            </div>
+        </div>
+        <!-- 右侧内容.html end -->
+    </div>
+    <!-- center.html end -->
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+package com.ccx.models.service.impl.datafile;
+
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.model.datafile.ModelsFileValue;
+
+import java.util.List;
+
+/**
+ * @author Created by xzd on 2017/11/22.
+ * @Description 公共方法获取文件数据
+ */
+public class CommonFileValue {
+    //数据文件信息
+    public static class DataFile {
+        private ModelsDataFile dataFile;
+
+        private List<FileInfo> fileInfoList;
+
+        public ModelsDataFile getDataFile() {
+            return dataFile;
+        }
+
+        public void setDataFile(ModelsDataFile dataFile) {
+            this.dataFile = dataFile;
+        }
+
+        public List<FileInfo> getFileInfoList() {
+            return fileInfoList;
+        }
+
+        public void setFileInfoList(List<FileInfo> fileInfoList) {
+            this.fileInfoList = fileInfoList;
+        }
+    }
+
+    //数据文件中变量信息
+    public static class FileInfo {
+        private ModelsFileInfo fileInfo;
+
+        private List<FileValue> fileValueList;
+
+        public ModelsFileInfo getFileInfo() {
+            return fileInfo;
+        }
+
+        public void setFileInfo(ModelsFileInfo fileInfo) {
+            this.fileInfo = fileInfo;
+        }
+
+        public List<FileValue> getFileValueList() {
+            return fileValueList;
+        }
+
+        public void setFileValueList(List<FileValue> fileValueList) {
+            this.fileValueList = fileValueList;
+        }
+    }
+
+    //数据文件中变量值
+    public static class FileValue {
+        private ModelsFileValue fileValue;
+
+        public ModelsFileValue getFileValue() {
+            return fileValue;
+        }
+
+        public void setFileValue(ModelsFileValue fileValue) {
+            this.fileValue = fileValue;
+        }
+    }
+}

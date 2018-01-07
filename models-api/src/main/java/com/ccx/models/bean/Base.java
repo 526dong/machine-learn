@@ -1,0 +1,163 @@
+package com.ccx.models.bean;
+
+/**
+ * @Description:基础信息表
+ * @author:lilong
+ * @Date: 2017/11/22
+ */
+public  class Base {
+    //项目Id
+    private Integer pId;
+
+    //项目名称
+    private String programName;
+
+    //数据文件路径
+    private String fileUrl;
+
+    //数据文件类型
+    private String fileType;
+
+    //编码类型(utf-8/gbk)
+    private String codeType;
+
+    //文件分隔符
+    private String fielDelimiter;
+
+    //缺失值
+    private String nullValue;
+
+    //数据文件行数
+    private Integer length;
+
+    //数据标记targetName;
+    private String targetName;
+
+    //数据标记indexName;
+    private String indexName;
+
+    //算法(Xgbost、RF、GBM)
+    private String arithmetic;
+
+    //模型配置
+    private String modelConf;
+    public Base() {
+    }
+
+    public Base(Integer pId, String programName,  Integer length, String arithmetic) {
+        this.pId = pId;
+        this.programName = programName;
+        this.length = length;
+        this.arithmetic = arithmetic;
+    }
+    public Base(Integer pId, String programName, String fileUrl, String fileType, String codeType, String fielDelimiter, String nullValue, Integer length, String targetName, String indexName, String arithmetic) {
+        this.pId = pId;
+        this.programName = programName;
+        this.fileUrl = fileUrl;
+        this.fileType = fileType;
+        this.codeType = codeType;
+        this.fielDelimiter = fielDelimiter;
+        this.nullValue = nullValue;
+        this.length = length;
+        this.targetName = targetName;
+        this.indexName = indexName;
+        this.arithmetic = arithmetic;
+    }
+
+    public String getModelConf() {
+        return modelConf;
+    }
+
+    public void setModelConf(String modelConf) {
+        this.modelConf = modelConf;
+    }
+
+    public Integer getpId() {
+        return pId;
+    }
+
+    public void setpId(Integer pId) {
+        this.pId = pId;
+    }
+
+    public String getProgramName() {
+        return programName;
+    }
+
+    public void setProgramName(String programName) {
+        this.programName = programName;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+
+    public String getArithmetic() {
+        return arithmetic;
+    }
+
+    public void setArithmetic(String arithmetic) {
+        this.arithmetic = arithmetic;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    public String getCodeType() {
+        return codeType;
+    }
+
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
+    }
+
+    public String getFielDelimiter() {
+        return fielDelimiter;
+    }
+
+    public void setFielDelimiter(String fielDelimiter) {
+        this.fielDelimiter = fielDelimiter;
+    }
+
+    public String getNullValue() {
+        return nullValue;
+    }
+
+    public void setNullValue(String nullValue) {
+        this.nullValue = nullValue;
+    }
+
+}

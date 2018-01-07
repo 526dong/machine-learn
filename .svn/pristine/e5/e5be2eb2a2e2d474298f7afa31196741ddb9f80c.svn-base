@@ -1,0 +1,60 @@
+package com.ccx.models.bean;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/12/12
+ */
+public class ExtractOutBean {
+
+    private  String reqId;
+
+    private String modelreqId;
+
+    private String modelPath;
+
+    private Base base;
+
+
+    public ExtractOutBean() {
+    }
+
+    public ExtractOutBean(String reqId, String modelreqId, String modelPath, Base base) {
+        this.reqId = reqId;
+        this.modelreqId = modelreqId;
+        this.modelPath = modelPath;
+        this.base = base;
+    }
+
+    public String getReqId() {
+        return reqId;
+    }
+
+    public void setReqId(String reqId) {
+        this.reqId = reqId;
+    }
+
+    public String getModelreqId() {
+        return modelreqId;
+    }
+
+    public void setModelreqId(String modelreqId) {
+        this.modelreqId = modelreqId;
+    }
+
+    public String getModelPath() {
+        return modelPath;
+    }
+
+    public void setModelPath(String modelPath) {
+        this.modelPath = modelPath;
+    }
+
+    public void setBase(Base base) {
+        this.base = base;
+    }
+
+    public Base getBase() {
+        return base;
+    }
+}

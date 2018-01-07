@@ -1,0 +1,221 @@
+package com.ccx.models.laboratory;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.laboratory.ModelsReportApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.util.ListAverageAssign;
+import com.ccx.models.util.UsedUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsReport")
+public class ModelsReportController extends BaseController {
+
+	private static Logger logger = LogManager.getLogger(ModelsReportController.class);
+
+	@Autowired
+	private ModelsReportApi modelsReportApi;
+
+	//曲线横坐标取点个数
+	private static int ABSCISSA = 100;
+
+	/**
+	 * 跳转到模型报告页面
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/toModelsReportPage")
+	public String toModelsReportPage(HttpServletRequest request){
+		Long programId = (long) Integer.parseInt(request.getParameter("programId"));
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+		//根据项目id获取项目基本信息
+		LinkedHashMap<String,Object> programBasicInfoMap = new LinkedHashMap<String,Object>();
+		//根据项目id获取模型数据分析结果list
+		List<LinkedHashMap<String,Object>> modelDateAnalyInfoList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取模型数据评价指标list
+		List<LinkedHashMap<String,Object>> modelDateEvaluateIndexList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据数据文件id获取变量重要性排序list
+		List<LinkedHashMap<String,Object>> varImportanceSortList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取Score分组详情list
+		List<LinkedHashMap<String,Object>> scoreGroupList = new ArrayList<LinkedHashMap<String,Object>>();
+		//根据项目id获取概率分箱list
+		List<LinkedHashMap<String,Object>> probabilityBinningList = new ArrayList<LinkedHashMap<String,Object>>();
+		//该项目采用算法name list
+		String[] arithmeticList = null;
+		//该项目采用算法id list
+		String[] arithmeticIdList = null;
+		try{
+			programBasicInfoMap = modelsReportApi.getProgramMapById(programId);
+			//判断项目信息是否为空
+			if(null != programBasicInfoMap && !programBasicInfoMap.isEmpty()){
+				modelDateAnalyInfoList = modelsReportApi.getModelDateAnalyInfoById(programId);
+				modelDateEvaluateIndexList = modelsReportApi.getModelDateEvaluateIndexById(programId);
+				scoreGroupList = modelsReportApi.getScoreGroupListById(programId);
+				probabilityBinningList = modelsReportApi.getProbabilityBinningListById(programId);
+				//该项目所采用算法名称字符串
+				String arithmeticNames = (String) programBasicInfoMap.get("arithmeticNames");
+				//该项目所采用算法id字符串
+				String arithmeticIds = (String) programBasicInfoMap.get("arithmeticIds");
+				//该项目创建时间
+				Date createTime = (Date) programBasicInfoMap.get("createTime");
+				if(UsedUtil.isNotNull(arithmeticNames)){
+					programBasicInfoMap.put("arithmeticNames",arithmeticNames.replace(",","/"));
+					//该项目采用算法name list
+					arithmeticList = arithmeticNames.split(",");
+					logger.info("该项目采用算法name list========="+JSON.toJSONString(arithmeticList));
+				}
+				if(null != createTime){
+					programBasicInfoMap.put("createTime",formatter.format(createTime));
+				}
+				if(UsedUtil.isNotNull(arithmeticIds)){
+					//该项目采用算法id list
+					arithmeticIdList = arithmeticIds.split(",");
+					logger.info("该项目采用算法id list========="+JSON.toJSONString(arithmeticIdList));
+				}
+				//该项目数据文件id
+				int dataFileId = (Integer) programBasicInfoMap.get("dataFileId");
+				varImportanceSortList = modelsReportApi.getVarImportanceSortById(Long.valueOf(dataFileId));
+			}
+		}catch (Exception e){
+			logger.info("实验室-----模型报告-----根据项目id获取项目基本信息失败",e);
+		}
+		request.setAttribute("programId",programId);
+		request.setAttribute("programBasicInfoMap",programBasicInfoMap);
+		request.setAttribute("arithmeticList",arithmeticList);
+		request.setAttribute("arithmeticIdList",JSON.toJSONString(arithmeticIdList));
+		request.setAttribute("modelDateAnalyInfoList",JSON.toJSONString(modelDateAnalyInfoList));
+		request.setAttribute("modelDateEvaluateIndexList",JSON.toJSONString(modelDateEvaluateIndexList));
+		request.setAttribute("varImportanceSortList",JSON.toJSONString(varImportanceSortList));
+		request.setAttribute("scoreGroupList",JSON.toJSONString(scoreGroupList));
+		request.setAttribute("probabilityBinningList",JSON.toJSONString(probabilityBinningList));
+		return "laboratory/modelReport";
+	}
+
+	/**
+	 * 获取模型报告中曲线的数据
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/getLineChartData", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Map<String,List<BigDecimal>>> getLineChartData(HttpServletRequest request) {
+		String programId = request.getParameter("programId") == null ? "" : request.getParameter("programId").trim();
+		String arithmeticId = request.getParameter("arithmeticId") == null ? "" : request.getParameter("arithmeticId").trim();
+		Map<String,List<BigDecimal>> lineMap1 = new HashMap<String,List<BigDecimal>>();
+		Map<String,List<BigDecimal>> lineMap2 = new HashMap<String,List<BigDecimal>>();
+		Map<String,List<BigDecimal>> lineMap3 = new HashMap<String,List<BigDecimal>>();
+		Map<String,List<BigDecimal>> lineMap4 = new HashMap<String,List<BigDecimal>>();
+		Map<String,Map<String,List<BigDecimal>>> lineDataMap = new HashMap<String,Map<String,List<BigDecimal>>>();
+		try{
+			//根据项目id和算法id获取的ROC/KS曲线数据 list
+			List<LinkedHashMap<String,Object>> lineDataList1 = new ArrayList<LinkedHashMap<String,Object>>();
+			lineDataList1 = modelsReportApi.getRocKsLineList1ById(Long.valueOf(programId),Long.valueOf(arithmeticId));
+			List<LinkedHashMap<String,Object>> lineDataList2 = new ArrayList<LinkedHashMap<String,Object>>();
+			lineDataList2 = modelsReportApi.getRocKsLineList2ById(Long.valueOf(programId),Long.valueOf(arithmeticId));
+			List<LinkedHashMap<String,Object>> lineDataList3 = new ArrayList<LinkedHashMap<String,Object>>();
+			lineDataList3 = modelsReportApi.getRocKsLineList3ById(Long.valueOf(programId),Long.valueOf(arithmeticId));
+			List<LinkedHashMap<String,Object>> lineDataList4 = new ArrayList<LinkedHashMap<String,Object>>();
+			lineDataList4 = modelsReportApi.getRocKsLineList4ById(Long.valueOf(programId),Long.valueOf(arithmeticId));
+			//对图1数据进行处理
+			//图1横坐标数组
+			List<BigDecimal> line1Abscissa = new ArrayList<BigDecimal>();
+			//图1tpr数组
+			List<BigDecimal> line1Tpr = new ArrayList<BigDecimal>();
+			//图1ks数组
+			List<BigDecimal> line1Ks = new ArrayList<BigDecimal>();
+			//图1fpr数组
+			List<BigDecimal> line1Fpr = new ArrayList<BigDecimal>();
+			if(null != lineDataList1 && !lineDataList1.isEmpty()){
+				//将查出的数组抽取ABSCISSA个点
+				lineDataList1 = ListAverageAssign.averageAssign(lineDataList1,ABSCISSA);
+				for (int i = 0; i < lineDataList1.size(); i++) {
+					line1Abscissa.add((BigDecimal)lineDataList1.get(i).get("abscissa"));
+					line1Tpr.add((BigDecimal)lineDataList1.get(i).get("tpr"));
+					line1Ks.add((BigDecimal)lineDataList1.get(i).get("ks"));
+					line1Fpr.add((BigDecimal)lineDataList1.get(i).get("fpr"));
+				}
+			}
+			lineMap1.put("line1Abscissa",line1Abscissa);
+			lineMap1.put("line1Tpr",line1Tpr);
+			lineMap1.put("line1Ks",line1Ks);
+			lineMap1.put("line1Fpr",line1Fpr);
+			//对图2数据进行处理
+			//图2横坐标数组
+			List<BigDecimal> line2Abscissa = new ArrayList<BigDecimal>();
+			//图2auc数组
+			List<BigDecimal> line2Auc = new ArrayList<BigDecimal>();
+			if(null != lineDataList2 && !lineDataList2.isEmpty()){
+				//将查出的数组抽取ABSCISSA个点
+				lineDataList2 = ListAverageAssign.averageAssign(lineDataList2,ABSCISSA);
+				for (int i = 0; i < lineDataList2.size(); i++) {
+					line2Abscissa.add((BigDecimal)lineDataList2.get(i).get("abscissa"));
+					line2Auc.add((BigDecimal)lineDataList2.get(i).get("auc"));
+				}
+			}
+			lineMap2.put("line2Abscissa",line2Abscissa);
+			lineMap2.put("line2Auc",line2Auc);
+			//对图3数据进行处理
+			//图3横坐标数组
+			List<BigDecimal> line3Abscissa = new ArrayList<BigDecimal>();
+			//图3tpr数组
+			List<BigDecimal> line3Tpr = new ArrayList<BigDecimal>();
+			//图3ks数组
+			List<BigDecimal> line3Ks = new ArrayList<BigDecimal>();
+			//图3fpr数组
+			List<BigDecimal> line3Fpr = new ArrayList<BigDecimal>();
+			if(null != lineDataList3 && !lineDataList3.isEmpty()){
+				//将查出的数组抽取ABSCISSA个点
+				lineDataList3 = ListAverageAssign.averageAssign(lineDataList3,ABSCISSA);
+				for (int i = 0; i < lineDataList3.size(); i++) {
+					line3Abscissa.add((BigDecimal)lineDataList3.get(i).get("abscissa"));
+					line3Tpr.add((BigDecimal)lineDataList3.get(i).get("tpr"));
+					line3Ks.add((BigDecimal)lineDataList3.get(i).get("ks"));
+					line3Fpr.add((BigDecimal)lineDataList3.get(i).get("fpr"));
+				}
+			}
+			lineMap3.put("line3Abscissa",line3Abscissa);
+			lineMap3.put("line3Tpr",line3Tpr);
+			lineMap3.put("line3Ks",line3Ks);
+			lineMap3.put("line3Fpr",line3Fpr);
+			//对图4数据进行处理
+			//图4横坐标数组
+			List<BigDecimal> line4Abscissa = new ArrayList<BigDecimal>();
+			//图2auc数组
+			List<BigDecimal> line4Auc = new ArrayList<BigDecimal>();
+			if(null != lineDataList4 && !lineDataList4.isEmpty()){
+				//将查出的数组抽取ABSCISSA个点
+				lineDataList4 = ListAverageAssign.averageAssign(lineDataList4,ABSCISSA);
+				for (int i = 0; i < lineDataList4.size(); i++) {
+					line4Abscissa.add((BigDecimal)lineDataList4.get(i).get("abscissa"));
+					line4Auc.add((BigDecimal)lineDataList4.get(i).get("auc"));
+				}
+			}
+			lineMap4.put("line4Abscissa",line4Abscissa);
+			lineMap4.put("line4Auc",line4Auc);
+		}catch (Exception e){
+			logger.info("获取模型报告中曲线的数据失败，失败原因==",e);
+		}
+		lineDataMap.put("lineMap1",lineMap1);
+		lineDataMap.put("lineMap2",lineMap2);
+		lineDataMap.put("lineMap3",lineMap3);
+		lineDataMap.put("lineMap4",lineMap4);
+		return lineDataMap;
+	}
+
+
+}

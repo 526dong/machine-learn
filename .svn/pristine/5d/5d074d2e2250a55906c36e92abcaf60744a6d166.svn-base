@@ -1,0 +1,224 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: zhaotm
+  Date: 2017/11/21
+  Time: 11:34
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>实验室-创建项目 </title>
+    <link type="text/css" href="${ctx}/resources/css/base.css" rel="stylesheet" />
+    <link type="text/css" href="${ctx}/resources/css/common.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/common.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            findDataFile(1);
+            $(".select_down_list").on("click", "li", function () {
+                var inputArr = $(this).parents(".select_box").find(".select_btn input");
+                inputArr.eq(1).val($(this).text());
+            });
+        });
+
+        //
+        function jumpToPage(pageNo) {
+            findDataFile(pageNo);
+        }
+
+        //查modelajax
+        function findDataFile(pageNo) {
+            $.ajax({
+                url:"${ctx}/program/dataFileList",
+                type:"POST",
+                dataType:"json",
+                data: {
+                    "pageSize": $("#pageSize").val(),//每页展示数
+                    "pageNum": $("#currentPage").val(),//当前页
+                },
+                success:function (data) {
+                    if (200 == data.code) {
+                        var page = data.data;
+                        var rows = page.list;
+                        var pageNo = page.pageNum;
+                        var pageSize = page.pageSize;
+
+                        $("#programContent").html("");
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            var tr = "<tr onclick='selectDataFile(this);'>";
+
+                            tr += "<td>"+(i+1+(pageNo-1)*pageSize)+"</td>";
+                            tr += "<td>"+row.name+"<input type='hidden' name='fileId' value='"+row.id+"' /><input type='hidden' name='fileName' value='"+row.name+"' /></td>";
+                            tr += "</tr>";
+                            $("#programContent").append(tr);
+                        }
+
+                        if (0 ==rows.length) {
+                            $("#programContent").append('<tr><td colspan="7">暂无数据</td></tr>');
+                        }
+                        var pageStr = createPage(page.total, pageNo,  page.pages);
+                        $("#page_p").html(pageStr);
+
+                    } else {
+                        alert("数据文件加载失败！")
+                    }
+                }
+            });
+        }
+
+        var infoList = [];
+        function selectDataFile(obj) {
+            $("#dataFileId").val($(obj).find("input[name='fileId']").val());
+            $("#dataFileName").val($(obj).find("input[name='fileName']").val());
+
+            $.ajax({
+                url:"${ctx}/program/dataFileInfoList",
+                type:"POST",
+                dataType:"json",
+                data: {"fileId": $("#dataFileId").val()},
+                success:function (data) {
+                    if (200 == data.code) {
+                        infoList = data.data;
+                    } else {
+                        alert("指标加载失败");
+                    }
+                }
+            });
+        }
+
+        function matchName(obj) {
+            var liHtml ="";
+
+            $.each(infoList, function () {
+                if ("" == obj.value) {
+                    liHtml += "<li data-id='"+this.id+"'>"+this.name+"</li>";
+                } else if (this.name.indexOf(obj.value) >= 0) {
+                    liHtml += "<li data-id='"+this.id+"'>"+this.name+"</li>";
+                }
+            });
+
+            $(obj).parents(".select_box").find(".select_down_list").html(liHtml);
+        }
+        function save(status) {
+            $.ajax({
+                url:"${ctx}/program/addOrEditSave",
+                type:"POST",
+                dataType:"json",
+                data: $("#frm").serialize(),
+                success:function (data) {
+                    if (200 == data.code) {
+                        if (0 == status) {
+                            alert("保存成功");
+                        } else {
+                            alert("提交成功");
+                        }
+                    } else {
+                        if (0 == status) {
+                            alert("保存失败");
+                        } else {
+                            alert("提交失败");
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body class="body_bg">
+<div class="main">
+    <!--页面头部 start -->
+    <%@ include file="../commons/topHead.jsp"%>
+    <!--页面头部 end -->
+    <!-- center.html start -->
+    <div class="main_center">
+        <!--页面左侧导航栏 start -->
+        <%@ include file="../commons/leftNavigation.jsp"%>
+        <!-- 页面左侧导航栏 end -->
+
+        <!-- 右侧内容.html start -->
+        <div class="right_content">
+            <h3 class="place_title">
+                <span>当前位置：</span>
+                <a href="javascript:void(0);">实验室</a>
+                <span>></span>
+                <a href="javascript:void(0);">项目库</a>
+            </h3>
+            <div class="module_box">
+                <form id="frm">
+                    <input type="hidden" name="status" id="status" />
+                    <div class="module_table">
+                        <table class="module_table">
+                            <thead>
+                            <table class="table_list">
+                                <tr>
+                                    <th class="table_width50">序号</th>
+                                    <th>数据表</th>
+                                </tr>
+                                <tbody id="programContent" class="tbody_tr"></tbody>
+                            </table>
+                        </table>
+                    </div>
+                    <!-- 分页.html start -->
+                    <input id="currentPage" name="currentPage" style="display: none;" type="text">
+                    <%@ include file="../commons/tabPage.jsp"%>
+                    <!-- 分页.html end -->
+                    <span>项目名称</span><input type="text" name="name" id="name" value="${program.name}" placeholder="请输入姓名名称" /><br>
+
+                    <input type="hidden" name="dataFileId" id="dataFileId" value="${program.dataFileId}" />
+                    <input type="hidden" name="dataFileName" id="dataFileName" value="${program.dataFileName}" />
+
+                    <div class="select_box fl">
+                        <span>target name</span>
+                        <div class="select_menu select_btn">
+                            <input type="hidden" name="targetId" id="targetId" value="${program.targetId}" />
+                            <input type="text" name="targetName" id="targetName" value="${program.targetName}" placeholder="请输入名称搜索标记" onclick="matchName(this)" onkeyup="matchName(this)" />
+                        </div>
+                        <div class="select_down select_list">
+                            <strong></strong>
+                            <ul class="select_down_list"></ul>
+                        </div>
+                    </div>
+
+                    <div class="select_box fl">
+                        <span>index name</span>
+                        <div class="select_menu select_btn">
+                            <input type="hidden" name="indexId" id="indexId" value="${program.indexId}" />
+                            <input type="text" name="indexName" id="indextName" value="${program.indexName}" placeholder="请输入名称搜索标记" onclick="matchName(this)" onkeyup="matchName(this)"  />
+                        </div>
+                        <div class="select_down select_list">
+                            <strong></strong>
+                            <ul class="select_down_list"></ul>
+                        </div>
+                    </div>
+
+                    <div class="select_box fl">
+                        <span>算法</span>
+                        <div class="select_menu select_btn">
+                            <input type="hidden" name="indexId" id="arithmeticIds" value="${program.arithmeticIds}" />
+                            <input type="text" name="indexName" id="arithmeticNames" value="${program.arithmeticNames}" />
+                        </div>
+                        <div class="select_down select_list">
+                            <strong></strong>
+                            <ul class="select_down_list">
+                                <c:forEach items="${arithmeticList}" var="arithmetic">
+                                    <li data-id="${arithmetic.id}">${arithmetic.name}</li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <input type="button" value="保存" onclick="save(0)" />
+                    <input type="button" value="开始" onclick="save(1)" />
+                </form>
+            </div>
+        </div>
+        <!-- 右侧内容.html end -->
+    </div>
+    <!-- center.html end -->
+</div>
+</body>
+</html>

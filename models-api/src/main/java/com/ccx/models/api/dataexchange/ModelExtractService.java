@@ -1,0 +1,12 @@
+package com.ccx.models.api.dataexchange;
+
+import com.ccx.models.model.ModelsExtractTestRecord;
+import java.util.Map;
+
+/**
+ * 模型提取
+ */
+public interface ModelExtractService {
+
+    Map<String, Object> saveForModelSend(ModelsExtractTestRecord file, String userName);
+}

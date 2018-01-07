@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsModelDataEvaluateIndexMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsModelDataEvaluateIndex" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="auc" property="auc" jdbcType="DECIMAL" />
+    <result column="ks" property="ks" jdbcType="DECIMAL" />
+    <result column="precisions" property="precisions" jdbcType="DECIMAL" />
+    <result column="recall" property="recall" jdbcType="DECIMAL" />
+    <result column="f1_score" property="f1Score" jdbcType="DECIMAL" />
+    <result column="support" property="support" jdbcType="DECIMAL" />
+    <result column="gini" property="gini" jdbcType="DECIMAL" />
+    <result column="program_id" property="programId" jdbcType="INTEGER" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, type, auc, ks, precisions, recall, f1_score, support, gini, program_id, arithmetic_id, 
+    creater, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_model_data_evaluate_index
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_model_data_evaluate_index
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsModelDataEvaluateIndex" >
+    insert into models_model_data_evaluate_index ( type, auc,
+      ks, precisions, recall, 
+      f1_score, support, gini, 
+      program_id, arithmetic_id, creater, 
+      create_time)
+    values ( #{type,jdbcType=INTEGER}, #{auc,jdbcType=DECIMAL},
+      #{ks,jdbcType=DECIMAL}, #{precisions,jdbcType=DECIMAL}, #{recall,jdbcType=DECIMAL}, 
+      #{f1Score,jdbcType=DECIMAL}, #{support,jdbcType=DECIMAL}, #{gini,jdbcType=DECIMAL}, 
+      #{programId,jdbcType=INTEGER}, #{arithmeticId,jdbcType=INTEGER}, #{creater,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsModelDataEvaluateIndex" >
+    insert into models_model_data_evaluate_index
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="auc != null" >
+        auc,
+      </if>
+      <if test="ks != null" >
+        ks,
+      </if>
+      <if test="precisions != null" >
+        precisions,
+      </if>
+      <if test="recall != null" >
+        recall,
+      </if>
+      <if test="f1Score != null" >
+        f1_score,
+      </if>
+      <if test="support != null" >
+        support,
+      </if>
+      <if test="gini != null" >
+        gini,
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="auc != null" >
+        #{auc,jdbcType=DECIMAL},
+      </if>
+      <if test="ks != null" >
+        #{ks,jdbcType=DECIMAL},
+      </if>
+      <if test="precisions != null" >
+        #{precisions,jdbcType=DECIMAL},
+      </if>
+      <if test="recall != null" >
+        #{recall,jdbcType=DECIMAL},
+      </if>
+      <if test="f1Score != null" >
+        #{f1Score,jdbcType=DECIMAL},
+      </if>
+      <if test="support != null" >
+        #{support,jdbcType=DECIMAL},
+      </if>
+      <if test="gini != null" >
+        #{gini,jdbcType=DECIMAL},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=INTEGER},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsModelDataEvaluateIndex" >
+    update models_model_data_evaluate_index
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="auc != null" >
+        auc = #{auc,jdbcType=DECIMAL},
+      </if>
+      <if test="ks != null" >
+        ks = #{ks,jdbcType=DECIMAL},
+      </if>
+      <if test="precisions != null" >
+        precisions = #{precisions,jdbcType=DECIMAL},
+      </if>
+      <if test="recall != null" >
+        recall = #{recall,jdbcType=DECIMAL},
+      </if>
+      <if test="f1Score != null" >
+        f1_score = #{f1Score,jdbcType=DECIMAL},
+      </if>
+      <if test="support != null" >
+        support = #{support,jdbcType=DECIMAL},
+      </if>
+      <if test="gini != null" >
+        gini = #{gini,jdbcType=DECIMAL},
+      </if>
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=INTEGER},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsModelDataEvaluateIndex" >
+    update models_model_data_evaluate_index
+    set type = #{type,jdbcType=INTEGER},
+      auc = #{auc,jdbcType=DECIMAL},
+      ks = #{ks,jdbcType=DECIMAL},
+      precisions = #{precisions,jdbcType=DECIMAL},
+      recall = #{recall,jdbcType=DECIMAL},
+      f1_score = #{f1Score,jdbcType=DECIMAL},
+      support = #{support,jdbcType=DECIMAL},
+      gini = #{gini,jdbcType=DECIMAL},
+      program_id = #{programId,jdbcType=INTEGER},
+      arithmetic_id = #{arithmeticId,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

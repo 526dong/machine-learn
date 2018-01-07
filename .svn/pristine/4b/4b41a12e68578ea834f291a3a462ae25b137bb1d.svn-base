@@ -1,0 +1,17 @@
+package com.ccx.models.mapper;
+
+import com.ccx.models.model.ModelsOutputPath;
+
+public interface ModelsOutputPathMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsOutputPath record);
+
+    int insertSelective(ModelsOutputPath record);
+
+    ModelsOutputPath selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsOutputPath record);
+
+    int updateByPrimaryKey(ModelsOutputPath record);
+}

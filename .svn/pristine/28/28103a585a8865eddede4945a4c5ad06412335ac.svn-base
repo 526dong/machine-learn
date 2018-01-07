@@ -1,0 +1,156 @@
+package com.ccx.models.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class ModelsScoreGroupStatistics {
+    private Long id;
+
+    private Long dataFileId;
+
+    private Long arithmeticId;
+
+    private Long programId;
+
+    private String binsScore;
+
+    private BigDecimal good;
+
+    private BigDecimal bad;
+
+    private BigDecimal total;
+
+    private BigDecimal factor;
+
+    private BigDecimal iv;
+
+    private BigDecimal badPer;
+
+    private BigDecimal modelPvalue;
+
+    private String creater;
+
+    private Date createTime;
+
+    private String modelDataName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Long dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public Long getArithmeticId() {
+        return arithmeticId;
+    }
+
+    public void setArithmeticId(Long arithmeticId) {
+        this.arithmeticId = arithmeticId;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
+    }
+
+    public String getBinsScore() {
+        return binsScore;
+    }
+
+    public void setBinsScore(String binsScore) {
+        this.binsScore = binsScore == null ? null : binsScore.trim();
+    }
+
+    public BigDecimal getGood() {
+        return good;
+    }
+
+    public void setGood(BigDecimal good) {
+        this.good = good;
+    }
+
+    public BigDecimal getBad() {
+        return bad;
+    }
+
+    public void setBad(BigDecimal bad) {
+        this.bad = bad;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public BigDecimal getFactor() {
+        return factor;
+    }
+
+    public void setFactor(BigDecimal factor) {
+        this.factor = factor;
+    }
+
+    public BigDecimal getIv() {
+        return iv;
+    }
+
+    public void setIv(BigDecimal iv) {
+        this.iv = iv;
+    }
+
+    public BigDecimal getBadPer() {
+        return badPer;
+    }
+
+    public void setBadPer(BigDecimal badPer) {
+        this.badPer = badPer;
+    }
+
+    public BigDecimal getModelPvalue() {
+        return modelPvalue;
+    }
+
+    public void setModelPvalue(BigDecimal modelPvalue) {
+        this.modelPvalue = modelPvalue;
+    }
+
+    public String getCreater() {
+        return creater;
+    }
+
+    public void setCreater(String creater) {
+        this.creater = creater == null ? null : creater.trim();
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getModelDataName() {
+        return modelDataName;
+    }
+
+    public void setModelDataName(String modelDataName) {
+        this.modelDataName = modelDataName == null ? null : modelDataName.trim();
+    }
+}

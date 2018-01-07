@@ -1,0 +1,99 @@
+package com.ccx.models.model.datafile;
+
+import java.math.BigDecimal;
+
+public class ModelsFileIvTopn {
+    private Long id;
+
+    private Long dataFileId;
+
+    private String varName;
+
+    private String bins;
+
+    private Integer good;
+
+    private Integer bad;
+
+    private Integer total;
+
+    private BigDecimal badPer;
+
+    public ModelsFileIvTopn() {
+    }
+
+    public ModelsFileIvTopn(Long id, Long dataFileId, String varName, String bins, Integer good, Integer bad, Integer total, BigDecimal badPer) {
+        this.id = id;
+        this.dataFileId = dataFileId;
+        this.varName = varName;
+        this.bins = bins;
+        this.good = good;
+        this.bad = bad;
+        this.total = total;
+        this.badPer = badPer;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Long dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public String getVarName() {
+        return varName;
+    }
+
+    public void setVarName(String varName) {
+        this.varName = varName == null ? null : varName.trim();
+    }
+
+    public String getBins() {
+        return bins;
+    }
+
+    public void setBins(String bins) {
+        this.bins = bins == null ? null : bins.trim();
+    }
+
+    public Integer getGood() {
+        return good;
+    }
+
+    public void setGood(Integer good) {
+        this.good = good;
+    }
+
+    public Integer getBad() {
+        return bad;
+    }
+
+    public void setBad(Integer bad) {
+        this.bad = bad;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public BigDecimal getBadPer() {
+        return badPer;
+    }
+
+    public void setBadPer(BigDecimal badPer) {
+        this.badPer = badPer;
+    }
+}

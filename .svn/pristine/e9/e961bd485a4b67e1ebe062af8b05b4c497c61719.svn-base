@@ -1,0 +1,102 @@
+.add_cr {
+	margin-left: 30px;
+	margin-top: 5px;
+	line-height: 30px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.div_section {
+	padding: 10px 20px 0 0px;
+	margin-bottom: 30px;
+}
+
+.div_submit {
+	margin-top: 50px;
+}
+
+.save_btn {
+	margin-left: 40px;
+	margin-right: 20px;
+	margin-top: 10px;
+	background-color: #33FFCC;
+}
+
+.report_save {
+	margin-left: 500px;
+	margin-right: 20px;
+}
+
+.a_save {
+	width: 80px;
+	text-align: center;
+	margin-left: 480px;
+	background-color: #99FFFF;
+}
+
+.a_cancel {
+	text-align: center;
+	margin-right: 600px;
+	background-color: #99FFFF;
+}
+
+ul {
+	list-style-type: none;
+	margin-left: 55px;
+	padding: 0px;
+	background-color: #DDDDDD;
+}
+
+li {
+	margin: 7px;
+	padding: 5px;
+	float: left;
+	width: 150px;
+	height: 25px;
+}
+
+.corporate_cla {
+	display: none;
+}
+
+/* ≥ı ºªØreport,asset,owner,profitLoss,cash,cashSupply,finance,index */
+.report_cla, .add_report, .asset_cla, .owner_cla, .profit_loss_cla,
+	.cash_cla, .cash_supply_cla, .finance_cla {
+	display: none;
+	margin-left: 20px;
+	margin-bottom: 50px;
+}
+
+.import_cla, .import_asset, .import_owner, .import_profitLoss,
+	.import_cash, .import_cashSupply, .import_finance {
+	display: none;
+	margin-left: 50px;
+	margin-bottom: 50px;
+}
+
+td {
+	width: 180px;
+	border: 1px solid #ccc;
+	align: center;
+}
+
+.back_btn {
+	margin-left: 10px;
+	margin-right: 20px;
+	margin-top: 10px;
+	background-color: #99FFFF;
+	width: 60px;
+	text-align: center;
+}
+
+.div_btn {
+	margin-left: 30px;
+}
+
+.backReport {
+	/* margin-left: 30px; */
+	margin-top: 10px;
+	background-color: #99FFFF;
+	width: 70px;
+	text-align: center;
+}

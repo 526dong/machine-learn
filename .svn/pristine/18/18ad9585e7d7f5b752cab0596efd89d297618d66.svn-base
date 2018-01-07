@@ -1,0 +1,66 @@
+package com.ccx.models.datafile;
+
+import com.ccx.models.api.datafile.ModelsDataFileApi;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.util.JsonResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+/**
+ * @description 数据文件
+ * @author xzd
+ * @date 2017/11/21
+ */
+@Controller	
+@RequestMapping("/modelsDataFile")
+public class ModelsDataFileController {
+	private static final Logger logger = LoggerFactory.getLogger(ModelsDataFileController.class);
+		
+	@Autowired	
+	private ModelsDataFileApi modelsDataFileApi;
+
+	/**
+	 * 数据文件列表展示
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		return new ModelAndView("datafile/datafileList");
+	}
+
+	/**
+	 * 查询数据文件列表
+	 * @return
+	 */
+	@PostMapping("/findAll")
+	@ResponseBody
+	public JsonResult findAll(HttpServletRequest request, Integer pageNo, Integer pageSize){
+		/*//获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);*/
+
+		try {
+			List<ModelsDataFile> list = modelsDataFileApi.getList();
+
+			//成功标识
+			return JsonResult.ok("哈哈");
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("查询数据文件失败:", e);
+			//失败标识
+			return JsonResult.error("查询数据文件失败！");
+		}
+	}
+
+		
+}	

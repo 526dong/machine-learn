@@ -1,0 +1,57 @@
+package com.ccx.models.dataexchange;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+@Controller
+@RequestMapping("/dexchange")
+public class DataexchangeController {
+    private  final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * 变量统计
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/statistics/api")
+    @ResponseBody
+    public Map<String,Object> statistics(HttpServletRequest request, @RequestBody String bean){
+		return null;
+    }
+    /**
+     * iv统计
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/iv/api")
+    @ResponseBody
+    public Map<String,Object> iv(HttpServletRequest request, @RequestBody String bean){
+		return null;
+    }
+    /**
+     * 模型项目返回结果
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/result/api")
+    @ResponseBody
+    public Map<String,Object> mdResult(HttpServletRequest request, @RequestBody String bean){
+		return null;
+    }
+}

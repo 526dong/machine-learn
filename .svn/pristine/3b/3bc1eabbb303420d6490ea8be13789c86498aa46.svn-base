@@ -1,0 +1,83 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>数据文件-文件详情</title>
+	<link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+	<script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+	/*页面初始化*/
+	$(function(){
+
+	});
+
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+	<%--头文件====开始--%>
+	<jsp:include page="../commons/topHead.jsp"/>
+	<!-- //header -->
+	<div class="content">
+		<%--导航栏====开始--%>
+		<jsp:include page="../commons/leftNavigation.jsp"/>
+		<%--导航栏====结束--%>
+		<!-- //side-nav -->
+		<div class="main">
+			<div class="main-header clearfix">
+				<div class="page-title">
+					<h3>数据文件</h3>
+					<p>变量分析</p>
+				</div>
+			</div>
+			<!-- //main-header -->
+
+			<div class="file-details">
+				<div class="file-details-header">
+					<div class="file-details-icon"></div>
+					<div class="file-details-header-right">
+						<div class="file-details-name-size">
+							<em>${dataBaseInfo.modelDataName}</em>
+							<b>${dataBaseInfo.sampleNum}</b>
+						</div>
+						<p class="file-details-desc">
+							描述:
+							<span>${dataBaseInfo.description}</span>
+						</p>
+					</div>
+				</div>
+				<!-- //file-details-header -->
+
+				<div class="value-info">
+					<table class="j-table">
+						<thead>
+							<tr>
+								<th>序号</th>
+								<th>变量名称</th>
+								<th class="j-table-cell-140">类型</th>
+								<th>行1</th>
+								<th>行2</th>
+								<th>行3</th>
+								<th>行4</th>
+								<th>行5</th>
+								<th>...</th>
+							</tr>
+						</thead>
+						<tbody id="fileValue"></tbody>
+					</table>
+				</div>
+				<!-- //value-info -->
+			</div>
+			<!-- //file-details -->
+		</div>
+		<!-- //main -->
+	</div>
+	<!-- //content -->
+</div>
+<!-- //j-container -->
+</body>
+</html>

@@ -1,0 +1,853 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模型报告</title>
+    <link rel="stylesheet" href="${ctx}/resources/css/style.css">
+</head>
+
+
+<body class="body_bg" >
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <%--头文件====结束--%>
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+
+
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>实验室</h3>
+                    <p>模型报告</p>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div class="model-report">
+                <div class="model-base-info">
+                    <table class="j-table model-base-info-table">
+                        <tbody>
+                        <tr>
+                            <td>信用卡申请评分模型</td>
+                            <td>
+                                数据表:
+                                <p>评分卡标准化数据</p>
+                            </td>
+                            <td>
+                                样本量:
+                                <p>100,000,00</p>
+                            </td>
+                            <td>
+                                算法:
+                                <p>xgboost／rf／gmb</p>
+                            </td>
+                            <td>
+                                创建时间:
+                                <p>2017/12/12</p>
+                            </td>
+                            <td>
+                                用时:
+                                <p>1小时30分30秒</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="model-report-details">
+                <div class="algorithm-switch">
+                    <span class="j-button active">Xgbost</span>
+                    <span class="j-button">RF</span>
+                </div>
+                <div class="model-report-contents">
+                    <div class="model-report-content">
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>模型数据概览</span>
+                        </div>
+                        <div class="model-data-overview">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>样本量</th>
+                                    <th>总维度</th>
+                                    <th>入模维度</th>
+                                    <th>重要变量</th>
+                                    <th>正负比</th>
+                                    <th>正样本率</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>模型评价指标</span>
+                        </div>
+                        <div class="model-evaluation-index">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>AUC</th>
+                                    <th>KS</th>
+                                    <th>precision（精确度）</th>
+                                    <th>recall（召回率）</th>
+                                    <th>f1-score</th>
+                                    <th>support</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>0.99</td>
+                                    <td>0.99</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>0.99</td>
+                                    <td>0.99</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>ROC / KS曲线</span>
+                        </div>
+                        <div class="roc-ks-chart clearfix">
+                            <div class="data-chart-wrap fl">
+                                <ul class="data-chart-legend">
+                                    <li><i class="data-chart-legend-1"></i><span>tpr-line</span></li>
+                                    <li><i class="data-chart-legend-2"></i><span>ks-line</span></li>
+                                    <li><i class="data-chart-legend-3"></i><span>fpr-line</span></li>
+                                </ul>
+                                <div class="data-chart" id="chart_1"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <div class="data-chart" id="chart_2"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <ul class="data-chart-legend">
+                                    <li><i class="data-chart-legend-1"></i><span>tpr-line</span></li>
+                                    <li><i class="data-chart-legend-2"></i><span>ks-line</span></li>
+                                    <li><i class="data-chart-legend-3"></i><span>fpr-line</span></li>
+                                </ul>
+                                <div class="data-chart" id="chart_3"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <div class="data-chart" id="chart_4"></div>
+                            </div>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>Score分组详情</span>
+                        </div>
+                        <div class="score-group">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th>bins score</th>
+                                    <th>good</th>
+                                    <th>bad</th>
+                                    <th>total</th>
+                                    <th>factor</th>
+                                    <th>IV</th>
+                                    <th>bad-per</th>
+                                    <th>model-pvalue</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>概率分箱图</span>
+                        </div>
+                        <div class="probability">
+                            <div class="probability-legend"><i></i><span>总人数</span><b></b><span>正样本量</span></div>
+                            <div class="probability-chart" id="probability_chart_1"></div>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>变量重要性排序</span>
+                        </div>
+                        <div class="value-importance-sort">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th>变量名称</th>
+                                    <th>值</th>
+                                    <th>重要性</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-btns">
+                            <span class="j-button">提取模型</span>
+                            <span class="j-button">下载样本预测数据</span>
+                            <span class="j-button">下载模型日志</span>
+                        </div>
+                    </div>
+                    <div class="model-report-content">
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>模型数据概览</span>
+                        </div>
+                        <div class="model-data-overview">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>样本量</th>
+                                    <th>总维度</th>
+                                    <th>入模维度</th>
+                                    <th>重要变量</th>
+                                    <th>正负比</th>
+                                    <th>正样本率</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>模型评价指标</span>
+                        </div>
+                        <div class="model-evaluation-index">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>AUC</th>
+                                    <th>KS</th>
+                                    <th>precision（精确度）</th>
+                                    <th>recall（召回率）</th>
+                                    <th>f1-score</th>
+                                    <th>support</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>0.99</td>
+                                    <td>0.99</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>0.99</td>
+                                    <td>0.99</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                    <td>99.99%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>ROC / KS曲线</span>
+                        </div>
+                        <div class="roc-ks-chart clearfix">
+                            <div class="data-chart-wrap fl">
+                                <ul class="data-chart-legend">
+                                    <li><i class="data-chart-legend-1"></i><span>tpr-line</span></li>
+                                    <li><i class="data-chart-legend-2"></i><span>ks-line</span></li>
+                                    <li><i class="data-chart-legend-3"></i><span>fpr-line</span></li>
+                                </ul>
+                                <div class="data-chart" id="chart_5"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <div class="data-chart" id="chart_6"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <ul class="data-chart-legend">
+                                    <li><i class="data-chart-legend-1"></i><span>tpr-line</span></li>
+                                    <li><i class="data-chart-legend-2"></i><span>ks-line</span></li>
+                                    <li><i class="data-chart-legend-3"></i><span>fpr-line</span></li>
+                                </ul>
+                                <div class="data-chart" id="chart_7"></div>
+                            </div>
+                            <div class="data-chart-wrap fl">
+                                <div class="data-chart" id="chart_8"></div>
+                            </div>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>Score分组详情</span>
+                        </div>
+                        <div class="score-group">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th>bins score</th>
+                                    <th>good</th>
+                                    <th>bad</th>
+                                    <th>total</th>
+                                    <th>factor</th>
+                                    <th>IV</th>
+                                    <th>bad-per</th>
+                                    <th>model-pvalue</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>0.1-0.1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                    <td>23%</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>概率分箱图</span>
+                        </div>
+                        <div class="probability">
+                            <div class="probability-legend"><i></i><span>总人数</span><b></b><span>正样本量</span></div>
+                            <div class="probability-chart" id="probability_chart_2"></div>
+                        </div>
+                        <div class="model-report-subtitle">
+                            <i></i>
+                            <span>变量重要性排序</span>
+                        </div>
+                        <div class="value-importance-sort">
+                            <table class="j-table">
+                                <thead>
+                                <tr>
+                                    <th>变量名称</th>
+                                    <th>值</th>
+                                    <th>重要性</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="with-bg">训练集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                </tr>
+                                <tr>
+                                    <td class="with-bg">测试集</td>
+                                    <td>9999</td>
+                                    <td>9999</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="model-report-btns">
+                            <span class="j-button">提取模型</span>
+                            <span class="j-button">下载样本预测数据</span>
+                            <span class="j-button">下载模型日志</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+<script src="${ctx}/resources/js/echarts.min.js"></script>
+<script src="${ctx}/resources/js/main.js"></script>
+<script>
+    /**
+     * 实验室算法选择
+     */
+    $(document).on('click','.algorithm-switch span',function(){
+        var _this = $(this);
+        _this.addClass('active').siblings('span').removeClass('active')
+        var index = _this.index();
+        $('.model-report-content').eq(index).fadeIn(200).siblings('div').fadeOut(200);
+    });
+
+    /**
+     * ROC/KS曲线
+     */
+    function lineChart(id,series){
+        var myChart = echarts.init(document.getElementById(id));
+        var option = {
+            title: { show: false },
+            backgroundColor:'none',
+            color: ['#028de2','#54ca62','#fcdc6f'],
+            grid:[{
+                left: 25,right: 20,top: 10,bottom: 20
+            }],
+            tooltip:{show:true,trigger:'axis'},
+            xAxis:{
+                boundaryGap: false,
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                data:['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0']
+            },
+            yAxis:{
+                max: 1,
+                interval: 0.1,
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                splitLine:{show:false}
+            },
+            series:series
+        }
+        myChart.setOption(option);
+    };
+    var roc_option_1 = [
+        {
+            type: 'line',
+            name:'tpr',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        },
+        {
+            type: 'line',
+            name:'ks',
+            symbol:'none',
+            smooth:true,
+            data:[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.6,0.4,0.1]
+        },
+        {
+            type: 'line',
+            name:'fpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.4,0.5,0.6,0.7,0.8,0.9,1.0,0,0.1,0.2,0.3]
+        }
+    ];
+    var roc_option_2 = [
+        {
+            type: 'line',
+            name:'auc',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        }
+    ];
+    var roc_option_3 = [
+        {
+            type: 'line',
+            name:'tpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.6,0.4,0.1]
+        },
+        {
+            type: 'line',
+            name:'ks',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        },
+        {
+            type: 'line',
+            name:'fpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.4,0.5,0.6,0.7,0.8,0.9,1.0,0,0.1,0.2,0.3]
+        }
+    ];
+    var roc_option_4 = [
+        {
+            type: 'line',
+            name:'auc',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        }
+    ];
+    var roc_option_5 = [
+        {
+            type: 'line',
+            name:'tpr',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        },
+        {
+            type: 'line',
+            name:'ks',
+            symbol:'none',
+            smooth:true,
+            data:[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.6,0.4,0.1]
+        },
+        {
+            type: 'line',
+            name:'fpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.4,0.5,0.6,0.7,0.8,0.9,1.0,0,0.1,0.2,0.3]
+        }
+    ];
+    var roc_option_6 = [
+        {
+            type: 'line',
+            name:'auc',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        }
+    ];
+    var roc_option_7 = [
+        {
+            type: 'line',
+            name:'tpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.6,0.4,0.1]
+        },
+        {
+            type: 'line',
+            name:'ks',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        },
+        {
+            type: 'line',
+            name:'fpr',
+            symbol:'none',
+            smooth:true,
+            data:[0.4,0.5,0.6,0.7,0.8,0.9,1.0,0,0.1,0.2,0.3]
+        }
+    ];
+    var roc_option_8 = [
+        {
+            type: 'line',
+            name:'auc',
+            symbol:'none',
+            smooth:true,
+            data:[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        }
+    ];
+    $('.roc-ks-chart .data-chart').each(function(index){
+        ++index;
+        lineChart('chart_'+index,eval('roc_option_'+index));
+    });
+
+    /**
+     * 概率分箱图
+     */
+    function probabilityChart(id){
+        var myChart = echarts.init(document.getElementById(id));
+        var option = {
+            title: {show:false},
+            color:['#028de2','#fcdc6f'],
+            grid:[{
+                left: 70,bottom: 30,right: 70,top: 50
+            }],
+            tooltip:{show:true,trigger:'axis'},
+            legend:{show:false},
+            xAxis:{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                data:['[0-1k]','[1-2k]','[2-3k]','[3-4k]','[4-5k]','[5-6k]','[6-7k]','[7-8k]','[9-10k]','[10-11k]']
+            },
+            yAxis:[{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                splitLine:{show:false}
+            },{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                splitLine:{show:false}
+            }],
+            series:[
+                {
+                    type: 'bar',
+                    name: '总人数',
+                    barWidth: '30%',
+                    data:[2500,2500,2500,2500,2500,2500,2500,2500,2500,2500]
+                },
+                {
+                    type: 'line',
+                    name: '正样本量',
+                    yAxisIndex:1,
+                    symbol:'none',
+                    data:[2500,2500,2500,2500,2500,2500,2500,2500,2500,2500]
+                }
+            ]
+        };
+        myChart.setOption(option);
+    };
+    $('.probability-chart').each(function(index){
+        ++index;
+        probabilityChart('probability_chart_'+index,);
+    });
+</script>
+</body>
+</html>

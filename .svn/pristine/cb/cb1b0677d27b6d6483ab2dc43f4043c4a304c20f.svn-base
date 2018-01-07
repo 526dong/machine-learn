@@ -1,0 +1,17 @@
+package com.ccx.models.mapper;
+
+import com.ccx.models.model.ModelsVarPath;
+
+public interface ModelsVarPathMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsVarPath record);
+
+    int insertSelective(ModelsVarPath record);
+
+    ModelsVarPath selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsVarPath record);
+
+    int updateByPrimaryKey(ModelsVarPath record);
+}

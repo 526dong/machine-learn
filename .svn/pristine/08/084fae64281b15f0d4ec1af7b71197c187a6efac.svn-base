@@ -1,0 +1,154 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: zhaotm
+  Date: 2017/11/21
+  Time: 11:34
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>实验室-项目库 </title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            findProgram(1);
+        });
+
+        //
+        function jumpToPage(pageNo) {
+            findProgram(pageNo);
+        }
+
+        //
+        function enterSearch() {
+            if (event.keyCode == 13){
+                event.returnValue=false;
+                event.cancel = true;
+                findProgram(1);
+            }
+        }
+
+        //查modelajax
+        function findProgram(pageNo) {
+            $.ajax({
+                url:"${ctx}/program/indexList",
+                type:"POST",
+                dataType:"json",
+                data: {"keyWord": $("#keyWord").val()},
+                success:function (data) {
+                    if (200 == data.code) {
+                        var rows = data.data;
+                        $("#programContent").html("");
+
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            var status = row.status;
+                            var statusShow = status == 0? '未执行' : (status == 1? '计算中' : "完成");
+
+                            var divHtml = "<div class='file-details-header'>";
+                            divHtml += "<div class='file-details-icon'></div>";
+                            divHtml += "<div class='file-details-header-right'>";
+                            divHtml += "<div class='file-details-name-size'>";
+                            divHtml += "<em>"+row.name+"</em>";
+                            divHtml += "<b>"+row.dataFileName+"</b>";
+                            divHtml += "<b>"+row.dataSampleNum+"</b>";
+                            divHtml += "<span class='evaluate-date'>";
+                            divHtml +=  statusShow;
+                            divHtml += "<a class='operate_a3 delete_btn' title='删除' href='javascript:;' onclick='del("+row.id+");'>删除</a>";
+                            divHtml += "<a class='operate_a3 delete_btn' title='修改' href='${ctx}/program/addOrEdit?id="+row.id+"'>修改</a>";
+                            divHtml += "<a class='operate_a3 delete_btn' title='模型报告' href='javascript:;' onclick='toModelReport("+row.id+");'>模型报告</a>";
+                            divHtml += "</span>";
+                            divHtml += "</div>";
+                            divHtml += "<p class='file-details-desc'>";
+                            divHtml += "<span>"+row.arithmeticNames+"</span>";
+                            divHtml += "<span>"+row.castTime+"</span>";
+                            divHtml += "<span>"+row.createTimeStr+"</span>";
+                            divHtml += "</p>";
+                            divHtml += "</div>";
+                            divHtml += "</div>";
+                            $("#programContent").append(divHtml);
+                        }
+
+                        if (0 ==rows.length) {
+                            $("#programContent").append('暂无数据');
+                        }
+
+                    } else {
+                        alert("加载失败！")
+                    }
+                }
+            });
+        }
+
+        function toModelReport(programId) {
+            window.location.href="${ctx}/modelsReport/toModelsReportPage?programId="+programId;
+        }
+
+        //删除
+        function del(id) {
+            //confirm("你真的要删除项目项目么？", function () {
+                $.ajax({
+                    url: "${ctx}/program/del",
+                    type: "POST",
+                    dataType: "json",
+                    data: {"id": id},
+                    success: function (data) {
+                        if (200 == data.code) {
+                            alert("删除成功！", "${ctx}/program/index")
+                        } else {
+                            alert("删除失败！")
+                        }
+                    }
+                })
+           // });
+        }
+    </script>
+</head>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+            <div class="main">
+                <div class="main-header clearfix">
+                    <div class="page-title">
+                        <h3>实验室</h3>
+                        <p>项目列表</p>
+                    </div>
+
+                    <div class="query-box">
+                        <div class="srch-box">
+                            <i class="input-enter-icon" onclick="findProgram()"></i>
+                            <input class="j-input srch-ipt" type="text" id="keyWord" name="keyWord" placeholder="输入项目名/数据文件名搜索" onkeyup="enterSearch(this);" />
+                        </div>
+                        <a class="j-button import-file" href="${ctx}/program/addOrEdit?id=-1">
+                            <i class="add-file-icon"></i>
+                            <span>新增</span>
+                        </a>
+                    </div>
+                    <!-- //query-box -->
+                </div>
+
+                <!-- //main-header -->
+                <div class="file-details">
+                    <ul id="programContent"></ul>
+                </div>
+                <!-- file-list -->
+            </div>
+            <!-- //main -->
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+package com.ccx.models.mapper.datafile;
+
+
+import com.ccx.models.model.datafile.ModelsDataFile;
+
+import java.util.List;
+
+public interface ModelsDataFileMapper {
+    int insert(ModelsDataFile record);
+
+    int insertSelective(ModelsDataFile record);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsDataFile record);
+
+    int updateByPrimaryKey(ModelsDataFile record);
+
+    ModelsDataFile selectByPrimaryKey(Integer id);
+
+    List<ModelsDataFile> getList();
+}

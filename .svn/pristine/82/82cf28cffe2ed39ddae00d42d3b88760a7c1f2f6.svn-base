@@ -1,0 +1,37 @@
+package com.ccx.models.api;
+	
+import com.ccx.models.model.ModelsProgram;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+
+import java.util.*;
+	
+public interface ModelsProgramApi {
+		
+	//主键获取	
+	ModelsProgram getById(Integer id);	
+		
+	//获取无参list	
+	List<ModelsProgram> getList();	
+		
+	//获取有参数list	
+	List<ModelsProgram> getList(ModelsProgram model);	
+		
+	//获取带分页list	
+	PageInfo<ModelsProgram> getPageList(Map<String, Object> params);
+		
+	//通过条件获取	
+	ModelsProgram getByModel(ModelsProgram model);	
+	
+	//保存对象	
+	int save(ModelsProgram model);	
+	
+	//更新对象	
+	int update(ModelsProgram model);	
+		
+	//删除对象	
+	int deleteById(Integer id);	
+		
+	//其他查询	
+	Map<String, Object> getOther();	
+}	

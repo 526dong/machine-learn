@@ -1,0 +1,130 @@
+package com.ccx.models.service.impl.datafile;
+
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.model.datafile.ModelsFileRowValue;
+import com.ccx.models.model.datafile.ModelsFileValue;
+
+import java.util.List;
+
+/**
+ * @author Created by xzd on 2017/11/22.
+ * @Description 公共方法获取文件数据
+ */
+public class CommonFileValue {
+    //数据文件信息
+    public static class DataFile {
+        private ModelsDataFile dataFile;
+
+        private List<FileInfo> fileInfoList;
+
+        private List<RowFileInfo> rowFileInfoList;
+
+        private List<FileRowValue> fileRowValueList;
+
+        public ModelsDataFile getDataFile() {
+            return dataFile;
+        }
+
+        public void setDataFile(ModelsDataFile dataFile) {
+            this.dataFile = dataFile;
+        }
+
+        public List<FileInfo> getFileInfoList() {
+            return fileInfoList;
+        }
+
+        public void setFileInfoList(List<FileInfo> fileInfoList) {
+            this.fileInfoList = fileInfoList;
+        }
+
+        public List<RowFileInfo> getRowFileInfoList() {
+            return rowFileInfoList;
+        }
+
+        public void setRowFileInfoList(List<RowFileInfo> rowFileInfoList) {
+            this.rowFileInfoList = rowFileInfoList;
+        }
+
+        public List<FileRowValue> getFileRowValueList() {
+            return fileRowValueList;
+        }
+
+        public void setFileRowValueList(List<FileRowValue> fileRowValueList) {
+            this.fileRowValueList = fileRowValueList;
+        }
+    }
+
+    //数据文件中变量信息
+    public static class FileInfo {
+        private ModelsFileInfo fileInfo;
+
+        private List<FileValue> fileValueList;
+
+        public ModelsFileInfo getFileInfo() {
+            return fileInfo;
+        }
+
+        public void setFileInfo(ModelsFileInfo fileInfo) {
+            this.fileInfo = fileInfo;
+        }
+
+        public List<FileValue> getFileValueList() {
+            return fileValueList;
+        }
+
+        public void setFileValueList(List<FileValue> fileValueList) {
+            this.fileValueList = fileValueList;
+        }
+    }
+
+    //数据文件中一行变量值信息
+    public static class RowFileInfo {
+        //行号
+        private Integer rowNumber;
+
+        private List<FileValue> fileValueList;
+
+        public Integer getRowNumber() {
+            return rowNumber;
+        }
+
+        public void setRowNumber(Integer rowNumber) {
+            this.rowNumber = rowNumber;
+        }
+
+        public List<FileValue> getFileValueList() {
+            return fileValueList;
+        }
+
+        public void setFileValueList(List<FileValue> fileValueList) {
+            this.fileValueList = fileValueList;
+        }
+    }
+
+    //数据文件中变量值
+    public static class FileValue {
+        private ModelsFileValue fileValue;
+
+        public ModelsFileValue getFileValue() {
+            return fileValue;
+        }
+
+        public void setFileValue(ModelsFileValue fileValue) {
+            this.fileValue = fileValue;
+        }
+    }
+
+    //数据文件中变量值
+    public static class FileRowValue {
+        private ModelsFileRowValue fileRowValue;
+
+        public ModelsFileRowValue getFileRowValue() {
+            return fileRowValue;
+        }
+
+        public void setFileRowValue(ModelsFileRowValue fileRowValue) {
+            this.fileRowValue = fileRowValue;
+        }
+    }
+}

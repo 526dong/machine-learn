@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="credit-models-web" />
+        <module name="models-api" />
+        <module name="models-common" />
+        <module name="models-service" />
+        <module name="models-web" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ccx-models" target="1.7" />
+      <module name="credit-models-web" target="1.7" />
+      <module name="models-api" target="1.7" />
+      <module name="models-common" target="1.7" />
+      <module name="models-service" target="1.7" />
+      <module name="models-web" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

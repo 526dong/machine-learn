@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsExtractInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsExtractInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="model_name" property="modelName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="model_path" property="modelPath" jdbcType="VARCHAR" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, program_id, data_file_id, arithmetic_id, model_name, description, model_path,
+    del_flag, creater, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from models_extract_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_extract_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsExtractInfo" >
+    insert into models_extract_info (id, program_id, data_file_id,
+    arithmetic_id, model_name, description,
+    model_path, del_flag, creater,
+    create_time)
+    values (#{id,jdbcType=BIGINT}, #{programId,jdbcType=BIGINT}, #{dataFileId,jdbcType=BIGINT},
+    #{arithmeticId,jdbcType=BIGINT}, #{modelName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+    #{modelPath,jdbcType=VARCHAR}, #{delFlag,jdbcType=INTEGER}, #{creater,jdbcType=VARCHAR},
+    #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsExtractInfo" >
+    insert into models_extract_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="modelName != null" >
+        model_name,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="modelPath != null" >
+        model_path,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="modelName != null" >
+        #{modelName,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="modelPath != null" >
+        #{modelPath,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsExtractInfo" >
+    update models_extract_info
+    <set >
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="modelName != null" >
+        model_name = #{modelName,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="modelPath != null" >
+        model_path = #{modelPath,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsExtractInfo" >
+    update models_extract_info
+    set program_id = #{programId,jdbcType=BIGINT},
+      data_file_id = #{dataFileId,jdbcType=BIGINT},
+      arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      model_name = #{modelName,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      model_path = #{modelPath,jdbcType=VARCHAR},
+      del_flag = #{delFlag,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.datafile.ModelsFileIvTopnMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.datafile.ModelsFileIvTopn" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="var_name" property="varName" jdbcType="VARCHAR" />
+    <result column="bins" property="bins" jdbcType="VARCHAR" />
+    <result column="good" property="good" jdbcType="INTEGER" />
+    <result column="bad" property="bad" jdbcType="INTEGER" />
+    <result column="total" property="total" jdbcType="INTEGER" />
+    <result column="factor_per" property="factorPer" jdbcType="DECIMAL" />
+    <result column="bad_per" property="badPer" jdbcType="DECIMAL" />
+    <result column="p" property="p" jdbcType="DECIMAL" />
+    <result column="q" property="q" jdbcType="DECIMAL" />
+    <result column="woe" property="woe" jdbcType="VARCHAR" />
+    <result column="iv" property="iv" jdbcType="DECIMAL" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, data_file_id, var_name, bins, good, bad, total, factor_per, bad_per, p, q, woe,
+    iv, type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from models_file_iv_topn
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_file_iv_topn
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.datafile.ModelsFileIvTopn" >
+    insert into models_file_iv_topn ( data_file_id, var_name,
+    bins, good, bad, total,
+    factor_per, bad_per, p,
+    q, woe, iv, type
+    )
+    values ( #{dataFileId,jdbcType=BIGINT}, #{varName,jdbcType=VARCHAR},
+    #{bins,jdbcType=VARCHAR}, #{good,jdbcType=INTEGER}, #{bad,jdbcType=INTEGER}, #{total,jdbcType=INTEGER},
+    #{factorPer,jdbcType=DECIMAL}, #{badPer,jdbcType=DECIMAL}, #{p,jdbcType=DECIMAL},
+    #{q,jdbcType=DECIMAL}, #{woe,jdbcType=VARCHAR}, #{iv,jdbcType=DECIMAL}, #{type,jdbcType=VARCHAR}
+    )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.datafile.ModelsFileIvTopn" >
+    insert into models_file_iv_topn
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="varName != null" >
+        var_name,
+      </if>
+      <if test="bins != null" >
+        bins,
+      </if>
+      <if test="good != null" >
+        good,
+      </if>
+      <if test="bad != null" >
+        bad,
+      </if>
+      <if test="total != null" >
+        total,
+      </if>
+      <if test="factorPer != null" >
+        factor_per,
+      </if>
+      <if test="badPer != null" >
+        bad_per,
+      </if>
+      <if test="p != null" >
+        p,
+      </if>
+      <if test="q != null" >
+        q,
+      </if>
+      <if test="woe != null" >
+        woe,
+      </if>
+      <if test="iv != null" >
+        iv,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="varName != null" >
+        #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="bins != null" >
+        #{bins,jdbcType=VARCHAR},
+      </if>
+      <if test="good != null" >
+        #{good,jdbcType=INTEGER},
+      </if>
+      <if test="bad != null" >
+        #{bad,jdbcType=INTEGER},
+      </if>
+      <if test="total != null" >
+        #{total,jdbcType=INTEGER},
+      </if>
+      <if test="factorPer != null" >
+        #{factorPer,jdbcType=DECIMAL},
+      </if>
+      <if test="badPer != null" >
+        #{badPer,jdbcType=DECIMAL},
+      </if>
+      <if test="p != null" >
+        #{p,jdbcType=DECIMAL},
+      </if>
+      <if test="q != null" >
+        #{q,jdbcType=DECIMAL},
+      </if>
+      <if test="woe != null" >
+        #{woe,jdbcType=VARCHAR},
+      </if>
+      <if test="iv != null" >
+        #{iv,jdbcType=DECIMAL},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.datafile.ModelsFileIvTopn" >
+    update models_file_iv_topn
+    <set >
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="varName != null" >
+        var_name = #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="bins != null" >
+        bins = #{bins,jdbcType=VARCHAR},
+      </if>
+      <if test="good != null" >
+        good = #{good,jdbcType=INTEGER},
+      </if>
+      <if test="bad != null" >
+        bad = #{bad,jdbcType=INTEGER},
+      </if>
+      <if test="total != null" >
+        total = #{total,jdbcType=INTEGER},
+      </if>
+      <if test="factorPer != null" >
+        factor_per = #{factorPer,jdbcType=DECIMAL},
+      </if>
+      <if test="badPer != null" >
+        bad_per = #{badPer,jdbcType=DECIMAL},
+      </if>
+      <if test="p != null" >
+        p = #{p,jdbcType=DECIMAL},
+      </if>
+      <if test="q != null" >
+        q = #{q,jdbcType=DECIMAL},
+      </if>
+      <if test="woe != null" >
+        woe = #{woe,jdbcType=VARCHAR},
+      </if>
+      <if test="iv != null" >
+        iv = #{iv,jdbcType=DECIMAL},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.datafile.ModelsFileIvTopn" >
+    update models_file_iv_topn
+    set data_file_id = #{dataFileId,jdbcType=BIGINT},
+    var_name = #{varName,jdbcType=VARCHAR},
+    bins = #{bins,jdbcType=VARCHAR},
+    good = #{good,jdbcType=INTEGER},
+    bad = #{bad,jdbcType=INTEGER},
+    total = #{total,jdbcType=INTEGER},
+    factor_per = #{factorPer,jdbcType=DECIMAL},
+    bad_per = #{badPer,jdbcType=DECIMAL},
+    p = #{p,jdbcType=DECIMAL},
+    q = #{q,jdbcType=DECIMAL},
+    woe = #{woe,jdbcType=VARCHAR},
+    iv = #{iv,jdbcType=DECIMAL},
+    type = #{type,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getIvListByFileIdAndVarName" resultType="com.ccx.models.model.datafile.ModelsFileIvTopn">
+    select <include refid="Base_Column_List" />
+      from models_file_iv_topn
+    where
+    bins != 'All'
+    and
+    data_file_id = #{dataFileId,jdbcType=BIGINT} and var_name = #{varName,jdbcType=VARCHAR}
+  </select>
+</mapper>

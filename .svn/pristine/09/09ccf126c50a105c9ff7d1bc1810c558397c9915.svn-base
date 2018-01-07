@@ -1,0 +1,391 @@
+package com.ccx.models.service.impl.dataexchange;
+
+import com.ccx.models.Constants;
+import com.ccx.models.api.dataexchange.PutOutExchangeService;
+import com.ccx.models.bean.MsgBean;
+import com.ccx.models.bean.RecivePutOutBean;
+import com.ccx.models.manager.HttpDataExchangeManager;
+import com.ccx.models.mapper.*;
+import com.ccx.models.mapper.datafile.ModelsDataFileMapper;
+import com.ccx.models.message.MsgPush;
+import com.ccx.models.model.*;
+import com.ccx.models.util.*;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+
+import static com.ccx.models.manager.HttpDataExchangeManager.*;
+
+/**
+ * @Description:数据交换-模型输出
+ * @author:lilong
+ * @Date: 2017/11/22
+ */
+@Service
+public class PutOutExchangeServiceImpl implements PutOutExchangeService {
+
+    Logger logger = org.apache.logging.log4j.LogManager.getLogger(this.getClass());
+
+    @Autowired
+    HttpDataExchangeManager httpDataExchangeManager;
+
+    @Autowired
+    ModelsModelDataAnalyInfoMapper modelsModelDataAnalyInfoMapper;
+    @Autowired
+    ModelsModelDataEvaluateIndexMapper modelsModelDataEvaluateIndexMapper;
+    @Autowired
+    ModelsScoreGroupStatisticsMapper modelsScoreGroupStatisticsMapper;
+    @Autowired
+    private ModelsDataFileMapper modelsDataFileMapper;
+    @Autowired
+    private ModelsTrainLine2Mapper modelsTrainLine2Mapper;
+    @Autowired
+    private ModelsTrainLine3Mapper modelsTrainLine3Mapper;
+    @Autowired
+    private ModelsTrainLine4Mapper modelsTrainLine4Mapper;
+    @Autowired
+    private ModelsTrainLine1Mapper modelsTrainLine1Mapper;
+    @Autowired
+    private ModelsProgramMapper modelsProgramMapper;
+    @Autowired
+    private ModelsOutputPathMapper modelsOutputPathMapper;
+    @Autowired
+    private ModelsFileIvPutoutTopnMapper modelsFileIvPutoutTopnMapper;
+    @Autowired
+    private ModelsImportantCountMapper modelsImportantCountMapper;
+    @Autowired
+    private MsgPush push;
+    //记录消息推送的次数
+    private Map<Integer,Map<String,String>> sendMsg=new TimerConcurrentHashMap<>(Constants.MINUTE_10,100);
+
+    /**
+     * 发送模型请求给模型组 （异步请求，请求获取模型输出所有信息）
+     * @param program
+     * @return
+     */
+    @Override
+    public Map<String,Object> sendTOModel(ModelsProgram program,String userName){
+        Map<String,Object> map=new HashMap<>();
+        if(program==null) {
+            map.put("rsCode","10000");
+            map.put("rsMsg","参数有误");
+            return  map;
+        }
+       String res=httpDataExchangeManager.sendMsgToModel(modelsDataFileMapper.selectByPrimaryKey(program.getDataFileId()),program,userName);
+        if("".equals(res)){
+            map.put("rsCode","0000");
+            map.put("rsMsg","成功");
+            return map;
+        }
+        map.put("rsCode","9999");
+        map.put("rsMsg","系统异常");
+        return  map;
+    }
+
+    /**
+     * 保存模型输出信息
+     * @param putOutBean
+     */
+    @Override
+    public void saveOutPut(RecivePutOutBean putOutBean,Map<String,Object> data){
+        ModelsProgram program=null;
+        String sf=null;
+        //项目Id
+        Integer programId=null;
+        try{
+            //项目Id
+            programId=Integer.valueOf(putOutBean.getReqId().split("-")[1]);
+            sf=putOutBean.getReqId().split("-")[0];
+            program=modelsProgramMapper.selectByPrimaryKey(programId);
+            data.put("data",program);
+            //算法id
+            Integer arithmeticId=Integer.valueOf(program.getArithmeticIds().split(",")[getSfId(program.getArithmeticNames(),sf)]);
+            String creator=program.getCreator();
+
+            //重要变量分析
+            List<ModelsImportantCount> importantCounts=putOutBean.getVariableAnalysis().getModelsImportantCount(program.getDataFileId().longValue(),programId,arithmeticId);
+            //模型输出topN变量与目标变量关系表格路径
+            String topNpath=putOutBean.getVariableAnalysis().getTopNpath();
+            List<ModelsFileIvPutoutTopn> topnList =getModelsFileIvPutoutTopn(topNpath,program.getDataFileId(),programId,arithmeticId);
+
+
+            //模型的数据概览
+            List<ModelsModelDataAnalyInfo> analyInfos=putOutBean.getModelOutput().getModelsModelDataAnalyInfo(programId,arithmeticId,creator);
+
+            //模型评价指标报告
+            List<ModelsModelDataEvaluateIndex> indexList=putOutBean.getModelOutput(). getModelsModelDataEvaluateIndex(programId,arithmeticId,creator);
+
+            //KS,AUC
+            List<ModelsTrainLine1> trainKSlist=getModelsTrainLine1(putOutBean.getModelOutput().getAucksPlot().getTrainKSpath(),programId,arithmeticId,creator);//训练集KS指标
+            List<ModelsTrainLine2> trainAUClist=getModelsTrainLine2(putOutBean.getModelOutput().getAucksPlot().getTrainAUCpath(),programId,arithmeticId,creator);//训练集AUC指标
+            List<ModelsTrainLine3> testKSlist=getModelsTrainLine3(putOutBean.getModelOutput().getAucksPlot().getTestKSpath(),programId,arithmeticId,creator);//测试集KS指标
+            List<ModelsTrainLine4> testAUClist=getModelsTrainLine4(putOutBean.getModelOutput().getAucksPlot().getTestAUCpath(),programId,arithmeticId,creator);//训练集AUC指标
+
+            //概率分析报告
+            List<ModelsScoreGroupStatistics> scoreGroupStatistics=putOutBean.getModelOutput().getModelsModelsScoreGroupStatistics(programId,arithmeticId,creator);
+            System.out.println(putOutBean);
+
+            String  predictResPath=putOutBean.getOtherOutput().getPredictResPath();//				所有数据预测概率文件路径
+            String  modelPath=putOutBean.getOtherOutput().getModelPath();//				分析过程的日志文件路径
+            String  analysisReport=putOutBean.getOtherOutput().getAnalysisReport();//				分析结果的Excel表格下载路径
+
+            //数据存储
+            save(Arrays.asList(analyInfos,indexList,
+                    getLists(trainKSlist),
+                    getLists(trainAUClist),
+                    getLists(testKSlist),
+                    getLists(testAUClist),
+                    scoreGroupStatistics,
+                    importantCounts,
+                    topnList
+                    ),
+                    Arrays.<BaseMapper>asList(modelsModelDataAnalyInfoMapper,
+                            modelsModelDataEvaluateIndexMapper,
+                            modelsTrainLine1Mapper,
+                            modelsTrainLine2Mapper,
+                            modelsTrainLine3Mapper,
+                            modelsTrainLine4Mapper,
+                            modelsScoreGroupStatisticsMapper,
+                            modelsImportantCountMapper,
+                            modelsFileIvPutoutTopnMapper
+                    ));
+            //生成文件路径存储
+            modelsOutputPathMapper.insert(new ModelsOutputPath(null,programId.longValue(),
+                    arithmeticId.longValue(),null,predictResPath,analysisReport,putOutBean.getReqId(),modelPath));
+            ModelsProgram np=new ModelsProgram(program.getId(),new Date(),getTime(program.getCreateTime()),(short)2);
+            //修改状态
+            modelsProgramMapper.updateByPrimaryKeySelective(np);
+            //发现消息到页面
+            SendMsg(program,true,sf);
+        }catch (Exception e){
+            SendMsg(program,false,sf);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * 发送消息
+     * @param program
+     * @param flag
+     * @param sf
+     */
+    private void SendMsg(ModelsProgram program ,boolean flag,String sf){
+        Integer sfcount=program.getArithmeticNames().split(",").length;
+        Map<String,String> msg=dealSendMsg(program.getId(),flag,sf,sfcount);
+
+        Map<String,Object> send=new HashMap<>();
+        send.put("code",flag);
+        send.put("id",program.getId());
+        send.put("name",program.getName());
+        send.put("sf",sf);
+        boolean ifend=msg.size()==sfcount;
+        send.put("ifend",ifend);
+        send.put("time",ifend?getTime(program.getCreateTime()):"");
+        boolean s=msg.containsValue("success");
+        boolean f=msg.containsValue("false");
+        send.put("status",s&&f?0:(s?1:2));
+        send.put("msg",JsonUtils.toJson(msg));
+        push.sendMsgToClient(send, Constants.PUSH_CHANNEL_MODEL);
+    }
+
+    private Map<String,String> dealSendMsg(Integer projectId,boolean flag,String sf,Integer sfcount){
+        String lockkey="output_"+projectId;
+        Lock lock= LockUtils.getLock(lockkey);
+        Map<String,String> msg=null;
+        try{
+            lock.lock();
+            msg= sendMsg.get(projectId);
+            if(msg==null) {
+                msg=new HashMap<>();
+                sendMsg.put(projectId,msg);
+            }
+            msg.put(sf,flag?"success":"false");
+            //删除锁
+            if(sfcount==msg.size()) LockUtils.removeLock(lockkey);
+            return msg;
+        }finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void updateStatus(ModelsProgram np){
+        modelsProgramMapper.updateByPrimaryKeySelective(np);
+    }
+
+    //数据存储
+    private void save(List datas, List<BaseMapper> mappers){
+        Save<Object, BaseMapper> save= new Save<Object, BaseMapper>() {
+            @Override
+            public void insert(Object info, BaseMapper mapper) {
+                mapper.insert(info);
+            }
+        };
+
+        for (int i = 0; i <datas.size() ; i++) {
+           if(datas.get(i) instanceof List){
+               save.insertBatch((List<Object>) datas.get(i),mappers.get(i));
+           }else {
+               save.insert(datas.get(i),mappers.get(i));
+           }
+        }
+    }
+
+    //topN变量与目标变量关系
+    private static List<ModelsFileIvPutoutTopn> getModelsFileIvPutoutTopn(String path, Integer datafileId,Integer programId,Integer arithmeticId){
+        List<String[]> list= CSVUtil.read(path);
+        List<ModelsFileIvPutoutTopn> li=new ArrayList<>();
+        for (int i = 1; i <list.size() ; i++) {
+        /*    li.add(new ModelsFileIvTopn(null,fileId.longValue(),list.get(i)[5],list.get(i)[0],
+                    list.get(i)[1]==null?null:Integer.valueOf(list.get(i)[1]),
+                    list.get(i)[2]==null?null:Integer.valueOf(list.get(i)[2]),
+                    list.get(i)[3]==null?null:Integer.valueOf(list.get(i)[3]),
+                    list.get(i)[4]==null?null:(list.get(i)[4].contains("%")?
+                            new BigDecimal(list.get(i)[4].replace("%",""))
+                            :new BigDecimal(list.get(i)[4]))));*/
+
+                    new BigDecimal(list.get(i)[0]).intValue();
+            li.add(new ModelsFileIvPutoutTopn(datafileId.longValue(),programId.longValue(),arithmeticId.longValue(),
+                    list.get(i)[1],list.get(i)[2],
+                    StringUtils.isEmpty(list.get(i)[3])?null:new BigDecimal(list.get(i)[3]).intValue(),
+                    StringUtils.isEmpty(list.get(i)[4])?null:new BigDecimal(list.get(i)[4]).intValue(),
+                    StringUtils.isEmpty(list.get(i)[5])?null:new BigDecimal(list.get(i)[5]).intValue(),
+                    StringUtils.isEmpty(list.get(i)[6])?null:new BigDecimal(list.get(i)[6]),
+                    StringUtils.isEmpty(list.get(i)[7])?null:new BigDecimal(list.get(i)[7]),
+                    StringUtils.isEmpty(list.get(i)[8])?null:new BigDecimal(list.get(i)[8]),
+                    StringUtils.isEmpty(list.get(i)[9])?null:new BigDecimal(list.get(i)[9]),
+                    list.get(i)[10],
+                    StringUtils.isEmpty(list.get(i)[11])?null:new BigDecimal(list.get(i)[9]),
+                    list.get(i)[12],
+                    StringUtils.isEmpty(list.get(i)[0])?null:new BigDecimal(list.get(i)[0]).intValue()));
+        }
+        return li;
+    }
+  /*  //数据存储
+    private void save( List<ModelsModelDataAnalyInfo> analyInfos,
+                       List<ModelsModelDataEvaluateIndex> indexList,
+                       List<ModelsScoreGroupStatistics> scoreGroupStatistics,
+                        List<ModelsTrainLine1> trainKSlist,
+                       List<ModelsTrainLine2> trainAUClist,
+                       List<ModelsTrainLine3> testKSlist,
+                       List<ModelsTrainLine4> testAUClist){
+
+        new Save<ModelsModelDataAnalyInfo,ModelsModelDataAnalyInfoMapper>(){
+            @Override
+            public void insert(ModelsModelDataAnalyInfo info, ModelsModelDataAnalyInfoMapper mapper) {
+                mapper.insert(info);
+            }
+        }.insertBatch(analyInfos,modelsModelDataAnalyInfoMapper);
+
+        new Save<ModelsModelDataEvaluateIndex,ModelsModelDataEvaluateIndexMapper>(){
+            @Override
+            public void insert(ModelsModelDataEvaluateIndex info, ModelsModelDataEvaluateIndexMapper mapper) {
+                mapper.insert(info);
+            }
+        }.insertBatch(indexList,modelsModelDataEvaluateIndexMapper);
+
+        new Save<ModelsScoreGroupStatistics, ModelsScoreGroupStatisticsMapper>() {
+            @Override
+            public void insert(ModelsScoreGroupStatistics info, ModelsScoreGroupStatisticsMapper mapper) {
+                mapper.insert(info);
+            }
+        }.insertBatch(scoreGroupStatistics,modelsScoreGroupStatisticsMapper);
+    }
+*/
+    //ModelsTrainLine1
+    private  List<ModelsTrainLine1> getModelsTrainLine1(String path, Integer fileId,Integer arithmeticId,String userName){
+        List<String[]> list= CSVUtil.read(path);
+        List<ModelsTrainLine1> li=new ArrayList<>();
+        for (int i = 1; i <list.size() ; i++) {
+            li.add(new ModelsTrainLine1(fileId.longValue(),arithmeticId.longValue(),
+                    getBigDecimal(list.get(i)[0]),
+                    getBigDecimal(list.get(i)[1]),
+                    getBigDecimal(list.get(i)[2]),
+                    getBigDecimal(list.get(i)[3]),
+                    userName,new Date()));
+        }
+        return li;
+    }
+    //ModelsTrainLine2
+    private  List<ModelsTrainLine2> getModelsTrainLine2(String path, Integer fileId,Integer arithmeticId,String userName){
+        List<String[]> list= CSVUtil.read(path);
+        List<ModelsTrainLine2> li=new ArrayList<>();
+        for (int i = 1; i <list.size() ; i++) {
+            li.add(new ModelsTrainLine2(fileId.longValue(),arithmeticId.longValue(),
+                    getBigDecimal(list.get(i)[0]),
+                    getBigDecimal(list.get(i)[1]),
+                    userName,new Date()));
+        }
+        return li;
+    }
+    //ModelsTrainLine3
+    private  List<ModelsTrainLine3> getModelsTrainLine3(String path, Integer fileId,Integer arithmeticId,String userName){
+        List<String[]> list= CSVUtil.read(path);
+        List<ModelsTrainLine3> li=new ArrayList<>();
+        for (int i = 1; i <list.size() ; i++) {
+            li.add(new ModelsTrainLine3(fileId.longValue(),arithmeticId.longValue(),
+                    getBigDecimal(list.get(i)[0]),
+                    getBigDecimal(list.get(i)[1]),
+                    getBigDecimal(list.get(i)[2]),
+                    getBigDecimal(list.get(i)[3]),
+                    userName,new Date()));
+        }
+        return li;
+    }
+    //ModelsTrainLine4
+    private  List<ModelsTrainLine4> getModelsTrainLine4(String path, Integer fileId,Integer arithmeticId,String userName){
+        List<String[]> list= CSVUtil.read(path);
+        List<ModelsTrainLine4> li=new ArrayList<>();
+        for (int i = 1; i <list.size() ; i++) {
+            li.add(new ModelsTrainLine4(fileId.longValue(),arithmeticId.longValue(),
+                    getBigDecimal(list.get(i)[0]),
+                    getBigDecimal(list.get(i)[1]),
+                    userName,new Date()));
+        }
+        return li;
+    }
+    private static BigDecimal getBigDecimal(Object o){
+        if(o==null) return  null;
+        if(o.toString().indexOf("e")>0){
+            String[] data=o.toString().split("e");
+            if(data[1].startsWith("-")){
+                return new BigDecimal(data[0]).divide(new BigDecimal(Math.pow(10,Double.valueOf(data[1].substring(1)))));
+            }else{
+                return new BigDecimal(data[0]).multiply(new BigDecimal(Math.pow(10,Double.valueOf(data[1]))));
+            }
+        }
+        return new BigDecimal(o.toString());
+    }
+    //获取算法id
+    private Integer getSfId(String sfs,String sf){
+        String[] st =sfs.split(",");
+        for (int i = 0; i <st.length ; i++) {
+            if(st[i].toLowerCase().equals(sf.toLowerCase())){
+                return i;
+            }
+        }
+        return null;
+    }
+
+    //从大的list里面拆成多个List
+
+    public  <E>List<List<E>>  getLists(List<E> list){
+        int index=200;
+        int c=list.size()/index+(list.size()%index==0?0:1);
+        List<List<E>> res=new ArrayList<>();
+        for (int i = 0; i <c ; i++) {
+            List<E> es = list.subList(i*index,(i+1)*index>(list.size())?list.size():(i+1)*index);
+            res.add(es);
+        }
+        return res;
+    }
+    public  String getTime(Date d){
+        long s= (System.currentTimeMillis()-d.getTime())/(1000l);
+       return s/(60*60)+"时"+s/60+"分"+s%60+"秒";
+    }
+}

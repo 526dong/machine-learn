@@ -1,0 +1,74 @@
+<%@ page language="java" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<style>
+.side-sub-nav li a{
+    padding: 9px 0;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.side-sub-nav li a.selected,
+.side-sub-nav li a:hover{
+    color: #009efb;
+}
+</style>
+
+
+<div class="side-nav">
+    <ul class="wx_sidenav">
+        <c:forEach items="${user_m_permission }" var="per" varStatus="status" >
+            <c:if test="${per.type == 1 && per.parentId eq 'manage-0' }">
+                <li>
+                    <div class="side-item">
+                        <span class="highlight-bar"></span>
+                        <span class="side-nav-icon ${per.iconUrl }"></span>
+                        <span class="side-nav-name">${per.permissionName }</span>
+                        <span class="side-nav-arrow"></span>
+                    </div>
+                    <ul class="side-sub-nav">
+                        <c:forEach items="${user_m_permission }" var="per_ch" >
+                            <c:if test="${per_ch.type == 1 && per_ch.parentId eq per.myselfId }">
+                                <li><a href="javaScript:;" data-url="${ctx}${per_ch.pathUrl}">${per_ch.permissionName }</a><i></i></li>
+                            </c:if>
+                        </c:forEach>
+                    </ul>
+                </li>
+            </c:if>
+        </c:forEach>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        var meun= "${user_m_permission }";
+        if(meun=="[]"){
+//            $("#tip").html("您还暂无分配权限，请联系管理员分配权限");
+//            fnPopup('#popup1');
+        }
+        $(".wx_sidenav a").bind("click",function(){
+            if($(this).parent().parent().prev().attr("class") == "side-item selected"){
+                var index = $(".wx_sidenav a").index($(this));
+                var href = $(this).attr("data-url");
+                window.location.href = href + "?menuIndex="+index;
+            }
+        });
+    });
+    //控制左侧菜单
+    contrMenu('${menuIndex}');
+    //控制左侧菜单
+    function contrMenu(index){
+        if(null!=index &&  ""!=index){
+            //展示当前菜单的同级
+            $(".side-sub-nav").hide();
+            $(".wx_sidenav a").eq(index).parent().parent().show();
+            //选中当前菜单
+            $(".wx_sidenav a").attr("class","");
+            $(".wx_sidenav a").eq(index).attr("class","selected");
+            //选中一级菜单
+            $(".wx_sidenav > li").attr("class","");
+            $(".wx_sidenav a").eq(index).parent().parent().prev().addClass("selected");
+        }
+    }
+</script>
+   

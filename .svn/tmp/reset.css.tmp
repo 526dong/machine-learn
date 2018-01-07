@@ -1,0 +1,111 @@
+<<<<<<< .mine
+@charset "utf-8";
+
+ /** 清除内外边距 **/
+
+ body,h1,h2,h3,h4,h5,h6,hr,p,
+ blockquote,/* 结构元素 */
+ dl,dt,dd,ul,ol,li, /* 列表元素 */
+ pre,/* 文本格式元素 */
+ form,fieldset,legend,button,input,textarea,/* 表单元素 */
+ th,td,/* 表格元素 */
+ img/* 图片元素 */
+{
+
+	margin: 0;
+
+	padding: 0;
+}
+
+/** 设置默认字体 **/
+
+body,button,input,select,textarea{
+	font: 16px/1.5 '微软雅黑','宋体',tahoma,arial,helvetica,sans-serif;/* 字号/行高,字体[...] */
+}
+
+h1,h2,h3,h4,h5,h6{ font-size: 100%; }
+
+em,i{ font-style: normal; }
+
+em,b{ font-weight: normal; }
+
+/** 重置列表元素 **/
+
+ul,ol{ list-style: none; }
+
+/** 重置超链接元素 **/
+
+a{ 
+	color: #fff;
+	text-decoration: none;
+ }
+
+/** 重置图片元素 **/
+
+img{ border: 0 none; }
+
+/** 重置表格元素 **/
+
+table{
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+=======
+@charset "utf-8";
+
+ /** 清除内外边距 **/
+
+ body,h1,h2,h3,h4,h5,h6,hr,p,
+ blockquote,/* 结构元素 */
+ dl,dt,dd,ul,ol,li, /* 列表元素 */
+ pre,/* 文本格式元素 */
+ form,fieldset,legend,button,input,textarea,/* 表单元素 */
+ th,td,/* 表格元素 */
+ img/* 图片元素 */
+{
+
+	margin: 0;
+
+	padding: 0;
+}
+
+/** 设置默认字体 **/
+
+body,button,input,select,textarea{
+	font: 16px/1.5 '微软雅黑','宋体',tahoma,arial,helvetica,sans-serif;/* 字号/行高,字体[...] */
+}
+
+h1,h2,h3,h4,h5,h6{ font-size: 100%; }
+
+em,i{ font-style: normal; }
+
+em,b{ font-weight: normal; }
+
+/** 重置列表元素 **/
+
+ul,ol{ list-style: none; }
+
+/** 重置超链接元素 **/
+
+a{ 
+	color: #333;
+	text-decoration: none;
+ }
+a:hover{
+	color: #f40;
+	text-decoration: underline;
+}
+
+/** 重置图片元素 **/
+
+img{ border: 0 none; }
+
+/** 重置表格元素 **/
+
+table{
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+>>>>>>> .r28265

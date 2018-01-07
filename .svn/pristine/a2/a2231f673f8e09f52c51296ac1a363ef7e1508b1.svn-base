@@ -1,0 +1,195 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>企业数据管理-企业评级管理</title>
+	<link type="text/css" href="${ctx}/resources/css/base.css" rel="stylesheet" />
+	<link type="text/css" href="${ctx}/resources/css/common.css" rel="stylesheet" />
+	<script type="text/javascript" src="${ctx}/resources/js/common.js"></script>
+	<script type="text/javascript" src="${ctx}/resources/js/my97datepicker/WdatePicker.js"></script>
+</head>
+<script type="text/javascript">
+var pageSize = 10;
+/*页面初始化*/
+$(function(){
+	/*列表数据*/
+	getData(1);
+});
+/*列表数据*/
+function getData(pageNo){
+	$.ajax({
+		url:"${ctx}/enterprise/findAllEnt",
+		type:'POST',
+		data:{
+			"pageNo":pageNo,
+			"pageSize":pageSize,
+			"keyWord":$("#keyWord").val(),//关键字搜索
+			"startDate":$("#startDate").val(),
+			"endDate":$("#endDate").val()
+		},
+		async: false,
+		success:function(data){
+			if (200 == data.code) {
+				var page = data.data;
+				var reData = page.rows;
+				//clear
+				$("#enterpriseContent").html("");
+				//tbody
+				var htmlStr = createTable(reData);
+				$("#enterpriseContent").html(htmlStr);
+				//page
+				var pageStr = creatPage(page.total, page.pageNo, page.totalPage);
+				$("#pageDiv").html(pageStr);
+			} else {
+                alert(data.msg);
+                console.error(data.msg);
+            }
+		}
+	});
+}
+//企业创建列表
+function createTable(data){
+	var htmlContent = "";
+	for(var i=0;i<data.length;i++){
+		htmlContent += "<tr>";
+		htmlContent += "<td>"+(parseInt(i)+1)+"</td>";
+		//评级申请编号
+		htmlContent += "<td>"+(data[i].ratingApplyNum == null ? '' : data[i].ratingApplyNum)+"</td>";
+		//企业信息
+		if (data[i].entName != null) {
+			htmlContent += "<td title='"+data[i].entName+"'style='overflow: hidden;text-overflow:ellipsis;white-space: nowrap'>"+data[i].entName+"</td>"
+		} else {
+			htmlContent += "<td></td>";
+		}
+		if(data[i].entType == null){
+			htmlContent += "<td></td>";
+		}else{
+			htmlContent += "<td>"+(data[i].entType == 0 ? '新评级' : '跟踪评级')+"</td>";
+		}
+		//最新报表信息
+		htmlContent += "<td>"+(data[i].rateReport == null ? '' : data[i].rateReport)+"</td>";
+		//审批进度
+		if(data[i].approvalStatus == 2){
+			htmlContent += "<td>已评级</td>";
+		}else if (data[i].approvalStatus == 3) {
+			htmlContent += "<td>被退回</td>";
+		} else {
+			htmlContent += "<td></td>";
+		}
+		//评级信息
+		htmlContent += "<td>"+(data[i].approvalTime == null ? '' : data[i].approvalTime)+"</td>";//最新评级时间
+		htmlContent += "<td>"+(data[i].ratingResult == null ? '' : data[i].ratingResult)+"</td>";//最新评级结果
+		htmlContent += "<td>"+(data[i].shadowRatingResult == null ? '' : data[i].shadowRatingResult)+"</td>";//影子评级结果
+		//创建机构
+		if (data[i].insName != null) {
+			htmlContent += "<td title='"+data[i].insName+"'style='max-width: 100px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap'>"+data[i].insName+"</td>"
+		} else {
+			htmlContent += "<td></td>";
+		}
+
+		htmlContent += "<td>"+(data[i].initiateTime == null ? '' : data[i].initiateTime)+"</td>";
+		htmlContent += "<td class='audit_td3 audit_td4'>";
+		htmlContent += "<a class='detail_btn' href='javascript:;' onclick='detail("+data[i].entId+");'>查看</a>";
+		htmlContent += "</td>";
+		htmlContent += "</tr>";
+	}
+
+	return htmlContent;
+}
+//查看详情
+function detail(id){
+	window.location.href = "${ctx}/enterprise/detail?id="+id;
+}
+//条件查询
+function searchEnt(){
+	getData(1);
+}
+//分页跳转
+function jumpToPage(pageNo){
+	getData(pageNo);
+}
+
+</script>
+<body class="body_bg">
+<div class="main">
+	<!--页面头部 start -->
+	<%@ include file="../commons/topHead.jsp"%>
+	<!--页面头部 end -->
+	<!-- center.html start -->
+	<div class="main_center">
+		<!--页面左侧导航栏 start -->
+		<%@ include file="../commons/leftNavigation.jsp"%>
+		<!-- 页面左侧导航栏 end -->
+		<!-- 右侧内容.html start -->
+		<div class="right_content">
+			<h3 class="place_title">
+				<span>当前位置：</span>
+				<a href="${ctx}/enterprise/list">企业数据管理</a>
+				<span>></span>
+				<a href="javascript:void(0)">企业评级管理</a>
+			</h3>
+			<div class="shade main_minHeight">
+				<div class="search_box clear">
+					<div class="search_btn fr">
+						<a href="javaScript:;" class="fr" onclick="searchEnt();">查询</a>
+						<input type="text" class="fr" id="keyWord" value="" style="width: 240px;" placeholder="评级申请编号/企业名称/创建机构等"/>
+					</div>
+					<div class="search_son fr">
+						<strong>创建时间</strong>
+						<input class="select_time fl" id="startDate" placeholder="开始时间" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="" type="text">
+						<i class="select_xian">-</i>
+						<input class="select_time fr" id="endDate" placeholder="结束时间" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="" type="text">
+					</div>
+				</div>
+				<div class="module_height">
+					<form>
+						<table class="module_table">
+							<thead>
+							<tr>
+								<th class="module_width1">序号</th>
+								<th>评级申请编号</th>
+								<th>企业名称</th>
+								<th>评级类型</th>
+								<th>最新报表</th>
+								<th>最新审批状态</th>
+								<th>最新评级时间</th>
+								<th>最新评级结果</th>
+								<th>影子评级结果</th>
+								<th style="width: 100px;">创建机构</th>
+								<th>创建时间</th>
+								<th class="module_width1">操作</th>
+							</tr>
+							</thead>
+							<tbody id="enterpriseContent"></tbody>
+						</table>
+					</form>
+				</div>
+				<!-- 分页.html start -->
+				<%@include file="../commons/tabPage.jsp" %>
+				<!-- 分页.html end -->
+			</div>
+			<!-- footer.html start -->
+			<%@ include file="../commons/foot.jsp"%>
+			<!-- footer.html end -->
+		</div>
+		<!-- 右侧内容.html end -->
+	</div>
+	<!-- center.html end -->
+</div>
+<!-- 遮罩层 start -->
+<div class="layer" id="layer"></div>
+<!-- 遮罩层 end -->
+<!-- 启用停用 start -->
+<div class="popup popup2" id="popup">
+	<a href="javaScript:;" class="close"></a>
+	<p>错误提示</p>
+	<div class="popup_btn">
+		<a href="javaScript:;" class="a1 fl">确定</a>
+		<a href="javaScript:;" class="a2 fr">取消</a>
+	</div>
+</div>
+<!-- 启用停用 end -->
+</body>
+</html>
+

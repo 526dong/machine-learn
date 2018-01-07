@@ -1,0 +1,188 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>数据文件-数据文件导入</title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script !src="">
+/*//导入数据文件
+function importDataFile() {
+    //显示导入框
+    showAlert("#data_popup");
+
+    $(document).on("click",'.addBody_btn_a2',function(){
+        //隐藏导入框
+        hideAlert("#data_popup");
+    });
+}*/
+//导入校验后缀
+function fileUpload(fileName) {
+    var filename = $(fileName).val();
+    var isCsv = filename.indexOf('.csv');
+    if (isCsv > 0) {
+        if (null != filename && "" != filename && typeof (filename) != "undefined") {
+            $(fileName).parent().find('a').html($(fileName).val().substr(12,$(fileName).val().length));
+        }
+    } else {
+        alert("上传文件格式错误！请上传.csv文件");
+        return;
+    }
+}
+//数据文件-录入
+function submitImportDataFile() {
+    //携带值
+
+    $.ajaxFileUpload({
+        url : "${ctx}/modelsDataFile/doImportDataFile",
+        secureuri : false,//是否需要安全协议
+        fileElementId : "dataFile",
+        dataType : "txt",
+        type : "POST",
+        async : false,
+        success : function(data) {
+            if(data){
+                var reData = eval('(' + data + ')');
+            } else {
+                alert("导入失败");
+            }
+        }
+    });
+}
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>数据文件</h3>
+                    <p>文件列表</p>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div id="select_file">
+                <div class="select-file">
+                    <form action="" class="select-file-form">
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">选择文件</label>
+                            <div class="form-item-content">
+                                <div class="text-box" id="source_file_name"></div>
+                                <div class="browser-file">
+                                    <input id="browser-file-ipt" type="file">
+                                    <div class="j-button browser-file-btn">
+                                        <i class="browser-file-icon"></i>
+                                        <span>浏览</span>
+                                    </div>
+                                </div>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">文件名称</label>
+                            <div class="form-item-content">
+                                <input type="text" id="select_file_rename" class="j-input">
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">文件类型</label>
+                            <div class="form-item-content">
+                                <div class="j-select">
+                                    <i class="j-select-arrow"></i>
+                                    <div class="j-select-placeholder"></div>
+                                    <div class="j-select-options">
+                                        <ul>
+                                            <li>csv</li>
+                                            <li>txt</li>
+                                            <li>xls/xlsx</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">编码类型</label>
+                            <div class="form-item-content">
+                                <div class="j-select">
+                                    <i class="j-select-arrow"></i>
+                                    <div class="j-select-placeholder"></div>
+                                    <div class="j-select-options">
+                                        <ul>
+                                            <li>1</li>
+                                            <li>2</li>
+                                            <li>3</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">文件分隔符</label>
+                            <div class="form-item-content">
+                                <input type="text" class="j-input">
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">缺失值</label>
+                            <div class="form-item-content">
+                                <input type="text" class="j-input fl">
+                                <%--<div class="text-box fl">变量内容为空的表达方式</div>--%>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">Target name</label>
+                            <div class="form-item-content">
+                                <input type="text" class="j-input fl">
+                                <%--<div class="text-box fl">好坏样本标记</div>--%>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">Index name</label>
+                            <div class="form-item-content">
+                                <input type="text" class="j-input fl">
+                                <%--<div class="text-box fl">样本ID标记</div>--%>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="form-item clearfix">
+                            <label for="" class="j-label">文件描述</label>
+                            <div class="form-item-content">
+                                <textarea class="file-description" name="" id="" cols="30" rows="5"></textarea>
+                                <%--<p class="form-item-err">错误提示</p>--%>
+                            </div>
+                        </div>
+                        <div class="clearfix">
+                            <span class="j-button select-file-submit" onclick="submitImportDataFile();">导入</span>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <!-- //select-file -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- //content -->
+</div>
+<!-- //j-container -->
+</body>
+</html>

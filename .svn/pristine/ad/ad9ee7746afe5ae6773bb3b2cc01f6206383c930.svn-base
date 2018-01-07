@@ -1,0 +1,692 @@
+<%@ page language="java" import="java.util.*"
+    import="java.net.URLDecoder" pageEncoding="UTF-8"%>
+<%@ include file="/WEB-INF/views/commons/taglibs.jsp"%>
+<%-- <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> --%>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>系统管理-用户管理</title>
+<link type="text/css" href="${ctx}/resources/css/base.css" rel="stylesheet" />
+<link type="text/css" href="${ctx}/resources/css/common.css" rel="stylesheet" />
+<%-- <!--<script type="text/javascript" src="${ctx}/resources/js/jquery-1.12.4.js"></script>--> --%>
+<script type="text/javascript" src="${ctx}/resources/js/common.js"></script>
+</head>
+<script type="text/javascript">
+/*页面初始化*/
+$(function() {
+    /*列表数据*/
+    findUserList();
+    findRoleList();
+    
+    fnTab();//隔行变色
+    
+    //每页显示条数
+	$("#select_box0").on("click","li",function(){
+		$("#next_select0 span").html($(this).attr("data-id"));
+		$("#currentPage").val(1);
+		findUserList();
+	})
+	//页数跳转
+	$("#currentNum").blur(function(){
+		var currentNum=  $("#currentNum").val();
+		$("#currentPage").val(currentNum);
+		findUserList();
+	})
+    
+    $("#userStatus_select_box").on("click","li",function(){
+		$("#userStatus").val($(this).attr("data-id"));
+	})
+	$("#userRole_select_box").on("click","li",function(){
+		$("#userRole").val($(this).attr("data-id"));
+	})
+	
+	$.validator.addMethod("isPassworddd", function(value,element) {
+		var password = $("#passwordNewNew1").val();
+		//var reg=/^[a-zA-Z0-9]{8,18}$/; 
+		var reg=/^(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{8,18}$/
+		if(reg.test(password)==false){
+			return false;
+		}
+		return true;
+	}, "密码必须8-18位,数字字母组合");
+	$.validator.addMethod("passwordSameee", function(value,element) {
+		var passwordNew = $("#passwordNewNew1").val();
+		var passwordNew2 = $("#passwordNewNew2").val();
+		if (passwordNew == passwordNew2) return true;
+		return false;
+	}, "两次密码输入不一致");
+	$("#updatePasswordForm").validate({
+	    rules: {
+	      passwordNewNew1: {
+	      	required: true,
+	      	isPassworddd:true
+	      },
+	      passwordNewNew2: {
+	      	required: true,
+	      	passwordSameee: true
+	      }
+	    },
+	    messages: {
+	      passwordNewNew1:{
+              required:"请输入新密码"
+          },
+          passwordNewNew2:{
+	          required:"请重复新密码"
+	      }
+	    },
+	    errorPlacement: function(error, element) { 
+	 		if(element.is("input[name=passwordNewNew1]")){
+	 			error.appendTo($("#passwordNewNew1_error")); 
+	 		}
+	 		if(element.is("input[name=passwordNewNew2]")){
+	 			error.appendTo($("#passwordNewNew2_error")); 
+	 		}
+	 	},
+    });
+	
+});
+
+//查询
+function search() {
+	findUserList();
+}
+
+/*列表数据*/
+function findUserList() {
+    $.ajax({
+        url : "${ctx}/user/findAll",
+        type : 'POST',
+        data : {
+        	pageSize:$("#next_select0 span").text(),//每页展示数
+        	currentPage : $("#currentPage").val(),//当前页
+            userStatus : $("#userStatus").val(),//用户状态
+            userRole : $("#userRole").val(),//用户角色
+            keyWord : $("#keyWord").val(),//关键字搜索
+        },
+        async : false,
+        success : function(data) { 
+           	var htmlStr = createTable(data.list);
+            $("#htmlContent").html(htmlStr);
+            var pageStr = creatPage(data.total, data.pageNum,data.pages);
+            $("#pageDiv").html(pageStr);
+        }
+    });
+}
+
+//角色
+function findRoleList(){
+	$.ajax({
+		url:"${ctx }/role/findRoleByInstitutionId",
+		type:"post",
+		dataType: "json",
+		async : true,
+	    success: function(data) {//回调函数，result，返回值
+	    	var scenesHtml = '<li data-id="0000" class="curr">用户角色-全部</li>';
+			for (var i = 0; i < data.length; i++) {
+				var roleid = data[i].id;
+				scenesHtml += '<li data-id="'+roleid+'">用户角色-'+ data[i].name + '</li>';
+			}
+			$('#userRole_select_box ul').html(scenesHtml);
+	    }
+	});
+}
+
+//创建用户列表
+function createTable(data) {
+    var htmlContent = "";
+    for (var i = 0; i < data.length; i++) {
+    	var loginName = data[i].loginName;
+        if(null==loginName||typeof(loginName)=="undefined"||""==loginName){
+        	loginName = "";
+        }
+        var name = data[i].name;
+        if(null==name||typeof(name)=="undefined"||""==name){
+        	name = "";
+        }
+        var roleName = data[i].roleName;
+        if(null==roleName||typeof(roleName)=="undefined"||""==roleName){
+        	roleName = "";
+        }
+        var phone = data[i].phone;
+        if(null==phone||typeof(phone)=="undefined"||""==phone){
+        	phone = "";
+        }
+        var email = data[i].email;
+        if(null==email||typeof(email)=="undefined"||""==email){
+        	email = "";
+        }
+        var createTime = data[i].createTime;
+        if(null==createTime||typeof(createTime)=="undefined"||""==createTime){
+        	createTime = "";
+        }
+        htmlContent += "<tr>";
+        htmlContent += "<td class='audit_td1'>" + (parseInt(i) + 1)
+                + "</td>";
+        htmlContent += "<td style='display:none' >" + data[i].id + "</td>";
+        htmlContent += "<td>" + loginName + "</td>";
+        htmlContent += "<td>" + name + "</td>";
+        htmlContent += "<td>" + roleName + "</td>";
+        htmlContent += "<td>" + phone + "</td>";
+        htmlContent += "<td>" + email + "</td>";
+        htmlContent += "<td>" + createTime + "</td>";
+        if (data[i].status == 0) {
+            htmlContent += "<td>" + "可用" + "</td>";
+        } else if(data[i].status == 1){
+            htmlContent += "<td>" + "停用" + "</td>";
+        }else if(data[i].status == 2){
+            htmlContent += "<td>" + "锁定" + "</td>";
+        }
+        htmlContent += "<td class='module_operate' >";
+        if(data[i].status == 0){
+        	htmlContent += "<shiro:hasPermission name='/user/reset'>";
+            htmlContent += "<a href='javaScript:;' onclick=reset('"+data[i].id+"','"+data[i].loginName+"','"+data[i].name+"','"+data[i].password+"')  title='重置密码' class='operate_a11 left0' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+            htmlContent += "<shiro:hasPermission name='/user/freeze'>";
+        	htmlContent += "<a href='javaScript:;' onclick=freeze('"+data[i].id+"','"+data[i].loginName+"') title='停用' class='operate_a12 left38' ></a>";
+        	htmlContent += "</shiro:hasPermission>";
+        	htmlContent += "<shiro:hasPermission name='/user/isDel'>";
+            htmlContent += "<a href='javaScript:;' onclick=isDel('"+data[i].id+"','"+data[i].loginName+"') title='删除' class='operate_a3 left72' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+        }
+        if(data[i].status == 1){
+        	htmlContent += "<shiro:hasPermission name='/user/update'>";
+            htmlContent += "<a href='javaScript:;' onclick=update('"+data[i].id+"')  title='修改' class='operate_a10 left0' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+            htmlContent += "<shiro:hasPermission name='/user/reset'>";
+            htmlContent += "<a href='javaScript:;' onclick=reset('"+data[i].id+"','"+data[i].loginName+"','"+data[i].name+"','"+data[i].password+"')  title='重置密码' class='operate_a11 left38' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+            htmlContent += "<shiro:hasPermission name='/user/unfreeze'>";
+        	htmlContent += "<a href='javaScript:;' onclick=unfreeze('"+data[i].id+"','"+data[i].loginName+"') title='启用' class='operate_a14 left72' ></a>";
+        	htmlContent += "</shiro:hasPermission>";
+        	htmlContent += "<shiro:hasPermission name='/user/isDel'>";
+            htmlContent += "<a href='javaScript:;' onclick=isDel('"+data[i].id+"','"+data[i].loginName+"') title='删除' class='operate_a3 left104' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+        }
+        if(data[i].status == 2){
+        	htmlContent += "<shiro:hasPermission name='/user/reset'>";
+            htmlContent += "<a href='javaScript:;' onclick=reset('"+data[i].id+"','"+data[i].loginName+"','"+data[i].name+"','"+data[i].password+"')  title='重置密码' class='operate_a11 left0' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+            htmlContent += "<shiro:hasPermission name='/user/unlock'>";
+        	htmlContent += "<a href='javaScript:;' onclick=unlock('"+data[i].id+"','"+data[i].loginName+"') title='解锁' class='operate_a13 left38' ></a>";
+        	htmlContent += "</shiro:hasPermission>";
+        	htmlContent += "<shiro:hasPermission name='/user/isDel'>";
+            htmlContent += "<a href='javaScript:;' onclick=isDel('"+data[i].id+"','"+data[i].loginName+"') title='删除' class='operate_a3 left72' ></a>";
+            htmlContent += "</shiro:hasPermission>";
+        }
+        
+//         if(data[i].status == 1){
+//         	htmlContent += "<shiro:hasPermission name='/user/update'>";
+//             htmlContent += "<a href='javaScript:;' onclick=update('"+data[i].id+"')  title='修改' class='operate_a10 left0' ></a>";
+//             htmlContent += "</shiro:hasPermission>";
+//         }
+//         htmlContent += "<shiro:hasPermission name='/user/reset'>";
+//         htmlContent += "<a href='javaScript:;' onclick=reset('"+data[i].id+"','"+data[i].loginName+"','"+data[i].name+"','"+data[i].password+"')  title='重置密码' class='operate_a11 left38' ></a>";
+//         htmlContent += "</shiro:hasPermission>";
+//         if (data[i].status == 0) {
+//         	htmlContent += "<shiro:hasPermission name='/user/freeze'>";
+//         	htmlContent += "<a href='javaScript:;' onclick=freeze('"+data[i].id+"','"+data[i].loginName+"') title='停用' class='operate_a12 left72' ></a>";
+//         	htmlContent += "</shiro:hasPermission>";
+//         } if(data[i].status == 1){
+//         	htmlContent += "<shiro:hasPermission name='/user/unfreeze'>";
+//         	htmlContent += "<a href='javaScript:;' onclick=unfreeze('"+data[i].id+"','"+data[i].loginName+"') title='启用' class='operate_a14 left72' ></a>";
+//         	htmlContent += "</shiro:hasPermission>";
+//         }if(data[i].status == 2){
+//         	htmlContent += "<shiro:hasPermission name='/user/unlock'>";
+//         	htmlContent += "<a href='javaScript:;' onclick=unlock('"+data[i].id+"','"+data[i].loginName+"') title='解锁' class='operate_a13 left104' ></a>";
+//         	htmlContent += "</shiro:hasPermission>";
+//         }
+//         htmlContent += "<shiro:hasPermission name='/user/isDel'>";
+//         htmlContent += "<a href='javaScript:;' onclick=isDel('"+data[i].id+"','"+data[i].loginName+"') title='删除' class='operate_a3' ></a>";
+//         htmlContent += "</shiro:hasPermission>";
+        htmlContent += "</td>";
+        htmlContent += "</tr>";
+    }
+    return htmlContent;
+}
+
+//创建分页
+function creatPage(total,pageNo,totalpage){
+// 	if(totalpage>1){//总页数大于一才显示分页
+		$(".page_parent").show();
+         //当前页数
+		$("#currentNum").val(pageNo);
+         //总数
+		$("#sumCount").text(total);
+		var starPage = pageNo-2;
+		var endPage = pageNo+2;
+		if(starPage<1){
+			starPage=1;
+			endPage=5;
+			if(endPage>totalpage){
+				endPage = totalpage;
+			}
+		}
+		if(endPage>totalpage){
+			endPage = totalpage;
+			starPage = totalpage-4;
+			if(starPage<1){
+				starPage=1;
+			}
+		}
+		var pageStr ="";
+		if(pageNo-1 > 0){
+	        pageStr += '<a href="javaScript:;" onclick="jumpToPage('+(pageNo-1)+');" class="triangle_left"></a>';
+		}else{
+	        pageStr += '<a class="triangle_left"></a>';
+		}
+		if(1 < starPage){
+			pageStr += '<span>...</span>';
+		}
+		for(var i=starPage;i<=endPage;i++){
+			if(pageNo==i){
+				pageStr += '<a href="javaScript:;" class="active">'+pageNo+'</a>';
+			}else{
+				pageStr += '<a href="javaScript:;" onclick="jumpToPage('+i+');">'+i+'</a>';
+			}
+		}
+		if(starPage > endPage){
+			pageStr += '<a href="javaScript:;" onclick="jumpToPage('+pageNo+');" class="active">'+pageNo+'</a>';
+		}
+		if(endPage < totalpage){
+			pageStr += '<span>...</span>';
+		}
+		if(pageNo+1 > totalpage){
+			pageStr += '<a class="triangle_right"></a>';
+		}else{
+			pageStr += '<a class="triangle_right" href="javaScript:;" onclick="jumpToPage('+(pageNo+1)+');"></a>';
+		}
+		return pageStr;
+
+}
+
+//分页跳转
+function jumpToPage(curPage){
+	if(typeof(curPage) != "undefined"){
+    	$("#currentPage").val(curPage);
+	}else{
+		$("#currentPage").val(1);
+	}
+	//查询
+	findUserList();
+}
+
+function addUser(){
+	$.ajax({
+        url : "${ctx}/user/checkUserNumLimit",
+        type : 'POST',
+        async : false,
+        success : function(data) {
+            if(null != data && null != data.msg && ""!=data.msg){
+            	if("0000" == data.msg){
+            		window.location.href = "${ctx }/user/addUser";
+            	}else{
+            		var userNumLimit = data.userNumLimit;
+            		alert("现有用户数量已经达到所设置的用户数量上限，请联系后台管理员更改上限后再创建用户");
+            	}
+            }
+        }
+    });
+}
+
+/*
+编辑
+*/
+function update(obj) {
+    var id = obj;
+    window.location.href = "${ctx}/user/update?id=" + id;
+}
+/*
+ * 重置密码
+ */
+function reset(obj1,obj2,obj3,obj4) {
+    var id = obj1;
+    var loginName = obj2;
+    var name = obj3;
+    var passwordOld = obj4;
+  	//显式弹窗之前清除之前input中的输入
+	$("#passwordNewNew1").val("");
+	$("#passwordNewNew2").val("");
+	
+    $("#userId").val(obj1);
+    $("#loginname").html(loginName);
+    $("#name").html(name);
+    $("#passwordOldOld").val(passwordOld);
+    fnDelete('#passWord1');
+}
+
+/*
+停用
+*/
+function freeze(obj1,obj2){
+	$("#userId").val(obj1);
+	$("#loginNamee").val(obj2);
+	$("#userFlag").val("freeze");
+	fnDelete("#popup1","停用后该用户将无法使用任何功能，确定停用?");	
+}
+/*
+启用
+*/
+function unfreeze(obj1,obj2){
+	$("#userId").val(obj1);
+	$("#loginNamee").val(obj2);
+	$("#userFlag").val("unfreeze");
+	var msg = "是否确认启用用户:"+obj2+"?"
+	fnDelete("#popup1",msg);	
+}
+/*
+解锁用户
+*/
+function unlock(obj1,obj2){
+	$("#userId").val(obj1);
+	$("#loginNamee").val(obj2);
+	$("#userFlag").val("unlock");
+	fnDelete("#popup1","确定要解锁该用户?");
+}
+/*
+注销用户
+*/
+function isDel(obj1,obj2){
+	$("#userId").val(obj1);
+	$("#loginNamee").val(obj2);
+	$("#userFlag").val("isDel");
+	fnDelete("#popup1","删除用户后不可恢复，确认删除?");
+}
+//停用/启用/解锁/注销 点击确定按钮
+function confirm(){
+	var userFlag = $("#userFlag").val();
+	if("freeze" == userFlag){
+		$.ajax({
+			url : "${ctx}/user/freeze",
+			type : 'POST',
+			data : {
+					"id":$("#userId").val()
+				},
+			success : function(data) {
+				if (data == "0000") {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;停用成功!");
+				} else {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;停用失败!");
+				}
+			}
+		});
+	}else if("unfreeze" == userFlag){
+		$.ajax({
+			url : "${ctx}/user/unfreeze",
+			type : 'POST',
+			data : {
+					"id":$("#userId").val()
+				},
+			success : function(data) {
+				if (data == "0000") {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;启用成功!");
+				} else {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;启用失败!");
+				}
+			}
+		});
+	}else if("unlock" == userFlag){
+		$.ajax({
+			url : "${ctx}/user/unlock",
+			type : 'POST',
+			data : {
+					"id":$("#userId").val()
+				},
+			success : function(data) {
+				if (data == "0000") {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;解锁成功!");
+				} else {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;解锁失败!");
+				}
+			}
+		});
+	}else if("isDel" == userFlag){
+		$.ajax({
+			url : "${ctx}/user/isDel",
+			type : 'POST',
+			data : {
+					"id":$("#userId").val()
+				},
+			success : function(data) {
+				if (data == "0000") {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;删除成功!");
+				} else {
+					fnDelete("#popupp","用户&nbsp;"+$("#loginNamee").val()+"&nbsp;删除失败!");
+				}
+			}
+		});
+	}
+}
+
+/**
+ * 修改密码
+ */
+function updatePsww(){
+	var userId = $("#userId").val();
+	if($("#updatePasswordForm").valid()){
+		var passwordNew = $("#passwordNewNew1").val();
+		$.ajax({
+			url : "${ctx}/user/updatePassword",
+			type : 'POST',
+			data : {
+					"userId":userId,
+					"passwordNew":passwordNew
+				},
+			success : function(data) {
+				fnColse('#passWord1');
+				if (data == "0000") {
+					fnDelete("#popupp","密码修改成功！");
+				} else {
+					fnDelete("#popupp","密码修改失败！");
+				}
+			}
+		});
+	}
+}
+
+
+//回车查询
+function enterSearch(){
+    if (event.keyCode == 13){
+        event.returnValue=false;
+        event.cancel = true;
+      	//查询
+    	findUserList();
+    }
+}
+
+</script>
+<body class="body_bg" onkeydown="enterSearch();">
+<div class="main">
+    <!-- header.html start -->
+    <%@ include file="/WEB-INF/views/commons/topHead.jsp"%>
+    <!-- header.html end -->
+    <!-- center.html start -->
+    <div class="main_center">
+        <!-- 左侧导航.html start -->
+        <%@ include file="/WEB-INF/views/commons/leftNavigation.jsp"%>
+        <!-- 左侧导航.html end -->
+        <!-- 右侧内容.html start -->
+         
+         
+         <div class="right_content">
+            <h3 class="place_title">
+                <span>当前位置：</span>
+                <a href="javascript:void(0);">系统管理</a>
+                <strong>/</strong>
+                <a href="${ctx}/user/manager" class="active">用户管理</a>
+            </h3>
+            <div class="module_box">
+                <div class="module_search">
+                    <shiro:hasPermission name='/user/search'>
+                    <div class="select_box fl">
+                        <div class="select_menu select_btn">
+                        	<input  type="hidden" id="userStatus"  name="userStatus" >
+                            <span>用户状态-全部</span>
+                        </div>
+                        <div class="select_down select_list" id="userStatus_select_box">
+                            <strong></strong>
+                            <ul class="select_down_list">
+                                <li data-id="0000" class="active">用户状态-全部</li>
+                                <li data-id="0">用户状态-启用</li>
+                                <li data-id="1">用户状态-停用</li>
+                                <li data-id="2">用户状态-锁定</li>
+                            </ul>   
+                        </div>
+                    </div>
+                    <div class="select_box fl">
+                        <div class="select_menu select_btn">
+                        	<input  type="hidden" id="userRole"  name="userRole" >
+                            <span>用户角色-全部</span>
+                        </div>
+                        <div class="select_down select_list" id="userRole_select_box" >
+                            <strong></strong>
+                            <ul class="select_down_list">
+                                
+                            </ul>   
+                        </div>
+                    </div>
+                    <div class="search_box fl">
+                        <input type="text" id="keyWord" placeholder="用户名/姓名/角色" />
+                        <a href="javaScript:search();" ></a> 
+                    </div>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name='/user/addUser'>
+                    <div class="fr assets_btn">
+                        <a href="javaScript:addUser();" class="newAddBody role_btn">用户创建</a>
+                    </div>
+                    </shiro:hasPermission>
+                </div>
+                <div class="module_table" id="tableContent">
+                    <form>
+                        <table class="table_list">
+                            <thead>
+                                <tr>
+                                    <th class="table_width50">序号</th>
+                                    <th>用户名</th>
+                                    <th>姓名</th>
+                                    <th>角色</th>
+                                    <th>手机号码</th>
+                                    <th>邮箱</th>
+                                    <th>创建时间</th>
+                                    <th>用户状态</th>
+                                    <th  class="table_width180">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbody_tr" id="htmlContent">
+                                
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <!-- 分页.html start -->
+                <input id="currentPage" name="currentPage" style="display: none;" type="text">
+				<div class="page_parent" style="display: none">
+                	<div class="fl page_left">
+                    	<p class="fl">共<span id="sumCount">0</span>条，每页显示</p>
+                        <div class="page_menu select_btn fl" id="next_select0">
+                        	<span>10</span>
+                        </div>
+                        <ul class="page_down_div select_list" id="select_box0">
+                        	<li class="active" data-id="10">10</li>
+                            <li data-id="20">20</li>
+                            <li data-id="50">50</li>
+                            <li data-id="100">100</li>
+                        </ul>
+                    </div>
+                    <div class="fr page_right">
+                    	<div class="fr">
+                        	<span>第</span>
+                            <input type="text" id="currentNum"name="currentNum" />
+                            <span>页</span>
+                        </div>
+                   	  	<p class="fr page" id="pageDiv">
+                   	  	
+                        </p>
+                    </div>
+                </div>
+                <!-- 分页.html end -->
+            </div>
+        </div>
+         
+         
+        <!-- 右侧内容.html end -->
+    </div>
+    <!-- center.html end -->
+    
+    <!-- 遮罩层.html start -->
+	<div class="layer" id="layer"></div>
+	<!-- 遮罩层.html end -->
+	<!-- 删除.html start -->
+	<div class="popup" id="popup1">
+		<input type="hidden" id="userId" />
+		<input type="hidden" id="userFlag" />
+		<a href="javaScript:;" class="colse"></a>
+	    <p class="popup_word"> </p>
+	    <div class="addBody_btn popup_btn clear">
+	        <a href="javaScript:confirm();" class="addBody_btn_a1">确认</a>
+	        <a href="javaScript:fnColse('#popup1');" class="addBody_btn_a2">取消</a>
+	    </div>
+	</div>
+	<!-- 删除.html end -->
+	<!-- 成功标识.html start -->
+	<div class="popup" id="popupp">
+		<input type="hidden" id="loginNamee" />
+		<a href="${ctx}/user/manager" class="colse"></a>
+	    <p class="popup_word"> </p>
+	    <div class="addBody_btn popup_btn clear" style="width:100px;">
+	        <a href="${ctx}/user/manager" class="addBody_btn_a1">确认</a>
+	    </div>
+	</div>
+	<!-- 成功标识.html end -->
+	<!-- 修改密码.html end -->
+	<!-- 重置密码.html start -->
+	<div class="popup passWord" id="passWord1">
+		<a href="javaScript:;" class="colse"></a>
+	    <h3 class="popup_title">重置密码</h3>
+	    <div class="password_box password_box1">
+	    	<h4><strong>用户名：</strong><span id="loginname"></span><strong >姓名：</strong><span id="name"></span></h4>	
+	        <div class="main_table_box">
+	            <form id="updatePasswordForm">
+	                <table class="main_table password_tab">
+	                    <tbody>
+	                        <tr>
+	                            <td class="main_table_td1">
+	                                <strong>原密码</strong>
+	                            </td>
+	                            <td>
+	                                <input id="passwordOldOld"  type="password"  readonly="readonly">
+	                            </td>
+	                        </tr>
+	                        <tr>
+	                            <td class="main_table_td1">
+	                                <strong>密码</strong>
+	                            </td>
+	                            <td>
+	                                <input id="passwordNewNew1" name="passwordNewNew1" value="" placeholder="请输入新密码" type="password">
+	                                <p class="error" id="passwordNewNew1_error"></p>
+	                            </td>
+	                        </tr>
+	                        <tr>
+	                            <td class="main_table_td1">
+	                                <strong>请重复密码</strong>
+	                            </td>
+	                            <td>
+	                                <input id="passwordNewNew2" name="passwordNewNew2" value="" placeholder="请重复新密码" type="password">
+	                                <p class="error" id="passwordNewNew2_error"></p>
+	                            </td>
+	                        </tr>
+	                    </tbody>
+	                </table>
+	            </form>
+	        </div>
+	    </div>
+	    <div class="addBody_btn popup_btn clear">
+	        <a href="javaScript:;" onclick="updatePsww()" class="addBody_btn_a1">确认</a>
+	        <a href="javaScript:fnColse('#passWord1');" class="addBody_btn_a2">取消</a>
+	    </div>
+	</div>
+	<!-- 重置密码.html end -->
+</div>
+</body>
+</html>

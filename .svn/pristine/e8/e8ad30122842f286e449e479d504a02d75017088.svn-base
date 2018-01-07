@@ -1,0 +1,22 @@
+package com.ccx.models.mapper;
+
+import com.ccx.models.model.ModelsProgram;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ModelsProgramMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsProgram record);
+
+    int insertSelective(ModelsProgram record);
+
+    ModelsProgram selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsProgram record);
+
+    int updateByPrimaryKey(ModelsProgram record);
+
+    List<ModelsProgram> selectList(Map<String, Object> params);
+}

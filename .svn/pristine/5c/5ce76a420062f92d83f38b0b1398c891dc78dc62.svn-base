@@ -1,0 +1,25 @@
+package com.ccx.models.mapper.datafile;
+
+
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface ModelsFileInfoMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsFileInfo record);
+
+    int insertSelective(ModelsFileInfo record);
+
+    ModelsFileInfo selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsFileInfo record);
+
+    int updateByPrimaryKey(ModelsFileInfo record);
+
+    int updateTypeById(@Param("id") Integer id);
+
+    List<ModelsFileInfo> selectByFileId(Integer fileId);
+}

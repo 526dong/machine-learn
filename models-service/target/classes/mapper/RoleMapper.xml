@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.RoleMapper">
+	
+	<resultMap id="BaseResultMap" type="com.ccx.models.model.Role" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+	<result column="role_type" property="roleType" jdbcType="TINYINT" />
+    <result column="institution_id" property="institutionId" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, description, status, role_type, institution_id, creater, create_time
+  </sql>
+
+	<select id="selectResourceListByRoleId" parameterType="java.lang.Long"
+		resultType="java.util.HashMap">
+		SELECT re.id AS id,re.url AS url FROM abs_role ro
+		LEFT JOIN
+		abs_role_resource_fg rr ON ro.id = rr.role_id
+		LEFT JOIN abs_resource_fg re ON
+		rr.resource_id = re.id
+		WHERE ro.id = #{roleId}
+	</select>
+
+	<!-- <select id="selectResourceListByRoleIdList" parameterType="java.lang.Long"
+		resultTyPermissionBeanBean">
+		SELECT
+		DISTINCT re.id AS id,
+		re.name AS 'name',
+		re.url AS url,
+		re.open_mode AS openMode,
+		re.description AS description,
+		re.icon AS
+		icon,
+		re.pid AS pid,
+		re.seq AS seq,
+		re.status AS 'status',
+		re.opened AS
+		opened,
+		re.resource_type AS resourceType,
+		re.company_id AS companyId,
+		re.create_time AS createTime
+		FROM
+		abs_role ro
+		LEFT JOIN abs_role_resource
+		rr ON ro.id = rr.role_id
+		LEFT JOIN abs_resource re ON rr.resource_id =
+		re.id
+		WHERE
+		ro.id in
+		<foreach collection="list" item="item" index="index" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+		AND re.resource_type = 0
+		ORDER BY seq
+	</select> -->
+
+	<!-- 获取所有角色的集合 -->
+	<select id="findAllRole" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from models_role
+		where status = 0
+	</select>
+	
+	<select id="findAll" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from models_role
+		<where>
+	    	status = 0
+	    	<if test="null!=keyWord and ''!=keyWord" >
+	    		and name like concat('%',#{keyWord},'%')
+	    	</if>
+  		</where>
+  	order by create_time desc
+	</select>
+	
+	<!-- 校验角色是否唯一 -->
+	<select id="getRoleByName" resultMap="BaseResultMap" parameterType="String">
+		select
+		<include refid="Base_Column_List" />
+		from models_role
+		where
+	    	status = 0 and name = #{roleName,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 删除角色时 ，查看该角色下是否有可用账户，有：不能删除。 无：删除-->
+  	<select id="selectUserByRoleId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM (
+			SELECT
+			us.id AS id,
+			us.login_name AS loginName,
+			us.NAME AS name
+			FROM
+				models_user us
+			LEFT JOIN models_user_role ur ON us.id = ur.user_id
+			WHERE 1 = 1 and us.is_del=0 and ur.role_id= #{id,jdbcType=BIGINT}
+			) DATA
+  	</select>
+	<!-- 根据id删除角色 -->
+	<update id="deleteByRoleId" parameterType="java.lang.Long">
+		update models_role
+		set
+		status = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 根据id查询角色信息 -->
+	<select id="selectRoleById" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from models_role
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 根据用户id查询角色信息 -->
+	<select id="getRoleByUserId" resultType="com.ccx.models.model.Role" parameterType="java.lang.Long">
+		SELECT
+			mr.id,
+			mr.name,
+			mr.description,
+			mr.status,
+			mr.role_type,
+			mr.institution_id,
+			mr.creater,
+			mr.create_time
+		FROM
+			models_role mr,
+			models_user_role mur
+		WHERE
+			mur.role_id = mr.id
+		AND
+			mur.user_id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<!-- 更新角色信息 -->
+	<update id="updateRoleById" parameterType="com.ccx.models.model.Role">
+		update models_role
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="roleType != null">
+				role_type = #{roleType,jdbcType=TINYINT},
+			</if>
+			<if test="description != null">
+				description = #{description,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+    <!-- 新建角色 -->
+	<insert id="doAddRole" parameterType="com.ccx.models.model.Role">
+		insert into models_role
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        id,
+	      </if>
+	      <if test="name != null" >
+	        name,
+	      </if>
+	      <if test="description != null" >
+	        description,
+	      </if>
+	      <if test="status != null" >
+	        status,
+	      </if>
+			<if test="roleType != null" >
+				role_type,
+			</if>
+	      <if test="creater != null" >
+	        creater,
+	      </if>
+	      <if test="createTime != null" >
+	        create_time,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        #{id,jdbcType=BIGINT},
+	      </if>
+	      <if test="name != null" >
+	        #{name,jdbcType=VARCHAR},
+	      </if>
+	      <if test="description != null" >
+	        #{description,jdbcType=VARCHAR},
+	      </if>
+	      <if test="status != null" >
+	        #{status,jdbcType=TINYINT},
+	      </if>
+			<if test="roleType != null" >
+				#{roleType,jdbcType=TINYINT},
+			</if>
+	      <if test="creater != null" >
+	        #{creater,jdbcType=VARCHAR},
+	      </if>
+	      <if test="createTime != null" >
+	        #{createTime,jdbcType=TIMESTAMP},
+	      </if>
+	    </trim>
+  	</insert>
+	
+	 <!-- 查询角色列表角色 -->
+	<select id="findRoleList" resultType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from models_role
+		where status = 0
+	</select>
+	
+</mapper>

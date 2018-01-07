@@ -1,0 +1,86 @@
+package com.ccx.models.service.impl.dataexchange.impl;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.bean.RecivePutOutBean;
+import com.ccx.models.manager.HttpDataExchangeManager;
+import com.ccx.models.model.*;
+import com.ccx.models.service.impl.dataexchange.PutOutExchangeService;
+import com.ccx.models.util.JsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description:数据交换-模型输出
+ * @author:lilong
+ * @Date: 2017/11/22
+ */
+@Service
+public class PutOutExchangeServiceImpl implements PutOutExchangeService {
+
+    @Autowired
+    HttpDataExchangeManager httpDataExchangeManager;
+
+    /**
+     * 发送模型请求给模型组 （异步请求，请求获取模型输出所有信息）
+     * @param id
+     * @return
+     */
+    @Override
+    public Map<String,Object> sendTOModel(Integer id){
+        return JsonUtils.fromJson(httpDataExchangeManager.sendMsgToModel(id,1),Map.class);
+    }
+
+    /**
+     * 保存模型输出信息
+     * @param bean
+     */
+    @Override
+    public void saveOutPut(String bean){
+        System.out.println("bean:::::"+bean);
+        Map map=JsonUtils.fromJson(bean,Map.class);
+        RecivePutOutBean putOutBean= JsonUtils.fromJson(bean,RecivePutOutBean.class);
+        //数据概览
+        ModelsModelDataBaseInfo dataBaseInfo=putOutBean.getDataDescription().getModelsModelDataBaseInfo(null,null,null);
+        //连续性变量
+        List<ModelsVarNumricCount> numricList = putOutBean.getDataDescription().getModelsVarNumricCount(1l);
+        //离散型变量
+        List<ModelsVarCategoryCount>  categoryList = putOutBean.getDataDescription().getModelsVarCategoryCount(1l);
+
+        //详细变量分析html文件存放路径
+        String detailVarPath=(String)putOutBean.getDataDescription().getDetailVarPath().get("path");
+
+        //重要变量分析
+        List<ModelsImportantCount> importantCounts=putOutBean.getVariableAnalysis().getModelsImportantCount(1l);
+
+        //topN变量与目标变量关系表格路径
+        String topNpath=putOutBean.getVariableAnalysis().getTopNpath();
+
+        String creator="";
+        //项目Id
+        Integer programId=null;
+        //算法id
+        Integer arithmeticId=null;
+        //模型的数据概览
+        List<ModelsModelDataAnalyInfo> analyInfos=putOutBean.getModelOutput().getModelsModelDataAnalyInfo(programId,arithmeticId,creator);
+
+        //模型评价指标报告
+        List<ModelsModelDataEvaluateIndex> indexList=putOutBean.getModelOutput(). getModelsModelDataEvaluateIndex(programId,arithmeticId,creator);
+
+        String trainKSpath=putOutBean.getModelOutput().getAucksPlot().getTrainKSpath();	//训练集KS指标路径
+        String  trainAUCpath=putOutBean.getModelOutput().getAucksPlot().getTestAUCpath();		//	训练集AUC指标路径
+        String testKSpath=putOutBean.getModelOutput().getAucksPlot().getTestKSpath();			//测试集KS指标路径
+        String  testAUCpath=putOutBean.getModelOutput().getAucksPlot().getTestAUCpath();			//训练集AUC指标路径
+
+        //概率分析报告
+        List<ModelsScoreGroupStatistics> scoreGroupStatistics=putOutBean.getModelOutput().getModelsModelsScoreGroupStatistics(programId,arithmeticId,creator);
+        System.out.println(putOutBean);
+
+        String  predictResPath=putOutBean.getOtherOutput().getPredictResPath();//				所有数据预测概率文件路径
+        String  logPath=putOutBean.getOtherOutput().getLogPath();//				分析过程的日志文件路径
+        String  analysisReport=putOutBean.getOtherOutput().getAnalysisReport();//				分析结果的Excel表格下载路径
+
+    }
+}

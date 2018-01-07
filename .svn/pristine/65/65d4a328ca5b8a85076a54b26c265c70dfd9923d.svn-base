@@ -1,0 +1,88 @@
+package com.ccx.models.api.laboratory;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+/**
+ * 模型报告业务层接口
+ */
+public interface ModelsReportApi {
+
+
+	/**
+	 * 根据项目id获取项目基本信息
+	 * @param programId
+	 * @return
+	 */
+	LinkedHashMap<String, Object> getProgramMapById(Long programId);
+
+	/**
+	 * 根据项目id获取模型数据分析结果list
+	 * @param programId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getModelDateAnalyInfoById(Long programId);
+
+	/**
+	 * 根据项目id获取模型数据评价指标list
+	 * @param programId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getModelDateEvaluateIndexById(Long programId);
+
+	/**
+	 * 根据项目id获取Score分组详情list
+	 * @param programId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getScoreGroupListById(Long programId);
+
+	/**
+	 * 根据项目id获取概率分箱list
+	 * @param programId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getProbabilityBinningListById(Long programId);
+
+	/**
+	 * 根据数据文件id获取变量重要性排序list
+	 * @param dataFileId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getVarImportanceSortById(Long dataFileId);
+
+	/**
+	 * 根据项目id和算法id获取该项目下该算法下的曲线图1的数据
+	 * @param programId
+	 * @param arithmeticId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getRocKsLineList1ById(Long programId,Long arithmeticId);
+
+	/**
+	 * 根据项目id和算法id获取该项目下该算法下的曲线图2的数据
+	 * @param programId
+	 * @param arithmeticId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getRocKsLineList2ById(Long programId,Long arithmeticId);
+
+	/**
+	 * 根据项目id和算法id获取该项目下该算法下的曲线图3的数据
+	 * @param programId
+	 * @param arithmeticId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getRocKsLineList3ById(Long programId,Long arithmeticId);
+
+	/**
+	 * 根据项目id和算法id获取该项目下该算法下的曲线图4的数据
+	 * @param programId
+	 * @param arithmeticId
+	 * @return
+	 */
+	List<LinkedHashMap<String,Object>> getRocKsLineList4ById(Long programId,Long arithmeticId);
+
+
+
+}

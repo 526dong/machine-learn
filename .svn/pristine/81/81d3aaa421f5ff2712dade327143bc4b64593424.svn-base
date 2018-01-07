@@ -1,0 +1,68 @@
+package com.ccx.models.service.impl.dataexchange.impl;
+import com.ccx.models.bean.RecivePutOutBean;
+import com.ccx.models.manager.HttpDataExchangeManager;
+import com.ccx.models.model.ModelsImportantCount;
+import com.ccx.models.model.ModelsModelDataBaseInfo;
+import com.ccx.models.model.ModelsVarCategoryCount;
+import com.ccx.models.model.ModelsVarNumricCount;
+import com.ccx.models.service.impl.dataexchange.VariableExchangeService;
+import com.ccx.models.util.JsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description: 数据交换-变量、iv值及重要变量展示
+ * @author:lilong
+ * @Date: 2017/11/22
+ */
+@Service
+public class VariableExchangeServiceImpl implements VariableExchangeService {
+
+    @Autowired
+    private HttpDataExchangeManager httpDataExchangeManager;
+
+    /**
+     * 发送变量指标统计给模型组（异步请求，请求获取 变量统计指标、iv值及重要性相关数）
+     * @param id
+     * @return
+     */
+    @Override
+    public Map<String,Object> sendTOModel(Integer id){
+        String bean= httpDataExchangeManager.sendMsgToModel(id,0);
+
+        System.out.println("bean:::::"+bean);
+        Map map=JsonUtils.fromJson(bean,Map.class);
+        RecivePutOutBean putOutBean= JsonUtils.fromJson(bean,RecivePutOutBean.class);
+        //数据概览
+        ModelsModelDataBaseInfo dataBaseInfo=putOutBean.getDataDescription().getModelsModelDataBaseInfo(null,null,null);
+        //连续性变量
+        List<ModelsVarNumricCount> numricList = putOutBean.getDataDescription().getModelsVarNumricCount(1l);
+        //离散型变量
+        List<ModelsVarCategoryCount>  categoryList = putOutBean.getDataDescription().getModelsVarCategoryCount(1l);
+
+        //详细变量分析html文件存放路径
+        String detailVarPath=(String)putOutBean.getDataDescription().getDetailVarPath().get("path");
+
+        //重要变量分析
+        List<ModelsImportantCount> importantCounts=putOutBean.getVariableAnalysis().getModelsImportantCount(1l);
+
+        //topN变量与目标变量关系表格路径
+        String topNpath=putOutBean.getVariableAnalysis().getTopNpath();
+
+        System.out.println(putOutBean);
+
+        return null;
+    }
+
+    /**
+     * 保存变量、iv及重要值信息
+     * @param bean
+     */
+    @Override
+    public void saveVariable(String bean){
+
+    }
+}

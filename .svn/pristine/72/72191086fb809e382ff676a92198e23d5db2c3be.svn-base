@@ -1,0 +1,66 @@
+package com.ccx.models.util;
+
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * @Description: 多线程锁获取辅助类
+ * @author:lilong
+ * @Date: 2017/11/13
+ */
+public class LockUtils {
+    private  static final  Integer LOCK_DATA_SIZE=200;
+    private volatile static ConcurrentSkipListMap<String,Object> synchLock=new ConcurrentSkipListMap<>();
+    private volatile static ConcurrentSkipListMap<String,Lock> reentLock=new ConcurrentSkipListMap<>();
+
+    /**
+     * 多线程中获取synchronized安全锁
+     * @param key
+     * @return
+     */
+    public static Object getSynch(String key){
+        if(synchLock.get(key)==null){
+            synchLock.put(key,new Object());
+            if(synchLock.size()>LOCK_DATA_SIZE){
+                synchLock.remove(synchLock.firstKey());
+            }
+        }
+        return  synchLock.get(key);
+    }
+    /**
+     * 多线程中获取ReentrantLock安全锁
+     * @param key
+     * @return
+     */
+    public static Lock getLock(String key){
+        if(reentLock.get(key)==null){
+            reentLock.put(key,new ReentrantLock());
+            if(reentLock.size()>LOCK_DATA_SIZE){
+                reentLock.remove(synchLock.firstKey());
+            }
+        }
+        return   reentLock.get(key);
+    }
+/*
+    public static void main(String[] args) {
+        Integer k=3;
+        for (int i = 0; i <100 ; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Lock lock=getLock("aak_"+k);
+                    lock.lock();
+                        System.out.println("1111111");
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    lock.unlock();
+                }
+            }).start();
+        }
+
+    }*/
+}

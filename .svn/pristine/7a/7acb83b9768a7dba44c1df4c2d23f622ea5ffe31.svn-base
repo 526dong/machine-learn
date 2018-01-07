@@ -1,0 +1,39 @@
+package com.ccx.models.api.modelsLibrary;
+
+import com.ccx.models.model.ModelsExtract;
+
+import java.util.List;
+
+/**
+ * 模型提取业务层接口
+ */
+public interface ModelsLibraryApi {
+
+    /**
+     * @Description: 通过模型名称查找模型list
+     * @Author: wxn
+     * @Date: 2017/12/12 13:19:57
+     * @Param:
+     * @Return
+     */
+	List<ModelsExtract> getModelsExtractListByName(String modelName);
+
+    /**
+     * @Description: 通过模型项目id和算法id查找模型list
+     * @Author: wxn
+     * @Date: 2017/12/12 13:19:57
+     * @Param:
+     * @Return
+     */
+    List<ModelsExtract> getModelsExtractListById(Long programId,Long arithmeticId);
+
+    /**
+     * @Description: 保存模型信息
+     * @Author: wxn
+     * @Date: 2017/12/12 13:32:22
+     * @Param:
+     * @Return
+     */
+    int saveModelsExtract(ModelsExtract modelsExtract);
+
+}

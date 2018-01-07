@@ -1,0 +1,105 @@
+package com.ccx.models.service.impl.modelsLibrary;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.modelsLibrary.ModelsLibraryDataApi;
+import com.ccx.models.mapper.modelsLibrary.ModelsLibraryDataMapper;
+import com.ccx.models.model.ModelsExtractImportRowValue;
+import com.ccx.models.model.ModelsExtractTargetValue;
+import com.ccx.models.model.ModelsExtractTestRecord;
+import com.ccx.models.model.SectionCount;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.service.impl.datafile.CommonFileValue;
+import com.ccx.models.util.TimerConcurrentHashMap;
+import com.github.pagehelper.PageInfo;
+
+@Service("ModelsLibraryDataApi")
+public class ModelsLibraryDataServiceImpl implements ModelsLibraryDataApi {
+
+	private static Logger logger = LogManager.getLogger(ModelsLibraryDataServiceImpl.class);
+	
+	@Autowired
+    private ModelsLibraryDataMapper modelsLibraryDataMapper;
+	
+	@Override
+	public PageInfo<ModelsExtractTargetValue> modelTextResult() {
+		List<ModelsExtractTargetValue> list = modelsLibraryDataMapper.modelTextResult();
+		PageInfo<ModelsExtractTargetValue> pageInfo = new PageInfo<>(list);
+		return pageInfo;
+	}
+
+	@Override
+	public SectionCount modelTextCount() {
+		return modelsLibraryDataMapper.modelTextCount();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public String startModelTest(Map<String, Object> params) {
+		Long modelsExtractInfoId = Long.parseLong((String) params.get("modelId"));
+		Integer testType = (Integer) params.get("testType");
+		ModelsExtractTestRecord bean = new ModelsExtractTestRecord();
+		ModelsExtractImportRowValue rowBean = new ModelsExtractImportRowValue();
+		List<ModelsExtractImportRowValue> list = new ArrayList<ModelsExtractImportRowValue>();
+		
+		TimerConcurrentHashMap<String,Object> timerConcurrentHashMap 
+			= new TimerConcurrentHashMap<String,Object>(new Long((long)(10*60*1000)),1000);
+		//文件信息
+		ModelsDataFile newDataFile = (ModelsDataFile) timerConcurrentHashMap.get("newDataFile");
+		//表头信息
+		List<CommonFileValue.FileInfo> fileInfoList = 
+				(List<CommonFileValue.FileInfo>) timerConcurrentHashMap.get("fileInfoList");
+		//文件内容信息
+		List<CommonFileValue.FileRowValue> rowFileInfoList = 
+				(List<CommonFileValue.FileRowValue>) timerConcurrentHashMap.get("fileRowValueList");
+		
+		rowFileInfoList.get(0).getFileRowValue().getRowValue();
+		//表头字段
+		String titleJson = JSON.toJSONString(fileInfoList);
+		//封装测试记录信息
+		bean.setModelsExtractInfoId(modelsExtractInfoId);
+		bean.setFileName(newDataFile.getName());
+		bean.setFilePath(newDataFile.getFileUrl());
+		bean.setFileSize(newDataFile.getSize());
+		bean.setFileType(newDataFile.getType());
+		bean.setTitleValue(titleJson);
+		bean.setSampleNum(newDataFile.getSize());
+		bean.setTestType(testType);
+		bean.setDelFlag(0);
+		bean.setCreater(newDataFile.getCreatorName());
+		//封装模型导入文件信息
+		for (int i = 0; i < rowFileInfoList.size(); i++) {
+			rowBean.setModelsExtractTestRecordId(modelsExtractInfoId);
+			rowBean.setCreater(newDataFile.getCreatorName());
+			rowBean.setIndexName(newDataFile.getIndexName());
+			rowBean.setRowValue(rowFileInfoList.get(0).getFileRowValue().getRowValue());
+			list.add(rowBean);
+			rowBean = new ModelsExtractImportRowValue();
+		}
+		
+		try {
+			logger.debug("开始存储数据=====》");
+			modelsLibraryDataMapper.saveModelExtractTest(bean);//模型测试记录入库
+			modelsLibraryDataMapper.saveBatchModelTest(list);//批量存储文件信息
+			
+			timerConcurrentHashMap.remove("newDataFile");
+			timerConcurrentHashMap.remove("fileInfoList");
+			timerConcurrentHashMap.remove("fileRowValueList");
+		} catch (Exception e) {
+			logger.debug("预测失败，错误信息："+e);
+		}
+		
+		return null;
+	}
+
+	
+	
+}

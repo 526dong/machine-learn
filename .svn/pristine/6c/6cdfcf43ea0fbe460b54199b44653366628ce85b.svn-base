@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.UserMapper">
+	<resultMap id="BaseResultMap" type="com.ccx.models.model.User" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="user_type" property="userType" jdbcType="TINYINT" />
+    <result column="institution_id" property="institutionId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="is_del" property="isDel" jdbcType="TINYINT" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="loginNum" property="loginNum" jdbcType="INTEGER" />
+    <result column="loginTime" property="loginTime" jdbcType="TIMESTAMP" />
+    <result column="warnFlag" property="warnFlag" jdbcType="INTEGER" />
+    <result column="warnTime" property="warnTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, login_name, name, password, phone, email, user_type, institution_id, status, 
+    is_del, loginNum, loginTime,warnFlag,warnTime,creater, create_time
+  </sql>
+  
+
+	
+	<select id="selectListByLoginName" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		models_user
+		WHERE is_del = 0 and login_name = #{loginName}
+	</select>
+
+	<select id="selectUserPage" resultType="Map">
+		SELECT
+		us.id AS id,
+		us.login_name AS loginName,
+		us.NAME AS 'name',
+		us.phone AS phone,
+		us.email AS email,
+		us.user_type AS userType,
+		us.STATUS AS status,
+		us.institution_id AS institutionId,
+		us.create_time AS createTime,
+		GROUP_CONCAT(ro.name) AS 'rolesList'
+		FROM
+		models_user us
+		LEFT JOIN models_user_role ur ON us.id = ur.user_id
+		LEFT JOIN models_role ro ON ur.role_id = ro.id
+		<where>
+			<if test="name != null and name != ''">
+				us.name = #{name}
+			</if>
+			<if test="startTime != null ">
+				<![CDATA[and us.create_time >=#{startTime} ]]>
+			</if>
+			<if test="endTime != null ">
+				<![CDATA[and us.create_time <=#{endTime} ]]>
+			</if>
+		</where>
+		GROUP BY us.id
+	</select>
+
+	<select id="findAll" resultType="com.ccx.models.model.vo.UserVo">
+		SELECT
+		us.id AS id,
+		us.login_name AS loginName,
+		us.password AS password,
+		us.NAME AS name,
+		us.phone AS phone,
+		us.email AS email,
+		us.STATUS AS status,
+		us.create_time AS createTime,
+		ro.name AS roleName,
+		us.is_del AS isDel
+		from models_user us
+		LEFT JOIN models_user_role ur ON us.id = ur.user_id
+		LEFT JOIN models_role ro ON ur.role_id = ro.id
+		<where>
+			us.is_del = 0
+			<if test="null!= userStatus and ''!= userStatus and '0000'!= userStatus" > 
+	    		and us.STATUS = #{userStatus}
+	    	</if>
+	    	<if test="null!= userRole and ''!= userRole and '0000'!= userRole" > 
+	    		and ro.id = #{userRole}
+	    	</if>
+	    	<if test="null!= keyWord and ''!= keyWord" > 
+	    		and (
+	    			us.NAME like concat('%',#{keyWord},'%')
+	    			or
+	    			us.login_name like concat('%',#{keyWord},'%')
+	    			or
+	    			ro.name like concat('%',#{keyWord},'%')
+	    			) 
+	    	</if>
+  		</where>
+  	order by us.create_time desc
+	</select>
+	
+
+  
+
+
+	<select id="selectUserById" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select 
+		id, login_name, name, password, phone, email, user_type, institution_id, status, 
+    	is_del, creater, loginNum, loginTime, create_time
+		from models_user
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 修改用户信息 -->
+	<update id="updateTO" parameterType="com.ccx.models.model.User">
+		update models_user
+		<set>
+        <if test="loginName != null">
+            login_name = #{loginName,jdbcType=VARCHAR},
+        </if>
+        <if test="name != null">
+            name = #{name,jdbcType=VARCHAR},
+        </if>
+        <if test="password != null">
+            password = #{password,jdbcType=VARCHAR},
+        </if>
+        <if test="phone != null">
+            phone = #{phone,jdbcType=VARCHAR},
+        </if>
+        <if test="email != null">
+            email = #{email,jdbcType=VARCHAR},
+        </if>
+        <if test="institutionId != null">
+            institution_id = #{institutionId,jdbcType=VARCHAR},
+        </if>
+        <if test="status != null">
+            status = #{status,jdbcType=INTEGER},
+        </if>
+        <if test="loginNum != null">
+            loginNum = #{loginNum,jdbcType=INTEGER},
+        </if>
+        <if test="loginTime != null">
+            loginTime = #{loginTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="warnFlag != null">
+            warnFlag = #{warnFlag,jdbcType=INTEGER},
+        </if>
+        <if test="warnTime != null">
+            warnTime = #{warnTime,jdbcType=TIMESTAMP},
+        </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+</update>
+	
+	<!-- 保存新增用户,并返回主键值 -->
+	<insert id="doAddUser" parameterType="com.ccx.models.model.User" useGeneratedKeys="true" keyProperty="id">
+		insert into models_user
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        id,
+	      </if>
+	      <if test="loginName != null" >
+	        login_name,
+	      </if>
+	      <if test="name != null" >
+	        name,
+	      </if>
+	      <if test="password != null" >
+	        password,
+	      </if>
+	      <if test="phone != null" >
+	        phone,
+	      </if>
+	      <if test="email != null" >
+	        email,
+	      </if>
+	      <if test="userType != null" >
+	        user_type,
+	      </if>
+	      <if test="institutionId != null" >
+	        institution_id,
+	      </if>
+	      <if test="status != null" >
+	        status,
+	      </if>
+	      <if test="isDel != null" >
+	        is_del,
+	      </if>
+	      <if test="creater != null" >
+	        creater,
+	      </if>
+	      <if test="createTime != null" >
+	        create_time,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        #{id,jdbcType=BIGINT},
+	      </if>
+	      <if test="loginName != null" >
+	        #{loginName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="name != null" >
+	        #{name,jdbcType=VARCHAR},
+	      </if>
+	      <if test="password != null" >
+	        #{password,jdbcType=VARCHAR},
+	      </if>
+	      <if test="phone != null" >
+	        #{phone,jdbcType=VARCHAR},
+	      </if>
+	      <if test="email != null" >
+	        #{email,jdbcType=VARCHAR},
+	      </if>
+	      <if test="userType != null" >
+	        #{userType,jdbcType=TINYINT},
+	      </if>
+	      <if test="institutionId != null" >
+	        #{institutionId,jdbcType=INTEGER},
+	      </if>
+	      <if test="status != null" >
+	        #{status,jdbcType=TINYINT},
+	      </if>
+	      <if test="isDel != null" >
+	        #{isDel,jdbcType=TINYINT},
+	      </if>
+	      <if test="creater != null" >
+	        #{creater,jdbcType=VARCHAR},
+	      </if>
+	      <if test="createTime != null" >
+	        #{createTime,jdbcType=TIMESTAMP},
+	      </if>
+	    </trim>
+	</insert>
+	
+	<select id="getUserByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from models_user
+		where is_del = 0 and login_name = #{loginName,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getUserListByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from models_user
+		where is_del = 0 and login_name = #{loginName,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 冻结用户 -->
+	<update id="freezeUser" parameterType="java.lang.Long">
+		update models_user
+		set status = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 解冻用户 -->
+	<update id="unfreezeUser" parameterType="java.lang.Long">
+		update models_user
+		set status = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 用户被锁定时 -->
+	<update id="lockUser" parameterType="java.lang.Long">
+		update models_user
+		set status = 2
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="deleteUser" parameterType="java.lang.Long">
+		update models_user
+		set is_del = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+
+	<!--  获取用户菜单权限  -->
+	<select id="findUserMenuPermission"  resultType="com.ccx.models.model.PermissionBean" parameterType="java.lang.Long">
+		SELECT
+		d.ID id,
+		d.MYSELF_ID myselfId,
+		d.PARENT_ID parentId,
+		d.PERMISSION_NAME permissionName,
+		d.TYPE type,
+		d.PATH_URL pathUrl,
+		d.ICON_URL iconUrl,
+		d.STATE permissionState
+		FROM
+		models_user_role a,
+		models_role AS b,
+		models_role_permission AS c,
+		models_permission AS d
+		WHERE
+		a.role_id = b.id
+		AND b.id = c.role_id
+		AND c.resource_id = d.ID
+		AND d.STATE = 1
+		AND d.TYPE = 1
+		AND b.status = 0
+		AND a.user_id = #{id,jdbcType=BIGINT}
+		ORDER BY
+		d.LEVEL,
+		d.PARENT_ID,
+		d.SEQUENCE_NUM
+	</select>
+  
+
+  
+
+  	
+  
+  
+</mapper>

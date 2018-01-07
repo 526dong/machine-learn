@@ -1,0 +1,420 @@
+package com.ccx.models.main;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.ccx.models.util.UsedUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.ccx.models.api.ResourceApi;
+import com.ccx.models.api.RoleApi;
+import com.ccx.models.api.RoleRessourceApi;
+import com.ccx.models.base.BasicController;
+import com.ccx.models.model.Role;
+import com.ccx.models.model.RoleResource;
+import com.ccx.models.model.User;
+import com.ccx.models.shiro.ReloadAuthorizing;
+import com.ccx.models.util.ControllerUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 
+ * @description 角色管理
+ * @author zxr
+ * @date 2017 下午2:19:12
+ */
+@Controller
+@RequestMapping("/role")
+public class RoleController extends BasicController{
+	private static Logger logger = LogManager.getLogger(RoleController.class);
+
+	@Autowired
+	private RoleApi roleApi;
+	
+	@Autowired
+	private RoleRessourceApi roleResApi;
+	
+	@Autowired
+	private ResourceApi resourceApi;
+
+	/**
+     * 角色管理页
+     *
+     * @return
+     */
+    @GetMapping("/manager")
+    public String manager() {
+    	return "role/role";
+    }
+    @PostMapping("/findAll")
+	@ResponseBody
+	public PageInfo<Role> findAll(HttpServletRequest request){
+    	PageInfo<Role> pages = new PageInfo<Role>();
+		// 获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+		User user =ControllerUtil.getSessionUser(request);
+		if(UsedUtil.isNotNull(user)){
+    		int insId = user.getInstitutionId();
+    		params.put("insId", insId);
+    	}
+		// 获取当前页数
+		String currentPage = (String) params.get("currentPage");
+		//获取每页展示数
+		String pageSize = (String) params.get("pageSize");
+		//当前页数
+		int pageNum = 1;
+		if (UsedUtil.isNotNull(currentPage)) { 
+			pageNum = Integer.valueOf(currentPage);
+		}
+		//设置每页展示数
+		int pageSizes = 10;
+		if(UsedUtil.isNotNull(pageSize)){ 
+			pageSizes = Integer.valueOf(pageSize);
+		}
+		PageHelper.startPage(pageNum, pageSizes);
+		pages = roleApi.findAll(params);
+   		return pages;
+	}
+    
+    /**
+     * 根据id删除对应角色(逻辑删除)
+     */
+    @RequestMapping(value="/deleteRole", method=RequestMethod.POST)  
+    @ResponseBody
+    public String deleteRole(HttpServletRequest request){
+    	long roleId= Long.parseLong(request.getParameter("id"));
+    	String result = "999";
+    	try {
+    		int count = roleApi.selectUserByRoleId(roleId);
+    		if (count>0) {
+        		result = "888";
+    		}else {
+    			result = roleApi.deleteByRoleId(roleId);
+    		}
+		} catch (Exception e) {
+			result = "999";
+		}
+		return result;
+    }
+    
+    /**
+     * 跳转到编辑角色页面
+     * @param request
+     * @return
+     */
+    @RequestMapping(value="/update",method=RequestMethod.GET)
+    public String update(HttpServletRequest request){
+    	Long id = (long) Integer.parseInt(request.getParameter("id"));
+    	//角色信息
+    	Role role = roleApi.selectRoleById(id);
+    	if (UsedUtil.isNotNull(role)){
+			request.setAttribute("role", role);
+			request.setAttribute("roleId", id);
+		}
+		return "role/roleUpdate";
+    }
+    
+    /**
+     * 保存修改的角色信息
+     * @param request
+     * @return
+     */
+    @RequestMapping(value="/updateTo", method=RequestMethod.POST)  
+    @ResponseBody
+    public Map<String,String> updateTo(HttpServletRequest request){
+
+    	long id= Long.parseLong(request.getParameter("id"));
+    	String name=request.getParameter("name");
+    	String description=request.getParameter("description");
+    	Role uRole=new Role();
+    	uRole.setId(id);
+    	uRole.setName(name);
+    	uRole.setDescription(description);
+    	Map<String,String> map = new HashMap<>(); 
+    	try {
+    		roleApi.updateTO(uRole);
+    		logger.debug("角色修改成功！");
+			map.put("result", "success");
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("角色修改失败！");
+			map.put("result", "fail");
+		}
+		return map;
+    }
+    
+    /**
+     * 跳转到创建角色页面
+     */
+    @RequestMapping(value="/addRole",method=RequestMethod.GET)
+    public String add(){
+		return "/role/addRole";
+    }
+    
+    /**
+	 * 检验角色是否存在
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/checkRoleName",method=RequestMethod.POST)
+	@ResponseBody
+	public Map<String,String> checkRoleName(HttpServletRequest request){
+		Map<String,String> map = new HashMap<>();
+		String roleName = request.getParameter("roleName");
+		User user =ControllerUtil.getSessionUser(request);
+		Map<String,Object> mapp = new HashMap<>();
+		if(UsedUtil.isNotNull(user)){
+    		int insId = user.getInstitutionId();
+    		mapp.put("insId", insId);
+    	}
+		mapp.put("roleName", roleName);
+		Role role = roleApi.getRoleByName(mapp);
+		if(role != null){
+			map.put("result", "false");
+		}else{
+			map.put("result", "success");
+		}
+		return map;
+	}
+    
+    /**
+     * 保存创建角色的信息
+     */
+    @PostMapping("/doAdd")
+	@ResponseBody
+	public Map<String,String> doAdd(HttpServletRequest request){
+		logger.debug("保存角色创建信息");
+		String roleName=request.getParameter("roleName") == null ? "" : request.getParameter("roleName").trim();
+    	String description=request.getParameter("description") == null ? "" : request.getParameter("description").trim();
+		Map<String,String> map = new HashMap<>(); 
+		Role role = new Role();
+		role.setName(roleName);
+		role.setDescription(description);
+		//获取当前时间
+		Date createTime = new Date();
+		//向角色表中添加创建时间
+		role.setCreateTime(createTime);
+		role.setStatus(0);
+		User user =ControllerUtil.getSessionUser(request);
+		if(UsedUtil.isNotNull(user)){
+    		int insId = user.getInstitutionId();
+    		role.setCompanyId(insId);
+    		role.setCreater(user.getLoginName());
+    	}
+		try {
+			roleApi.doAddRole(role);
+			logger.debug("角色创建成功！");
+			map.put("result", "success");
+		}catch (Exception e){
+			e.printStackTrace();
+			logger.error("角色创建失败！");
+			map.put("result", "false");
+		}
+		return map;
+	}
+    
+    /**
+     * 
+     * @Title: selectPermissionByRoleId  
+     * @author: WXN
+     * @Description: 根据角色ID查询权限(这里用一句话描述这个方法的作用)   
+     * @param: @param request
+     * @param: @return      
+     * @return: String      
+     * @throws
+     */
+   	@RequestMapping(value="selectPermissionByRoleId" ,method=RequestMethod.GET)
+   	public String selectPermissionByRoleId(HttpServletRequest request){
+        Long id= Long.parseLong(request.getParameter("id"));
+        Role role = roleApi.selectRoleById(id);
+		request.setAttribute("permissionAddRoleID", id);
+		request.setAttribute("role", role);
+		return "role/permissionAssign";
+    }
+   	/**
+   	 * 
+   	 * @Title: findPermissionTree  
+   	 * @author: WXN
+   	 * @Description: 查询权限树(这里用一句话描述这个方法的作用)   
+   	 * @param: @param request
+   	 * @param: @param response
+   	 * @param: @return      
+   	 * @return: String      
+   	 * @throws
+   	 */
+   	@RequestMapping(value="/findPermissionTree",produces = "application/json; charset=utf-8")
+	@ResponseBody
+	public String findPermissionTree(HttpServletRequest request){
+		String id = request.getParameter("id");
+		String insId = request.getParameter("insId");
+		logger.debug("id:" + id );
+		String tree = null;
+		if(id!="" &&id!=null && id.matches("^[-+]?(([0-9]+)([.]([0-9]+))?|([.]([0-9]+))?)$")){
+			request.setAttribute("tree", tree);
+			tree = resourceApi.finRolePermissionTree(Long.parseLong(id),Long.parseLong(insId));
+			return tree;
+		}else{
+			return null;
+		}
+	}
+   	
+	/**
+   	 * 
+   	 * @Title: addRPermission  
+   	 * @author: WXN
+   	 * @Description: 保存分配后的权限(这里用一句话描述这个方法的作用)   
+   	 * @param: @param request
+   	 * @param: @param response
+   	 * @param: @return      
+   	 * @return: String      
+   	 * @throws
+   	 */
+   	@RequestMapping(value="/addRPermission",method=RequestMethod.POST)
+	public @ResponseBody String addRPermission(HttpServletRequest request,@RequestBody Map<String,Object> map){
+		String permission_array = (String)map.get("permission_array");
+		logger.debug("获取得到的checkbox值：" + permission_array);
+		String rid = (String)map.get("rid");
+		String  result_mess="999";
+		List<String> perIdList = new ArrayList<String>();
+		if (rid == null || rid.trim().equals("") || !rid.matches("^[-+]?(([0-9]+)([.]([0-9]+))?|([.]([0-9]+))?)$")) {
+			result_mess = "888";//传参错误
+		}else{
+			if(null!=permission_array && !"".equals(permission_array)){
+				logger.debug("该角色拥有的权限ID："+permission_array);
+				String [] array=permission_array.split(",");
+				Collections.addAll(perIdList, array);
+				//去掉重复的ID
+				perIdList=removeListDuplicateObject(perIdList);
+				logger.debug("去重后该角色拥有的权限ID："+perIdList.toString());
+				int flag = resourceApi.saveRolePermission(rid,perIdList);
+				if(flag>0){
+					result_mess="0000";//success
+					//权限分配成功后，刷新权限缓存，无需重新登录即可
+					User user = (User)request.getSession().getAttribute("risk_crm_user");
+					ReloadAuthorizing.reloadAuthorizing(user.getLoginName());
+				}
+			}
+		}
+		return JSON.toJSONString(result_mess);
+	}
+   	//去重 wxn
+   	private static List<String> removeListDuplicateObject(List<String> perIdList) {  
+		HashSet<String> set = new HashSet<String>(perIdList);
+		perIdList.clear();
+		perIdList.addAll(set);
+        return perIdList;
+    }
+   	
+   	
+    /**
+     * 跳转到分配权限界面
+     */
+    
+    @RequestMapping(value="/assign",method=RequestMethod.GET)
+    public String assign(HttpServletRequest request){
+    	Long roleId = Long.parseLong(request.getParameter("id"));
+    	List<RoleResource> roleRes = roleResApi.selectByRoleId(roleId);
+    	User user = (User) request.getSession().getAttribute("user");
+    	String insId = null ;
+    	if(null != user){
+    		insId = String.valueOf(user.getInstitutionId());
+    	}
+    	//根据角色id查询到对应的角色role
+    	Role role = roleApi.selectRoleById(roleId);
+    	
+    	//在页面展示权限树
+    	JSONArray array = roleApi.showTree(roleRes,Long.parseLong(insId));
+    	
+    	//获取角色对应的资源
+    	if (role != null){
+			request.setAttribute("role", role);
+			request.setAttribute("roleId", roleId);
+		}
+    	request.setAttribute("array", array);
+		return "role/assign";
+    }
+    
+    /**
+     * 异步加载树列表
+     */
+    @RequestMapping(value="/async",method=RequestMethod.POST)
+    @ResponseBody
+    public JSONArray async(HttpServletRequest request){
+    	//把该角色原有的资源id放入集合中
+    	Long roleId = Long.parseLong(request.getParameter("roleId"));
+    	List<RoleResource> roleRes = roleResApi.selectByRoleId(roleId);
+    	
+    	//根据roleRes,request返回页面权限树的数据JsonArray
+    	JSONArray array = roleApi.treeData(request,roleRes);
+    	
+		return array;
+    }
+    
+    /**
+     * 保存分配的权限
+     */
+    @ResponseBody
+	@RequestMapping(value="/assignResource",method=RequestMethod.POST)
+    public Map<String, String> assignResource(HttpServletRequest request){
+    	Map<String,String> map = new HashMap<>();
+    	String resIds = request.getParameter("resIds");
+    	Long roleId= Long.parseLong(request.getParameter("roleId"));
+    	
+    	try {
+			roleApi.addRes2Role(roleId,resIds);
+			logger.debug("分配权限成功");
+			map.put("result", "1");
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("分配权限失败");
+			map.put("result", "0");
+		}
+		return map;
+    }
+    /**
+     * 权限树
+     *
+     * @return
+     *//*
+    @PostMapping("/tree")
+    @ResponseBody
+    public Object tree() {
+        return roleApi.selectTree();
+    }*/
+    
+    /**
+     * 根据机构id  得到角色
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/findRoleByInstitutionId", method = RequestMethod.POST)
+	public List<Map<String, Object>> findRoleByInstitutionId(HttpServletRequest request){
+    	//获取当前登录用户信息
+    	User user =ControllerUtil.getSessionUser(request);
+    	List<Map<String, Object>> result = null;
+    	if(UsedUtil.isNotNull(user)){
+    		result = roleApi.findRoleByInstitutionId(user.getInstitutionId());
+    	}
+		return result;
+	}
+    
+}

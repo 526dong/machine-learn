@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsVarCategoryCountMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsVarCategoryCount" >
+    <id column=" id" property="id" jdbcType="INTEGER" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="field_id" property="fieldId" jdbcType="INTEGER" />
+    <result column="var_name" property="varName" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="missing_n" property="missingN" jdbcType="INTEGER" />
+    <result column="missing_pct" property="missingPct" jdbcType="DECIMAL" />
+    <result column="nunique" property="nunique" jdbcType="INTEGER" />
+    <result column="top1" property="top1" jdbcType="INTEGER" />
+    <result column="top1_pct" property="top1Pct" jdbcType="DECIMAL" />
+    <result column="top2" property="top2" jdbcType="INTEGER" />
+    <result column="top2_pct" property="top2Pct" jdbcType="DECIMAL" />
+    <result column="top3" property="top3" jdbcType="INTEGER" />
+    <result column="top3_pct" property="top3Pct" jdbcType="DECIMAL" />
+    <result column="v_list" property="vList" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    " id", data_file_id, field_id, var_name, type, missing_n, missing_pct, nunique, top1, 
+    top1_pct, top2, top2_pct, top3, top3_pct, v_list, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_var_category_count
+    where " id" = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_var_category_count
+    where " id" = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsVarCategoryCount" >
+    insert into models_var_category_count (" id", data_file_id, field_id, 
+      var_name, type, missing_n, 
+      missing_pct, nunique, top1, 
+      top1_pct, top2, top2_pct, 
+      top3, top3_pct, v_list, 
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{dataFileId,jdbcType=BIGINT}, #{fieldId,jdbcType=INTEGER}, 
+      #{varName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{missingN,jdbcType=INTEGER}, 
+      #{missingPct,jdbcType=DECIMAL}, #{nunique,jdbcType=INTEGER}, #{top1,jdbcType=INTEGER}, 
+      #{top1Pct,jdbcType=DECIMAL}, #{top2,jdbcType=INTEGER}, #{top2Pct,jdbcType=DECIMAL}, 
+      #{top3,jdbcType=INTEGER}, #{top3Pct,jdbcType=DECIMAL}, #{vList,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsVarCategoryCount" >
+    insert into models_var_category_count
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        " id",
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="fieldId != null" >
+        field_id,
+      </if>
+      <if test="varName != null" >
+        var_name,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="missingN != null" >
+        missing_n,
+      </if>
+      <if test="missingPct != null" >
+        missing_pct,
+      </if>
+      <if test="nunique != null" >
+        nunique,
+      </if>
+      <if test="top1 != null" >
+        top1,
+      </if>
+      <if test="top1Pct != null" >
+        top1_pct,
+      </if>
+      <if test="top2 != null" >
+        top2,
+      </if>
+      <if test="top2Pct != null" >
+        top2_pct,
+      </if>
+      <if test="top3 != null" >
+        top3,
+      </if>
+      <if test="top3Pct != null" >
+        top3_pct,
+      </if>
+      <if test="vList != null" >
+        v_list,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null" >
+        #{fieldId,jdbcType=INTEGER},
+      </if>
+      <if test="varName != null" >
+        #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="missingN != null" >
+        #{missingN,jdbcType=INTEGER},
+      </if>
+      <if test="missingPct != null" >
+        #{missingPct,jdbcType=DECIMAL},
+      </if>
+      <if test="nunique != null" >
+        #{nunique,jdbcType=INTEGER},
+      </if>
+      <if test="top1 != null" >
+        #{top1,jdbcType=INTEGER},
+      </if>
+      <if test="top1Pct != null" >
+        #{top1Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="top2 != null" >
+        #{top2,jdbcType=INTEGER},
+      </if>
+      <if test="top2Pct != null" >
+        #{top2Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="top3 != null" >
+        #{top3,jdbcType=INTEGER},
+      </if>
+      <if test="top3Pct != null" >
+        #{top3Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="vList != null" >
+        #{vList,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsVarCategoryCount" >
+    update models_var_category_count
+    <set >
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null" >
+        field_id = #{fieldId,jdbcType=INTEGER},
+      </if>
+      <if test="varName != null" >
+        var_name = #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="missingN != null" >
+        missing_n = #{missingN,jdbcType=INTEGER},
+      </if>
+      <if test="missingPct != null" >
+        missing_pct = #{missingPct,jdbcType=DECIMAL},
+      </if>
+      <if test="nunique != null" >
+        nunique = #{nunique,jdbcType=INTEGER},
+      </if>
+      <if test="top1 != null" >
+        top1 = #{top1,jdbcType=INTEGER},
+      </if>
+      <if test="top1Pct != null" >
+        top1_pct = #{top1Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="top2 != null" >
+        top2 = #{top2,jdbcType=INTEGER},
+      </if>
+      <if test="top2Pct != null" >
+        top2_pct = #{top2Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="top3 != null" >
+        top3 = #{top3,jdbcType=INTEGER},
+      </if>
+      <if test="top3Pct != null" >
+        top3_pct = #{top3Pct,jdbcType=DECIMAL},
+      </if>
+      <if test="vList != null" >
+        v_list = #{vList,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsVarCategoryCount" >
+    update models_var_category_count
+    set data_file_id = #{dataFileId,jdbcType=BIGINT},
+      field_id = #{fieldId,jdbcType=INTEGER},
+      var_name = #{varName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      missing_n = #{missingN,jdbcType=INTEGER},
+      missing_pct = #{missingPct,jdbcType=DECIMAL},
+      nunique = #{nunique,jdbcType=INTEGER},
+      top1 = #{top1,jdbcType=INTEGER},
+      top1_pct = #{top1Pct,jdbcType=DECIMAL},
+      top2 = #{top2,jdbcType=INTEGER},
+      top2_pct = #{top2Pct,jdbcType=DECIMAL},
+      top3 = #{top3,jdbcType=INTEGER},
+      top3_pct = #{top3Pct,jdbcType=DECIMAL},
+      v_list = #{vList,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

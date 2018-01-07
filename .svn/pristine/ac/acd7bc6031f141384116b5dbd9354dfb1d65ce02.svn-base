@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.modelsLibrary.ModelsLibraryMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsExtract" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="program_name" property="programName" jdbcType="VARCHAR" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="arithmetic_name" property="arithmeticName" jdbcType="VARCHAR" />
+    <result column="model_name" property="modelName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="model_path" property="modelPath" jdbcType="VARCHAR" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, program_id, program_name, data_file_id, arithmetic_id, arithmetic_name, model_name, description, model_path, del_flag, creater, create_time
+  </sql>
+
+    <!-- 根据模型name获取模型list -->
+    <select id="getModelsExtractListByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+      <include refid="Base_Column_List" />
+    from models_extract_info
+    where del_flag = 0 AND model_name = #{modelName,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 通过模型项目id和算法id查找模型list -->
+    <select id="getModelsExtractListById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from models_extract_info
+        where
+          del_flag = 0
+          AND program_id = #{programId,jdbcType=BIGINT}
+          AND arithmetic_id = #{arithmeticId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 保存模型信息 -->
+    <insert id="saveModelsExtract" parameterType="com.ccx.models.model.ModelsExtract" >
+        insert into models_extract_info
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="programId != null" >
+                program_id,
+            </if>
+            <if test="programName != null" >
+                program_name,
+            </if>
+            <if test="dataFileId != null" >
+                data_file_id,
+            </if>
+            <if test="arithmeticId != null" >
+                arithmetic_id,
+            </if>
+            <if test="arithmeticName != null" >
+                arithmetic_name,
+            </if>
+            <if test="modelName != null" >
+                model_name,
+            </if>
+            <if test="description != null" >
+                description,
+            </if>
+            <if test="modelPath != null" >
+                model_path,
+            </if>
+            <if test="delFlag != null" >
+                del_flag,
+            </if>
+            <if test="creater != null" >
+                creater,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="programId != null" >
+                #{programId,jdbcType=BIGINT},
+            </if>
+            <if test="programName != null" >
+                #{programName,jdbcType=VARCHAR},
+            </if>
+            <if test="dataFileId != null" >
+                #{dataFileId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticId != null" >
+                #{arithmeticId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticName != null" >
+                #{arithmeticName,jdbcType=VARCHAR},
+            </if>
+            <if test="modelName != null" >
+                #{modelName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="modelPath != null" >
+                #{modelPath,jdbcType=VARCHAR},
+            </if>
+            <if test="delFlag != null" >
+                #{delFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creater != null" >
+                #{creater,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!--分页查询模型列表-->
+    <select id="getModelsPageList" parameterType="map" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" /> from models_extract_info
+        where
+        del_flag = 0
+        <if test="null != keyWord and '' != keyWord" >
+            and (model_name like CONCAT('%',#{keyWord},'%') or program_name like CONCAT('%',#{keyWord},'%'))
+        </if>
+        <if test="null != roleType and '' != roleType">
+            and creater = #{roleType, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!--更新模型信息模型-->
+    <update id="updateModelById" parameterType="com.ccx.models.model.ModelsExtract" >
+        update models_extract_info
+        <set >
+            <if test="programId != null" >
+                program_id = #{programId,jdbcType=BIGINT},
+            </if>
+            <if test="programName != null" >
+                program_name = #{programName,jdbcType=VARCHAR},
+            </if>
+            <if test="dataFileId != null" >
+                data_file_id = #{dataFileId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticId != null" >
+                arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+            </if>
+            <if test="arithmeticName != null" >
+                arithmetic_name = #{arithmeticName,jdbcType=VARCHAR},
+            </if>
+            <if test="modelName != null" >
+                model_name = #{modelName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="modelPath != null" >
+                model_path = #{modelPath,jdbcType=VARCHAR},
+            </if>
+            <if test="delFlag != null" >
+                del_flag = #{delFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creater != null" >
+                creater = #{creater,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 通过id获取模型基本信息 -->
+    <select id="getModelById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from models_extract_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 获取模型测试记录列表 -->
+    <select id="getModelTestRecordList" resultType="com.ccx.models.model.ModelsExtractTestRecord" parameterType="java.lang.Long" >
+        select
+        id, models_extract_info_id, file_name, file_path, file_size, file_type, description,
+        sample_num, test_type, del_flag, creater, create_time
+        from models_extract_test_record
+        where
+        del_flag = 0
+        <if test="null != modelId and '' != modelId">
+            and models_extract_info_id = #{modelId, jdbcType=VARCHAR}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

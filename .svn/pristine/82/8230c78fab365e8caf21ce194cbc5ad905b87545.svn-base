@@ -1,0 +1,76 @@
+package com.ccx.models.model.datafile;
+
+import java.util.Date;
+
+public class ModelsFileValue {
+    private Integer id;
+
+    private Double value;
+
+    private Integer fileInfoId;
+
+    private Integer rowNumber;
+
+    private String creatorName;
+
+    private Date createDate;
+
+    private Integer deleteFlag;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
+    }
+
+    public Integer getFileInfoId() {
+        return fileInfoId;
+    }
+
+    public void setFileInfoId(Integer fileInfoId) {
+        this.fileInfoId = fileInfoId;
+    }
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName == null ? null : creatorName.trim();
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Integer getDeleteFlag() {
+        return deleteFlag;
+    }
+
+    public void setDeleteFlag(Integer deleteFlag) {
+        this.deleteFlag = deleteFlag;
+    }
+
+}

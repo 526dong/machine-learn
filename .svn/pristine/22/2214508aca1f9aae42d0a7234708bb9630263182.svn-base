@@ -1,0 +1,11 @@
+package com.ccx.models.service.impl.dataexchange.impl;
+
+import com.ccx.models.service.impl.dataexchange.DataExchangeService;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+public class DataExchangeServiceImpl implements DataExchangeService {
+}

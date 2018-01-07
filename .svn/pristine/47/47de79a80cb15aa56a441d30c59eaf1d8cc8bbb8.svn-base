@@ -1,0 +1,19 @@
+package com.ccx.models;
+
+/**
+ * 
+ * @ClassName:  Constants   
+ * @Description:TODO(公用常量类)   
+ * @author: 李龙 
+ * @date:   2017年3月24日 下午2:19:17
+ */
+public class Constants {
+
+	//实时模型回调推送chanel
+	public static final String PUSH_CHANNEL_MODEL = "model";
+	//实时模型回调推送chanel
+	public static final String PUSH_CHANNEL_VAL = "val";
+
+}
+	
+	

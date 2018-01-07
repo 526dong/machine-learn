@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsScoreGroupStatisticsMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsScoreGroupStatistics" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="bins_score" property="binsScore" jdbcType="VARCHAR" />
+    <result column="good" property="good" jdbcType="DECIMAL" />
+    <result column="bad" property="bad" jdbcType="DECIMAL" />
+    <result column="total" property="total" jdbcType="DECIMAL" />
+    <result column="factor" property="factor" jdbcType="DECIMAL" />
+    <result column="iv" property="iv" jdbcType="DECIMAL" />
+    <result column="bad_per" property="badPer" jdbcType="DECIMAL" />
+    <result column="model_pvalue" property="modelPvalue" jdbcType="DECIMAL" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, data_file_id, arithmetic_id, program_id, bins_score, good, bad, total, factor, 
+    iv, bad_per, model_pvalue, creater, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_score_group_statistics
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_score_group_statistics
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsScoreGroupStatistics" >
+    insert into models_score_group_statistics ( data_file_id, arithmetic_id,
+      program_id, bins_score, good, 
+      bad, total, factor, 
+      iv, bad_per, model_pvalue, 
+      creater, create_time)
+    values ( #{dataFileId,jdbcType=BIGINT}, #{arithmeticId,jdbcType=BIGINT},
+      #{programId,jdbcType=BIGINT}, #{binsScore,jdbcType=VARCHAR}, #{good,jdbcType=DECIMAL}, 
+      #{bad,jdbcType=DECIMAL}, #{total,jdbcType=DECIMAL}, #{factor,jdbcType=DECIMAL}, 
+      #{iv,jdbcType=DECIMAL}, #{badPer,jdbcType=DECIMAL}, #{modelPvalue,jdbcType=DECIMAL}, 
+      #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsScoreGroupStatistics" >
+    insert into models_score_group_statistics
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="binsScore != null" >
+        bins_score,
+      </if>
+      <if test="good != null" >
+        good,
+      </if>
+      <if test="bad != null" >
+        bad,
+      </if>
+      <if test="total != null" >
+        total,
+      </if>
+      <if test="factor != null" >
+        factor,
+      </if>
+      <if test="iv != null" >
+        iv,
+      </if>
+      <if test="badPer != null" >
+        bad_per,
+      </if>
+      <if test="modelPvalue != null" >
+        model_pvalue,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="binsScore != null" >
+        #{binsScore,jdbcType=VARCHAR},
+      </if>
+      <if test="good != null" >
+        #{good,jdbcType=DECIMAL},
+      </if>
+      <if test="bad != null" >
+        #{bad,jdbcType=DECIMAL},
+      </if>
+      <if test="total != null" >
+        #{total,jdbcType=DECIMAL},
+      </if>
+      <if test="factor != null" >
+        #{factor,jdbcType=DECIMAL},
+      </if>
+      <if test="iv != null" >
+        #{iv,jdbcType=DECIMAL},
+      </if>
+      <if test="badPer != null" >
+        #{badPer,jdbcType=DECIMAL},
+      </if>
+      <if test="modelPvalue != null" >
+        #{modelPvalue,jdbcType=DECIMAL},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsScoreGroupStatistics" >
+    update models_score_group_statistics
+    <set >
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="binsScore != null" >
+        bins_score = #{binsScore,jdbcType=VARCHAR},
+      </if>
+      <if test="good != null" >
+        good = #{good,jdbcType=DECIMAL},
+      </if>
+      <if test="bad != null" >
+        bad = #{bad,jdbcType=DECIMAL},
+      </if>
+      <if test="total != null" >
+        total = #{total,jdbcType=DECIMAL},
+      </if>
+      <if test="factor != null" >
+        factor = #{factor,jdbcType=DECIMAL},
+      </if>
+      <if test="iv != null" >
+        iv = #{iv,jdbcType=DECIMAL},
+      </if>
+      <if test="badPer != null" >
+        bad_per = #{badPer,jdbcType=DECIMAL},
+      </if>
+      <if test="modelPvalue != null" >
+        model_pvalue = #{modelPvalue,jdbcType=DECIMAL},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsScoreGroupStatistics" >
+    update models_score_group_statistics
+    set data_file_id = #{dataFileId,jdbcType=BIGINT},
+      arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      program_id = #{programId,jdbcType=BIGINT},
+      bins_score = #{binsScore,jdbcType=VARCHAR},
+      good = #{good,jdbcType=DECIMAL},
+      bad = #{bad,jdbcType=DECIMAL},
+      total = #{total,jdbcType=DECIMAL},
+      factor = #{factor,jdbcType=DECIMAL},
+      iv = #{iv,jdbcType=DECIMAL},
+      bad_per = #{badPer,jdbcType=DECIMAL},
+      model_pvalue = #{modelPvalue,jdbcType=DECIMAL},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

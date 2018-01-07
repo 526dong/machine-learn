@@ -1,0 +1,218 @@
+$(document).ready(function(){
+    $('body').attr('onselectstart','return false');
+    /**
+     * check选择按钮
+     */
+    bindOnDoc('click','.j-check i',function(){
+        var _this = $(this);
+        _this.toggleClass('checked');
+    })
+
+    /**
+     * 头部下拉菜单
+     */
+    $('.header-crtl-arrow').click(function(e){
+        var _this = $(this);
+        _this.toggleClass('active').siblings('.header-crtl-list').slideToggle();
+        _this.siblings('.header-crtl-list').on('click','li',function(){
+            $('.header-crtl-list').slideUp()
+        })
+        $(document).one('click',function(){
+            _this.removeClass('active');
+            $('.header-crtl-list').slideUp();
+        })
+        e.stopPropagation();
+    })
+
+    /**
+     * 侧边栏导航
+     */
+    $(document).on('click','.side-item',function(e){
+        var _this = $(this);
+        _this.parent().siblings('li').children('.side-sub-nav').slideUp().siblings('.side-item').removeClass('selected');
+        _this.toggleClass('selected').siblings('.side-sub-nav').slideToggle();
+        e.stopPropagation();
+    });
+
+    /**
+     * 自定义下拉
+     */
+    (function select(){
+        var ClickedIndex = '';
+        $(document).on('click','.j-select-placeholder',function(e){
+            var _self = $(this),
+                arrow = _self.siblings('.j-select-arrow'),
+                menu = _self.parents('.j-select').find('.j-select-options');
+            if(ClickedIndex !== $('.j-select-placeholder').index(_self)){
+                $(".j-select-options").slideUp();
+            }
+            arrow.toggleClass('active');
+            menu.slideToggle();
+            $(document).one('click',function(){
+                arrow.removeClass('active');
+                $(".j-select-options").slideUp();
+            })
+            ClickedIndex = $('.j-select-placeholder').index(_self);
+            e.stopPropagation();
+        })
+        $(document).on('click','.j-select-options li',function(){
+            var _self = $(this);
+            _self.parents('.j-select').find('.j-select-placeholder').text(_self.text())
+        });
+    })()
+    /**
+     * 导入数据文件
+     */
+    /*$('.import-file').click(function(){
+        $('#select_file').find('form').get(0).reset();
+        $('#source_file_name').html('');
+        $('#select_file_type').html('');
+        $('#select_file_rename').val('');
+        $('#select_file').fadeIn(200);
+    })
+    $('.close-pop-btn').click(function(){
+        $('#select_file').fadeOut(200);
+    })
+    */
+    $('.browser-file-btn').click(function(){
+        var _this = $(this);
+        _this.siblings('input').click();
+    })
+    $('.browser-file-ipt').on('change',function(){
+        var _this = $(this);
+        var filename = _this.get(0).files[0].name;
+        var type = filename.substr(filename.lastIndexOf(".")+1).toLowerCase();
+        $('#source_file_name').html(filename);
+    })
+
+    /* 切换算法执行顺序 */
+    $(document).on('click','.algorithm',function(){
+        var _this = $(this);
+        var name = _this.text();
+        var queues = $('#algorithm_queue');
+        var queue_array = queues.find('.algorithm-queue-item');
+        for(var i = 0; i<queue_array.length; i++){
+            if($(queue_array[i]).find('em').text() == name){
+                _this.removeClass('selected');
+                $(queue_array[i]).remove();
+                return ;
+            }
+        }
+        var html = '<span class="algorithm-queue-item"><b></b><i></i><em>'+name+'</em></span>'
+        _this.addClass('selected');
+        queues.append(html);
+    })
+
+})
+/**
+ * 折现柱图混合图
+ */
+function lineBarMixedChart(id){
+    var myChart = echarts.init(document.getElementById(id));
+    var option = {
+        title: {show:false},
+        color:['#028de2','#fcdc6f'],
+        grid:[{
+            left: 60,bottom: 30,right: 70,top: 50
+        }],
+        tooltip:{show:true,trigger:'axis'},
+        legend:{show:false},
+        xAxis:{
+            axisLine:{lineStyle:{color: '#103763'}},
+            axisTick:{lineStyle:{color: '#7c808c'}},
+            axisLabel:{fontSize:12,color: '#c0d7ff'},
+            data:['[0-1k]','[1-2k]','[2-3k]','[3-4k]','[4-5k]','[5-6k]','[6-7k]','[7-8k]','[9-10k]','[10-11k]']
+        },
+        yAxis:[{
+            axisLine:{lineStyle:{color: '#103763'}},
+            axisTick:{lineStyle:{color: '#7c808c'}},
+            axisLabel:{fontSize:12,color: '#c0d7ff',margin: 60,textStyle:{align:'left'}},
+            splitLine:{show:false},
+
+        },{
+            axisLine:{lineStyle:{color: '#103763'}},
+            axisTick:{lineStyle:{color: '#7c808c'}},
+            axisLabel:{fontSize:12,color: '#c0d7ff'},
+            splitLine:{show:false}
+        }],
+        series:[
+            {
+                type: 'bar',
+                name: '总人数',
+                barWidth: '30%',
+                data:[2500,2500,2500,2500,2500,2500,2500,2500,2500,2500]
+            },
+            {
+                type: 'line',
+                name: '正样本量',
+                yAxisIndex:1,
+                symbol:'none',
+                data:[2500,2500,2500,2500,2500,2500,2500,2500,2500,2500]
+            }
+        ]
+    };
+    myChart.setOption(option);
+};
+/**
+ * 绑定事件
+ *
+ *
+ **/
+function bindOnDoc(type,ele,fn){
+    $(document).on(type,ele,fn);
+}
+
+/**
+ * 自定义confirm
+ * 使用回调函数时，请注意函数内部使用到的this和函数外部的this所指不同
+ *
+ **/
+function jConfirm(msg,fn){
+    var html = '<div class="confirm"><div class="confirm-bg"></div><div class="confirm-modal"><p class="confirm-info">'+msg+'</p><div class="confirm-options"><span class="j-button confirm-sure">确认</span><span class="j-button confirm-cancel">取消</span></div></div></div>';
+    $('body').append(html);
+    $(document).on('click','.confirm-options .j-button',function(){
+        var confirmButton = $(this);//本this指向当前被点击按钮元素
+        if(confirmButton.hasClass('confirm-sure')){
+            fn();
+        }
+        confirmButton.parents('.confirm').fadeOut(200).remove();
+    });
+}
+function jAlert(msg,url){
+    var html = '<div class="confirm"><div class="confirm-bg"></div><div class="confirm-modal"><p class="confirm-info">'+msg+'</p><div class="confirm-options"><span class="j-button confirm-sure">确认</span></div></div></div>';
+    $('body').append(html);
+    $(document).on('click','.confirm-options .j-button',function(){
+        var confirmButton = $(this);//本this指向当前被点击按钮元素
+        if(confirmButton.hasClass('confirm-sure')){
+            if(url) {
+                window.location.href = url;
+            }
+        }
+        confirmButton.parents('.confirm').fadeOut(200).remove();
+    });
+}
+
+/* loading */
+function jLoading(msg){
+    this.msg = msg;
+    this.show();
+}
+
+jLoading.prototype.show = function(){
+    var loading = $('<div style="position:fixed;left:0;top:0;display:none;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;cursor:wait;"></div>');
+
+    var loading_inner = $('<div style="position:absolute;width:100%;z-index:1000;top:50%;left:0;color:#299ef6;text-align:center;"><img style="display:block;margin:0 auto;width:auto;height:auto;" src="img/loading_gif.gif" />'+(this.msg?('<span>'+this.msg+'</span>'):'')+'</div>');
+
+    $(document.body).append(loading.append(loading_inner));
+
+    loading.show();
+
+    loading_inner.css('margin-top',-(loading_inner.height()/2)+'px');
+
+    this.loading = loading;
+}
+jLoading.prototype.hide = function(){
+    this.loading.fadeOut(200,function(){
+        this.loading.remove();
+    });
+}

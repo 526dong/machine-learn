@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.datafile.ModelsDataFileMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.datafile.ModelsDataFile" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="size" property="size" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+    <result column="code_type" property="codeType" jdbcType="VARCHAR" />
+    <result column="file_delimiter" property="fileDelimiter" jdbcType="VARCHAR" />
+    <result column="null_value" property="nullValue" jdbcType="VARCHAR" />
+    <result column="target_name" property="targetName" jdbcType="VARCHAR" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_delete_flag" property="deleteFlag" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, size, type, file_url, code_type, file_delimiter, null_value, target_name, index_name, description, creator_name, create_date, is_delete_flag
+  </sql>
+  <!--主键查询-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+    and id = #{id,jdbcType=INTEGER}
+  </select>
+  <!--无分页列表-->
+  <select id="getList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+  </select>
+
+  <!--根据条件拆查询-->
+  <select id="getListByParams" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select
+    <include refid="Base_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+    <if test="null != params and '' != params and null != params.keyWord and '' != params.keyWord" >
+      and (name like CONCAT('%',#{params.keyWord},'%')
+      or creator_name like CONCAT('%',#{params.keyWord},'%'))
+    </if>
+  </select>
+
+  <!--逻辑删除-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    update models_data_file
+    set is_delete_flag = 1
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <!--保存时返回id-->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    insert into models_data_file (name, size, type, file_url, code_type, file_delimiter, null_value, target_name, index_name, description, creator_name, create_date)
+    values (#{name,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, #{fileUrl,jdbcType=VARCHAR},
+      #{codeType,jdbcType=VARCHAR}, #{fileDelimiter,jdbcType=VARCHAR}, #{nullValue,jdbcType=VARCHAR}, #{targetName,jdbcType=VARCHAR},
+      #{indexName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{creatorName,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    update models_data_file
+    set name = #{name,jdbcType=VARCHAR},
+      size = #{size,jdbcType=INTEGER},
+      type = #{type,jdbcType=VARCHAR},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      code_type = #{codeType,jdbcType=VARCHAR},
+      file_delimiter = #{fileDelimiter,jdbcType=VARCHAR},
+      null_value = #{nullValue,jdbcType=VARCHAR},
+      target_name = #{targetName,jdbcType=VARCHAR},
+      index_name = #{indexName,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      creator_name = #{creatorName,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      is_delete_flag = #{deleteFlag,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectPageList" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from models_data_file
+      where is_delete_flag = 0
+  </select>
+</mapper>

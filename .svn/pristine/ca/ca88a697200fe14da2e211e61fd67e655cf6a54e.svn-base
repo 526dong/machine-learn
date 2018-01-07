@@ -1,0 +1,9 @@
+package com.ccx.models.service.impl.dataexchange;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+public interface DataExchangeService {
+}

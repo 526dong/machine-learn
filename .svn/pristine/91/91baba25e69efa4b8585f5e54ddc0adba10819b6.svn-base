@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.dataexchange.DataExchangeMapper">
+
+
+	<select id="selectModelData" resultType="com.ccx.models.bean.Base" parameterType="java.lang.Integer">
+		SELECT
+			t2.id pId,
+			t1. NAME programName,
+			t1.file_url fileUrl,
+			t1.file_type fileType,
+			code_type codeType,
+			file_delimiter fileDelimiter,
+			null_value nullValue,
+			t1.target_name targetName,
+			t1.index_name indexName,
+			t2.arithmetic_names arithmetic
+		FROM
+			models_program t2
+		JOIN models_data_file t1 ON t1.id = t2.data_file_id
+		WHERE
+			t2.id = #{id}
+
+	</select>
+	<select id="selectModelFieldData" resultType="com.ccx.models.bean.Field" parameterType="java.lang.Integer">
+		SELECT
+			NAME fileName,
+			type fieldType
+		FROM
+			models_file_info
+		WHERE
+			file_id = #{id}
+
+	</select>
+
+  	
+  
+  
+</mapper>

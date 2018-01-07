@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+						http://www.springframework.org/schema/cache 
+						http://www.springframework.org/schema/cache/spring-cache-4.0.xsd
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-4.0.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<!-- 配置文件加载 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:prop/dbconfig.properties</value>
+			</list>
+		</property>
+	</bean>
+
+    <!-- aspectj aop启用CGliB代理 -->
+    <aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true"/>
+    
+    <!-- 静态扫描 -->
+    <context:annotation-config/>
+
+    <!-- 包扫描 :排除Servlet控制组件层 -->
+    <context:component-scan base-package="com.ccx.models">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    
+    <!-- 加载mybatis配置 -->
+    <import resource="classpath:spring/spring-mybatis.xml"/>
+    
+    <!-- 加载activiti配置 -->
+    <!--<import resource="classpath:spring/spring-activiti.xml"/>-->
+	<!-- 加载ehcache配置 -->
+	<import resource="classpath:spring/spring-ehcache.xml"/>
+
+    <import resource="classpath:spring/spring-redis.xml"/>
+
+    <!-- 加载shiro配置 -->
+   <import resource="classpath:spring/spring-shiro.xml"/>
+
+</beans>

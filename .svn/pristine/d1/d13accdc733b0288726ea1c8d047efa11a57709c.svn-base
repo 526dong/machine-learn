@@ -1,0 +1,86 @@
+package com.ccx.models.modelsLibrary;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.modelsLibrary.ModelsLibraryApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.model.ModelsExtract;
+import com.ccx.models.model.User;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.JsonResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsLibrary")
+public class ModelsLibraryController extends BaseController {
+
+	private static Logger logger = LogManager.getLogger(ModelsLibraryController.class);
+
+	@Autowired
+    private ModelsLibraryApi modelsLibraryApi;
+
+
+	/**
+	 * 模型提取
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/extractModels", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult extractModels(ModelsExtract modelsExtract, HttpServletRequest request) {
+		if(null != modelsExtract){
+			try {
+				//通过模型名称查找模型list
+				List<ModelsExtract> modelsExtractList1 = modelsLibraryApi.getModelsExtractListByName(modelsExtract.getModelName());
+				if(null != modelsExtractList1 && !modelsExtractList1.isEmpty()){
+					//通过模型项目id和算法id查找模型list
+					List<ModelsExtract> modelsExtractList2 = modelsLibraryApi.getModelsExtractListById(Long.valueOf(modelsExtract.getProgramId()),Long.valueOf(modelsExtract.getArithmeticId()));
+					if(null != modelsExtractList2 && !modelsExtractList2.isEmpty()){
+						User user = ControllerUtil.getSessionUser(request);
+						if(null != user){
+							modelsExtract.setCreater(user.getLoginName());
+						}
+						//状态 0:正常 1：删除
+						modelsExtract.setDelFlag(0);
+						modelsExtract.setCreateTime(new Date());
+						//保存模型信息
+						int msg = modelsLibraryApi.saveModelsExtract(modelsExtract);
+						if(msg>0){
+							return JsonResult.ok("模型提取成功！");
+						}
+					}else{
+						logger.error("模型提取失败，失败原因============该项目与算法下已经提取过模型，不能重复提取！");
+						return JsonResult.error("模型已存在，不能重复提取！");
+					}
+				}else{
+					logger.error("模型提取失败，失败原因============数据库中已经存在相同名称的模型！");
+					return JsonResult.error("模型名称已存在！");
+				}
+			} catch (Exception e) {
+				logger.error("模型提取失败，失败原因:",e);
+				return JsonResult.error("模型提取失败！");
+			}
+		}else{
+			logger.error("模型提取失败，失败原因============传参有误！");
+			return JsonResult.error("模型提取失败！");
+		}
+		return JsonResult.error("模型提取失败！");
+	}
+
+
+
+
+
+}

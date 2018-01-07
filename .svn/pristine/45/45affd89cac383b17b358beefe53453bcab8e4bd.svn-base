@@ -1,0 +1,20 @@
+package com.ccx.models.api.laboratory;
+
+import java.util.LinkedHashMap;
+
+/**
+ * 模型报告业务层接口
+ */
+public interface ModelsReportApi {
+
+
+	/**
+	 * 根据项目id获取项目基本信息
+	 * @param programId
+	 * @return
+	 */
+	LinkedHashMap<String, Object> getProgramMapById(Long programId);
+
+
+
+}

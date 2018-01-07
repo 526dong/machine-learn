@@ -1,0 +1,189 @@
+package com.ccx.models.service.impl.datafile;
+
+import com.ccx.models.mapper.datafile.GetFileValueMapper;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.model.datafile.ModelsFileValue;
+
+import java.util.*;
+
+/**
+  * @author Created by xzd on 2017/11/22.
+  * @Description 公共方法获取文件数据
+ */
+public abstract class GetFileValue<K,V> {
+    private GetFileValueMapper fileValueMapper;
+
+    //dataFileId
+    private Integer dataFileId;
+
+    //获取文件数据
+    private CommonFileValue.DataFile dataFile = new CommonFileValue.DataFile();
+
+    //文件变量
+    private Map<Integer, List<CommonFileValue.FileValue>> fileValue = new HashMap<>();
+
+    //文件变量-成行的文件变量值
+    private Map<Integer, List<CommonFileValue.FileValue>> rowFileValue = new HashMap<>();
+
+    //K模型存储
+    private K k;
+
+    //V模型存储
+    private V v;
+
+    //构造函数初始化
+    public GetFileValue(GetFileValueMapper fileValueMapper, Integer dataFileId) {
+        this.fileValueMapper = fileValueMapper;
+        this.dataFileId = dataFileId;
+        init();
+    }
+
+    //初始化方法
+    private void init(){
+        //文件信息
+        ModelsDataFile modelsDataFile = fileValueMapper.findById(dataFileId);
+        dataFile.setDataFile(modelsDataFile);
+
+        //文件中变量信息
+        List<CommonFileValue.FileInfo> fileInfoList = new ArrayList<>();
+        List<ModelsFileInfo> fileInfoByDataFileId = fileValueMapper.findFileInfoByDataFileId(dataFileId);
+
+        //变量数量
+        Integer columnNumber = fileInfoByDataFileId.size();
+
+        //文件中变量值
+        List<ModelsFileValue> fileValueByDataFileId = fileValueMapper.findFileValueByDataFileId(dataFileId, columnNumber*10);
+
+        //将fileValueByDataFileId放入Map容器中
+        dealWithFileValues(fileValueByDataFileId);
+
+        for(ModelsFileInfo myFileInfo:fileInfoByDataFileId){
+            CommonFileValue.FileInfo fileInfo = new CommonFileValue.FileInfo();
+            fileInfo.setFileInfo(myFileInfo);
+            //将文件变量的值放入变量中
+            fileInfo.setFileValueList(fileValue.get(myFileInfo.getId()));
+            fileInfoList.add(fileInfo);
+        }
+
+        //处理行变量值
+        List<CommonFileValue.RowFileInfo> rowFileInfoList = dealWithRowFileValues();
+
+        dataFile.setFileInfoList(fileInfoList);
+        dataFile.setRowFileInfoList(rowFileInfoList);
+    }
+
+    /**
+     * 处理文件变量存储值
+     * @param fileValueList
+     * @return
+     */
+    private void dealWithFileValues(List<ModelsFileValue> fileValueList){
+        for (ModelsFileValue fileVal:fileValueList){
+            if (fileVal != null && fileVal.getFileInfoId() != null) {
+                //变量-变量值分类封包
+                List<CommonFileValue.FileValue> list = null;
+                //文件变量id
+                Integer fileInfoId = Integer.valueOf(fileVal.getFileInfoId().toString());
+
+                //空处理
+                if(fileValue.get(fileInfoId) == null){
+                    list = new ArrayList<>();
+                    fileValue.put(fileInfoId, list);
+                }
+                list = fileValue.get(fileInfoId);
+
+                CommonFileValue.FileValue myFileValue = new CommonFileValue.FileValue();
+                myFileValue.setFileValue(fileVal);
+
+                list.add(myFileValue);
+
+                //行号-变量值分类封包
+                List<CommonFileValue.FileValue> rowList = null;
+                //行号
+                Integer rowNumber = fileVal.getRowNumber();
+
+                //空处理
+                if(rowFileValue.get(rowNumber) == null){
+                    rowList = new ArrayList<>();
+                    rowFileValue.put(rowNumber, rowList);
+                }
+                rowList = rowFileValue.get(rowNumber);
+
+                CommonFileValue.FileValue myRowFileValue = new CommonFileValue.FileValue();
+                myRowFileValue.setFileValue(fileVal);
+
+                rowList.add(myRowFileValue);
+            }
+        }
+    }
+
+    /**
+     * 处理文件变量行变量值
+     * @return
+     */
+    private List<CommonFileValue.RowFileInfo> dealWithRowFileValues(){
+        //行集合
+        List<CommonFileValue.RowFileInfo> rowFileInfoList = new ArrayList<>();
+
+        Iterator it = rowFileValue.entrySet().iterator();
+
+        while (it.hasNext()) {
+            Map.Entry<Integer, List<CommonFileValue.FileValue>> rowMap = (Map.Entry<Integer, List<CommonFileValue.FileValue>>) it.next();
+
+            Integer rowNumber = rowMap.getKey();
+            List<CommonFileValue.FileValue> rowValue = rowMap.getValue();
+
+            CommonFileValue.RowFileInfo rowFileInfo = new CommonFileValue.RowFileInfo();
+            rowFileInfo.setRowNumber(rowNumber);
+            //将文件变量的值放入行中
+            rowFileInfo.setFileValueList(rowValue);
+
+            rowFileInfoList.add(rowFileInfo);
+        }
+
+        return rowFileInfoList;
+    }
+
+    public K getK() {
+        if(k == null) {
+            initK();
+        }
+        return k;
+    }
+
+    public V getV() {
+        if(v == null) {
+            initV();
+        }
+        return v;
+    }
+
+    public abstract void initK();
+
+    public abstract void initV();
+
+    public Integer getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Integer dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public CommonFileValue.DataFile getDataFile() {
+        return dataFile;
+    }
+
+    public void setDataFile(CommonFileValue.DataFile dataFile) {
+        this.dataFile = dataFile;
+    }
+
+    public void setK(K k) {
+        this.k = k;
+    }
+
+    public void setV(V v) {
+        this.v = v;
+    }
+}

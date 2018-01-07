@@ -1,0 +1,153 @@
+package com.ccx.models.program;
+
+import com.ccx.models.api.ModelsProgramApi;
+import com.ccx.models.api.datafile.ModelsDataFileApi;
+import com.ccx.models.api.datafile.ModelsFileInfoApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.model.ModelsArithmetic;
+import com.ccx.models.model.ModelsProgram;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.JsonResult;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+	
+@Controller	
+@RequestMapping("/program")
+public class ProgramController extends BaseController {
+
+	private Logger log = LogManager.getLogger(ProgramController.class);
+		
+	@Autowired	
+	private ModelsProgramApi modelsProgramService;
+
+	@Autowired
+	private ModelsDataFileApi modelsDataFileService;
+
+	@Autowired
+	private ModelsFileInfoApi modelsFileInfoService;
+		
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/index", method=RequestMethod.GET)
+	public ModelAndView modelsProgramIndex(HttpServletRequest request) {	
+		ModelAndView mnv = new ModelAndView("program/programIndex");
+		return mnv;	
+	}
+
+	/*
+	 * @author zhaotm
+	 * @description
+	 * @date
+	*/
+	@RequestMapping(value="/indexList", method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult indexList(HttpServletRequest request) {
+		Map<String, Object> paramsMap = ControllerUtil.requestMap(request);
+
+		try {
+			List<ModelsProgram> list = modelsProgramService.getList(paramsMap);
+			return JsonResult.ok(list);
+		} catch (Exception e) {
+			log.error("项目列表失败：", e);
+			return JsonResult.error(null);
+		}
+	}
+
+
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/addOrEdit", method=RequestMethod.GET)
+	public ModelAndView modelsProgramAddOrEdit(Integer id) {
+		ModelAndView mnv = new ModelAndView("program/programAddOrEdit");
+
+		try {
+			if (id.intValue() != -1) {
+				ModelsProgram program = modelsProgramService.getById(id);
+				mnv.addObject("program", program);
+			}
+
+			List<ModelsArithmetic> arithmeticList = modelsProgramService.selectArithmeticList();
+			List<ModelsDataFile> fileList = modelsDataFileService.getList();
+
+			mnv.addObject("arithmeticList", arithmeticList);
+			mnv.addObject("fileList", fileList);
+
+		} catch (Exception e){
+			log.error("项目新增/编辑失败：", e);
+		}	
+		return mnv;	
+	}
+
+	/*
+     * @author zhaotm
+     * @description
+     * @date
+    */
+	@RequestMapping(value="/dataFileInfoList", method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult dataFileInfoList(Integer fileId) {
+
+		try {
+			List<ModelsFileInfo> infoList = modelsFileInfoService.selectByFileId(fileId);
+			return JsonResult.ok(infoList);
+		} catch (Exception e) {
+			log.error("数据列表失败：", e);
+			return JsonResult.error(null);
+		}
+	}
+		
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/addOrEditSave", method=RequestMethod.POST)
+	@ResponseBody	
+	public JsonResult modelsProgramAddOrEditSave(ModelsProgram model) {
+		try {	
+			modelsProgramService.save(model);	
+			return JsonResult.ok(null);
+		} catch (Exception e) {
+			log.error("项目保存/开始失败：", e);
+			return JsonResult.error(null);
+		}
+	}
+
+	/*
+	 * @author zhaotm
+	 * @description
+	 * @date
+	*/
+	@RequestMapping(value="/del", method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult modelsProgramDel(Integer id) {
+		try {
+			modelsProgramService.deleteById(id);
+			return JsonResult.ok(null);
+		} catch (Exception e) {
+			log.error("项目删除失败：", e);
+			return JsonResult.error(null);
+		}
+	}
+}	

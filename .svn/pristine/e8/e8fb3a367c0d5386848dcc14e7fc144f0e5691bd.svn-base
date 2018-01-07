@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.laboratory.ModelsReportMapper" >
+
+
+    <!-- 根据项目id获取项目基本信息 -->
+    <select id="getProgramMapById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+       SELECT
+            id,
+            NAME,
+            data_file_id dataFileId,
+            data_file_name dataFileName,
+            data_sample_num dataSampleNum,
+            target_id targetId,
+            target_name targetName,
+            index_id indexId,
+            index_name indexName,
+            arithmetic_ids arithmeticIds,
+            arithmetic_names arithmeticNames,
+            creator,
+            create_time createTime,
+            finish_time finishTime,
+            cast_time castTime,
+            STATUS,
+            delete_flag deleteFlag
+        FROM
+            models_program
+        WHERE
+            id = #{programId,jdbcType=INTEGER}
+    </select>
+</mapper>

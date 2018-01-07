@@ -1,0 +1,546 @@
+package com.ccx.models.util;
+
+import com.ccx.models.mapper.datafile.ModelsDataFileMapper;
+import com.ccx.models.mapper.datafile.ModelsFileInfoMapper;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.model.datafile.ModelsFileValue;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author Created by xzd on 2017/11/21.
+ * @Description 文件导入工具类
+ */
+public class ImportUtils {
+    //存储变量值
+    public static Map<Integer, List<ModelsFileValue>> dataValues = new HashMap<>();
+
+    //参数为空
+    public static String DATA_FILE_IMPORT_ERR_TYPE_PARAM = "101";
+    //文件编码不一致
+    public static String DATA_FILE_IMPORT_ERR_TYPE_FILE_CODE = "102";
+    //分隔符为中文格式
+    public static String DATA_FILE_IMPORT_ERR_TYPE_SPLIT_CODE = "103";
+    //列名称不符合规范
+    public static String DATA_FILE_IMPORT_ERR_TYPE_COLUMN = "104";
+    //某一行第一个值为空
+    public static String DATA_FILE_IMPORT_ERR_TYPE_ROW_FIRST_NULL = "105";
+    //非数字
+    public static String DATA_FILE_IMPORT_ERR_TYPE_NOT_NUMBER = "106";
+
+    /**
+     * 导入csv文件
+     * @param inputStream
+     * @return
+     */
+    public static List<ModelsFileValue> importCsvFile(InputStream inputStream, ModelsDataFile modelsDataFile,
+              ModelsDataFileMapper modelsDataFileMapper, ModelsFileInfoMapper modelsFileInfoMapper, Map<String, Object> params){
+        //判断参数是否为空
+        if (params.size() == 0) {
+            throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_PARAM);
+        }
+        //数据-未处理
+        List<String> dataList = new ArrayList<>();
+        //所有变量数据-已经处理
+        List<ModelsFileValue> fileValueList = new ArrayList<>();
+        //统计多少行
+        int rowNumber = 0;
+        //读取文件
+        BufferedReader br = null;
+        //文件编码识别
+        BufferedInputStream bis = new BufferedInputStream(inputStream);
+        //默认文件编码
+        String codeType = "GBK";
+
+        try {
+            br = new BufferedReader(new InputStreamReader(inputStream));
+
+            //行读取
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                rowNumber++;
+
+                //处理csv文件中是否包含双引号
+                if (line.contains("\"") && line.length() > 2) {
+                    String dealLine = line.replace("\"","");
+                    dataList.add(dealLine);
+                } else {
+                    dataList.add(line);
+                }
+            }
+
+            //文件编码
+            codeType = judgeFileEncode(bis);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            try {
+                br.close();
+                bis.close();
+                br = null;
+                bis = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!((String) params.get("fileCode")).equals(codeType)) {
+            throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_FILE_CODE);
+        }
+
+        //文件编码格式
+        modelsDataFile.setCodeType(codeType);
+
+        if (dataList != null && dataList.size() > 0) {
+            //文件名称
+            String fileName = modelsDataFile.getName();
+            String fileWholeName = "";
+
+            //判断文件是什么格式
+            if ("csv".equals(modelsDataFile.getType())) {
+                fileWholeName = fileName + ".csv";
+            } else if ("txt".equals(modelsDataFile.getType())) {
+                fileWholeName = fileName + ".txt";
+            }
+            //文件临时存放路径
+            String filePath = PropertiesUtil.getProperty("data_file_store_path") + fileWholeName;
+
+            modelsDataFile.setFileUrl(filePath);
+
+            //存放csv文件/txt文件
+            exportCsvOrTxt(new File(filePath), dataList);
+
+            //文件所包含的行数
+            modelsDataFile.setSize(rowNumber);
+            modelsDataFile = getDataFileEntity(modelsDataFile, params);
+
+            //数据文件刚刚保存的id
+            modelsDataFileMapper.insert(modelsDataFile);
+
+            //数据文件变量值
+            fileValueList = analysisData(dataList, modelsDataFile.getId(), modelsFileInfoMapper, params);
+        }
+
+        return fileValueList;
+    }
+
+    /**
+     * 获取数据文件实体
+     * @param modelsDataFile
+     * @param params
+     * @return
+     */
+    public static ModelsDataFile getDataFileEntity(ModelsDataFile modelsDataFile, Map<String, Object> params){
+        modelsDataFile.setName((String) params.get("fileName"));
+        modelsDataFile.setFileDelimiter((String) params.get("splitCode"));
+        modelsDataFile.setNullValue((String) params.get("nullValue"));
+        modelsDataFile.setTargetName((String) params.get("targetName"));
+        modelsDataFile.setIndexName((String) params.get("indexName"));
+        modelsDataFile.setDescription((String) params.get("description"));
+        modelsDataFile.setCreatorName("test");
+        modelsDataFile.setCreateDate(new Date());
+
+        return modelsDataFile;
+    }
+
+    /**
+     * 判断文件的编码格式
+     * @param bis
+     * @return 文件编码格式
+     */
+    public static String judgeFileEncode(BufferedInputStream bis){
+        int p = 0;
+        try {
+            p = (bis.read() << 8) + bis.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String code = null;
+        if (p != 0) {
+            //其中的 0xefbb、0xfffe、0xfeff、0x5c75这些都是这个文件的前面两个字节的16进制数
+            switch (p) {
+                case 0xefbb:
+                    code = "UTF-8";
+                    break;
+                case 0xfffe:
+                    code = "Unicode";
+                    break;
+                case 0xfeff:
+                    code = "UTF-16BE";
+                    break;
+                case 0x5c75:
+                    code = "ANSI|ASCII" ;
+                    break ;
+                default:
+                    code = "GBK";
+            }
+        }
+
+        return code;
+    }
+
+    /**
+     * 导出csv文件/txt文件
+     * @param file csv文件/txt文件(路径+文件名)，csv文件不存在会自动创建
+     * @param dataList 数据
+     * @return
+     */
+    public static boolean exportCsvOrTxt(File file, List<String> dataList){
+        boolean isOk = false;
+
+        FileOutputStream out = null;
+        OutputStreamWriter osw = null;
+        BufferedWriter bw = null;
+
+        try {
+            out = new FileOutputStream(file);
+            osw = new OutputStreamWriter(out, "UTF-8");
+
+            //处理excel打不开问题
+            osw.write(new String(new byte[] { (byte) 0xEF, (byte) 0xBB,(byte) 0xBF }));
+            osw.flush();
+
+            bw = new BufferedWriter(osw);
+            if(dataList != null && !dataList.isEmpty()){
+                for(String data:dataList){
+                    bw.append(data + "\r\n");
+                }
+            }
+            isOk = true;
+        } catch (Exception e) {
+            isOk = false;
+        }finally{
+            if(bw != null){
+                try {
+                    bw.close();
+                    bw = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(osw != null){
+                try {
+                    osw.close();
+                    osw = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(out != null){
+                try {
+                    out.close();
+                    out = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return isOk;
+    }
+
+    /**
+     * 分析数据
+     * @param importList
+     */
+    public static List<ModelsFileValue> analysisData(List<String> importList, Integer dataFileId,
+             ModelsFileInfoMapper modelsFileInfoMapper, Map<String, Object> params){
+        //（二）保存文件信息
+        //分析完之后的数据集合
+        List<ModelsFileValue> fileValueList = new ArrayList<>();
+        //存储文件字段集合
+        LinkedList<Integer> linkedList = new LinkedList<>();
+
+        //一、处理表头，即文件信息表
+        Object objTitle = importList.get(0);
+
+        //文件分隔符
+        String splitReg = "";
+        String splitCode = (String) params.get("splitCode");
+
+        if (splitCode.isEmpty()) {
+            throw new MyRuntimeException("文件分隔符为空！");
+        } else {
+            boolean isChineseSymbol = isChineseSymbol(splitCode);
+
+            //判断是中文符号还是英文符号
+            if (isChineseSymbol) {
+                throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_SPLIT_CODE);
+            } else {
+                splitReg = splitCode;
+            }
+        }
+
+        //文件空值替换符
+        String nullCode = "";
+        String nullValue = (String) params.get("nullValue");
+
+        if (nullValue.isEmpty()) {
+            nullCode = "unkonw";
+        } else {
+            nullCode = nullValue;
+        }
+
+        if (objTitle != null) {
+            //一行数据
+            String columnTitle = objTitle.toString();
+
+            if (columnTitle.contains(splitReg)) {
+                String[] columnTitleArr = columnTitle.split(splitReg);
+
+                for (int j = 0; j < columnTitleArr.length; j++) {
+                    ModelsFileInfo fileInfo = getModelsFileInfo(dataFileId, columnTitleArr[j]);
+                    modelsFileInfoMapper.insert(fileInfo);
+
+                    Integer fileInfoId = fileInfo.getId();
+                    linkedList.add(fileInfo.getId());
+
+                    //获取分组后的变量map
+                    getFileValueMap(fileInfoId);
+                }
+            } else {
+                ModelsFileInfo fileInfo = getModelsFileInfo(dataFileId, columnTitle);
+                modelsFileInfoMapper.insert(fileInfo);
+
+                Integer fileInfoId = fileInfo.getId();
+                linkedList.add(fileInfoId);
+
+                //获取分组后的变量map
+                getFileValueMap(fileInfoId);
+            }
+        }
+
+        //二、处理字段数据
+        for (int i = 1; i < importList.size(); i++) {
+            Object obj = importList.get(i);
+
+            if (obj != null) {
+                //一行数据
+                String column = obj.toString().replace("\"","");
+
+                if (column.contains(splitReg)) {
+                    String[] columnArr = column.split(splitReg);
+
+                    if (linkedList.size() == columnArr.length) {
+                        for (int j = 0; j < columnArr.length; j++) {
+                            ModelsFileValue fileValue = new ModelsFileValue();
+                            //变量值
+                            String columnValue = columnArr[j];
+
+                            if (StringUtils.isEmpty(columnValue)) {
+                                //空值处理
+                                fileValue.setValue(null);
+                                //属于哪一行
+                                fileValue.setRowNumber(i);
+                                fileValue.setFileInfoId(linkedList.get(j));
+                                fileValueList.add(fileValue);
+
+                                //手动将变量值按照变量分组
+                                List<ModelsFileValue> fileValueListGroup = dataValues.get(Integer.valueOf(linkedList.get(j)));
+
+                                if (fileValueListGroup != null) {
+                                    fileValueListGroup.add(fileValue);
+                                }
+                            } else {
+                                if (columnValue.contains("e") || columnValue.contains("E")) {
+                                    columnValue = formatScientificCount(columnValue);
+                                }
+
+                                //校验是否为数字
+                                boolean isNumber = isDecimal(columnValue);
+
+                                if (isNumber) {
+                                    fileValue.setValue(new BigDecimal(columnValue));
+                                    //属于哪一行
+                                    fileValue.setRowNumber(i);
+                                    fileValue.setFileInfoId(linkedList.get(j));
+                                    fileValueList.add(fileValue);
+
+                                    //手动将变量值按照变量分组
+                                    List<ModelsFileValue> fileValueListGroup = dataValues.get(Integer.valueOf(linkedList.get(j)));
+
+                                    if (fileValueListGroup != null) {
+                                        fileValueListGroup.add(fileValue);
+                                    }
+                                } else {
+                                    //非数字处理
+                                    throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_NOT_NUMBER+","+(i+1)+","+(j+1));
+                                }
+                            }
+                        }
+                    } else {
+                        //空值处理
+                        throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_ROW_FIRST_NULL);
+                    }
+                } else {
+                    ModelsFileValue fileValue = new ModelsFileValue();
+
+                    //如果存在科学计数，则转化
+                    if (column.contains("e") || column.contains("E")) {
+                        column = formatScientificCount(column);
+                    }
+
+                    fileValue.setValue(new BigDecimal(column));
+                    fileValue.setFileInfoId(linkedList.get(0));
+
+                    fileValueList.add(fileValue);
+                }
+            }
+        }
+
+        //判断变量的类型：连续/离散
+        judgeColumnType(modelsFileInfoMapper);
+
+        return fileValueList;
+    }
+
+    /**
+     * 是否是中文符号
+     * HALFWIDTH_AND_FULLWIDTH_FORMS 判断中文的，号
+     * GENERAL_PUNCTUATION 判断中文的"号
+     * CJK_SYMBOLS_AND_PUNCTUATION 判断中文的。号
+     * @param splitCode 分隔符
+     * @return
+     */
+    public static boolean isChineseSymbol(String splitCode) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(splitCode.charAt(0));
+
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION
+                || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+                || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 处理科学记数法中的e
+     * @return
+     */
+    public static String formatScientificCount(String val){
+        BigDecimal bigDecimal = new BigDecimal(val);
+        return bigDecimal.toPlainString();
+    }
+
+    /**
+     * 获取文件详情实体
+     * @param dataFileId 数据文件id
+     * @param columnTitle 列名
+     * @return
+     */
+    public static ModelsFileInfo getModelsFileInfo(Integer dataFileId, String columnTitle){
+        //文件详情
+        ModelsFileInfo fileInfo = new ModelsFileInfo();
+
+        //判断列名是否符合规范
+        if (isMatchColumnName(columnTitle)) {
+            fileInfo.setName(columnTitle);
+            fileInfo.setFileId(dataFileId);
+        } else {
+            //列名不符合规范
+            throw new MyRuntimeException(DATA_FILE_IMPORT_ERR_TYPE_COLUMN);
+        }
+
+        return fileInfo;
+    }
+
+    /**
+     * 列名是否符合规范-英文，数字，下划线，且不能是数字开头，不能含有运算符如+-*等
+     * @param param
+     * @return
+     */
+    public static boolean isMatchColumnName(String param){
+        return isMatch("^[A-Za-z_][A-Za-z_0-9]{0,50}$", param);
+    }
+
+    /**
+     * 是否为实数
+     * @param param
+     * @return
+     */
+    public static boolean isDecimal(String param){
+        return isMatch("0|^[+-]?\\d+(\\.\\d+)?$", param);
+    }
+
+    /**
+     * 正则判断是否为整数和小数
+     * @param regex
+     * @param param
+     * @return
+     */
+    private static boolean isMatch(String regex, String param){
+        if (param == null || param.trim().equals("")) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(regex);
+        Matcher isNum = pattern.matcher(param);
+
+        return isNum.matches();
+    }
+
+    /**
+     * //获取分组后的变量map
+     * @param fileInfoId
+     */
+    public static void getFileValueMap(Integer fileInfoId){
+        List<ModelsFileValue> list = null;
+
+        //空处理
+        if(dataValues.get(fileInfoId) == null){
+            list = new ArrayList<>();
+            dataValues.put(fileInfoId, list);
+        }
+    }
+
+    /**
+     * 判断变量的类型：连续/离散
+     * @param modelsFileInfoMapper
+     */
+    public static void judgeColumnType(ModelsFileInfoMapper modelsFileInfoMapper){
+        //循环遍历参数map
+        Iterator it = dataValues.entrySet().iterator();
+
+        while(it.hasNext()) {
+            Map.Entry<Integer, List<ModelsFileValue>> columnMap = (Map.Entry<Integer, List<ModelsFileValue>>) it.next();
+            Integer columnId = columnMap.getKey();
+            List<ModelsFileValue> columnValueList = columnMap.getValue();
+
+            Map<String, Integer> map = new HashMap<>();
+
+            for (ModelsFileValue fileValue:columnValueList) {
+                //变量值
+                String columnValue = String.valueOf(fileValue.getValue());
+                if (map.get(columnValue) != null) {
+                    map.put(columnValue, map.get(columnValue) + 1);
+                } else {
+                    map.put(columnValue, 1);
+                }
+            }
+
+            ModelsFileInfo fileInfo = new ModelsFileInfo();
+
+            //连续/离散，不同的数字不超过10个就是离散型的，反之就是连续型的
+            if (map.size() <= 10) {
+                fileInfo.setType(0);
+            } else {
+                fileInfo.setType(1);
+            }
+
+            //数据库更新变量类型
+            modelsFileInfoMapper.updateTypeById(columnId, fileInfo.getType());
+        }
+    }
+
+    //txt
+
+    //excel
+}

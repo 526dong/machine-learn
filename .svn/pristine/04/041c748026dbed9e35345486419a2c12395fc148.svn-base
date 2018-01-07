@@ -1,0 +1,18 @@
+package com.ccx.models.mapper.datafile;
+
+
+import com.ccx.models.model.datafile.ModelsDataFile;
+
+public interface ModelsDataFileMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsDataFile record);
+
+    int insertSelective(ModelsDataFile record);
+
+    ModelsDataFile selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsDataFile record);
+
+    int updateByPrimaryKey(ModelsDataFile record);
+}

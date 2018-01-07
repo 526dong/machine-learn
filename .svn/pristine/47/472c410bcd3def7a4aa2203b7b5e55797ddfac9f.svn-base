@@ -1,0 +1,6 @@
+ccxleague-registry-address=192.168.10.161:2181
+#ccxleague-registry-address=127.0.0.1:2181
+ccxleague-service-group=car-league-erp-dev
+ccxleague-service-version=1.0.0
+ccxleague-service-timeout=120000
+erp-service-port=22025

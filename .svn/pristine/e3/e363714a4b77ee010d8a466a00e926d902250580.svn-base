@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.laboratory.ModelsReportMapper" >
+
+
+    <!-- 根据项目id获取项目基本信息 -->
+    <select id="getProgramMapById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+       SELECT
+            id,
+            name,
+            data_file_id dataFileId,
+            data_file_name dataFileName,
+            data_sample_num dataSampleNum,
+            target_id targetId,
+            target_name targetName,
+            index_id indexId,
+            index_name indexName,
+            arithmetic_ids arithmeticIds,
+            arithmetic_names arithmeticNames,
+            creator,
+            create_time createTime,
+            finish_time finishTime,
+            cast_time castTime,
+            STATUS,
+            delete_flag deleteFlag
+        FROM
+            models_program
+        WHERE
+            id = #{programId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据项目id获取项目基本信息 -->
+    <select id="getModelDateAnalyInfoById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            type,
+            sample_num sampleNum,
+            sum_dimensionality sumDimensionality,
+            into_dimensionality intoDimensionality,
+            importance_var importanceVar,
+            plus_minus_rate plusMinusRate,
+            plus_rate plusRate,
+            program_id programId,
+            arithmetic_id arithmeticId,
+            creater,
+            create_time
+        FROM
+            models_model_data_analy_info
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据项目id获取模型数据评价指标list -->
+    <select id="getModelDateEvaluateIndexById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            type,
+            auc,
+            ks,
+            precisions,
+            recall,
+            f1_score f1Score,
+            support,
+            gini,
+            program_id programId,
+            arithmetic_id arithmeticId,
+            creater,
+            create_time
+        FROM
+            models_model_data_evaluate_index
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据项目id获取Score分组详情list -->
+    <select id="getScoreGroupListById" resultType="java.util.LinkedHashMap" parameterType="java.util.Map">
+        SELECT
+            id,
+            data_file_id dataFileId,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            bins_score binsScore,
+            good,
+            bad,
+            total,
+            factor,
+            iv,
+            bad_per badPer,
+            model_pvalue modelPvalue,
+            creater,
+            create_time,
+            model_data_name modelDataName
+        FROM
+            models_score_group_statistics
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+            AND
+            model_data_name = #{type,jdbcType=VARCHAR}
+            AND (
+                bins_score != 'All'
+                OR bins_score IS NULL
+            )
+    </select>
+
+    <!-- 根据项目id获取概率分箱list -->
+    <select id="getProbabilityBinningListById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            data_file_id dataFileId,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            bins_score binsScore,
+            forecast_good_num forecastGoodNum,
+            forecast_good_per forecastGoodPer,
+            creater,
+            create_time
+        FROM
+            models_probability_binning
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据数据文件id获取变量重要性排序list -->
+    <select id="getVarImportanceSortById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            arithmetic_id arithmeticId,
+            data_file_id dataFileId,
+            field_id fieldId,
+            var_name varName,
+            gain,
+            pct_importance pctImportance,
+            create_time
+        FROM
+            models_important_count
+        WHERE
+            field_id = #{programId,jdbcType=INTEGER}
+        ORDER BY
+            pct_importance DESC
+    </select>
+
+    <!-- 根据项目id和算法id获取该项目下该算法下的曲线图1的数据list -->
+    <select id="getRocKsLineList1ById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            abscissa,
+            tpr,
+            ks,
+            fpr,
+            creater,
+            create_time
+        FROM
+            models_train_line_1
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+        AND arithmetic_id = #{arithmeticId,jdbcType=INTEGER}
+        ORDER BY
+            abscissa ASC
+    </select>
+
+    <!-- 根据项目id和算法id获取该项目下该算法下的曲线图2的数据list -->
+    <select id="getRocKsLineList2ById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            abscissa,
+            auc,
+            creater,
+            create_time
+        FROM
+            models_train_line_2
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+        AND arithmetic_id = #{arithmeticId,jdbcType=INTEGER}
+        ORDER BY
+            abscissa ASC
+    </select>
+
+    <!-- 根据项目id和算法id获取该项目下该算法下的曲线图3的数据list -->
+    <select id="getRocKsLineList3ById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            abscissa,
+            tpr,
+            ks,
+            fpr,
+            creater,
+            create_time
+        FROM
+            models_train_line_3
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+        AND arithmetic_id = #{arithmeticId,jdbcType=INTEGER}
+        ORDER BY
+            abscissa ASC
+    </select>
+
+    <!-- 根据项目id和算法id获取该项目下该算法下的曲线图4的数据list -->
+    <select id="getRocKsLineList4ById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+            id,
+            arithmetic_id arithmeticId,
+            program_id programId,
+            abscissa,
+            auc,
+            creater,
+            create_time
+        FROM
+            models_train_line_4
+        WHERE
+            program_id = #{programId,jdbcType=INTEGER}
+        AND arithmetic_id = #{arithmeticId,jdbcType=INTEGER}
+        ORDER BY
+            abscissa ASC
+    </select>
+
+    <!-- 根据项目id获取按钮下载链接 -->
+    <select id="getModelDownloadUrlById" resultType="java.util.LinkedHashMap" parameterType="java.lang.Long">
+        SELECT
+        ` id`,
+        arithmetic_id arithmeticId,
+        program_id programId,
+        log_path logPath,
+        predict_res_path predictResPath,
+        analysis_report analysisReport
+        FROM
+        models_output_path
+        WHERE
+        program_id = #{programId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据项目id和算法id获取下载url -->
+    <select id="getDownloadUrlById" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+        ` id`,
+        arithmetic_id arithmeticId,
+        program_id programId,
+        log_path logPath,
+        predict_res_path predictResPath,
+        analysis_report analysisReport
+        FROM
+        models_output_path
+        WHERE
+        program_id = #{programId,jdbcType=INTEGER}
+        AND
+        arithmetic_id = #{arithmeticId,jdbcType=INTEGER}
+    </select>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,253 @@
+package com.ccx.models.service.impl.datafile;
+
+import com.ccx.models.api.datafile.ModelsDataFileApi;
+import com.ccx.models.mapper.datafile.ModelsDataFileMapper;
+import com.ccx.models.mapper.datafile.ModelsFileInfoMapper;
+import com.ccx.models.mapper.datafile.ModelsFileRowValueMapper;
+import com.ccx.models.mapper.datafile.ModelsFileValueMapper;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileRowValue;
+import com.ccx.models.model.datafile.ModelsFileValue;
+import com.ccx.models.util.ImportUtils;
+import com.ccx.models.util.MyRuntimeException;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+	
+@Service("modelsDataFileApi")
+public class ModelsDataFileServiceImpl implements ModelsDataFileApi {
+		
+	@Autowired	
+    private ModelsDataFileMapper modelsDataFileMapper;
+
+	@Autowired
+	private ModelsFileInfoMapper modelsFileInfoMapper;
+
+	@Autowired
+	private ModelsFileValueMapper modelsFileValueMapper;
+
+	@Autowired
+	private ModelsFileRowValueMapper modelsFileRowValueMapper;
+
+	//主键获取
+	@Override	
+	public ModelsDataFile getById(Integer id) {
+		return modelsDataFileMapper.selectByPrimaryKey(id);	
+	}	
+		
+	//获取无参list	
+	@Override	
+	public List<ModelsDataFile> getList(Map<String, Object> params) {
+		return modelsDataFileMapper.getListByParams(params);
+	}	
+		
+	//获取有参数list	
+	@Override	
+	public List<ModelsDataFile> getList() {
+		return modelsDataFileMapper.getList();
+	}
+
+	//获取带分页list
+	@Override	
+	public PageInfo<ModelsDataFile> getPageList(Map<String, Object> paramMap) {
+		List<ModelsDataFile> dataFileList = modelsDataFileMapper.selectPageList(paramMap);
+		PageInfo<ModelsDataFile> pageInfo = new PageInfo<>(dataFileList);
+		return pageInfo;
+	}	
+		
+	//通过条件获取	
+	@Override	
+	public ModelsDataFile getByModel(ModelsDataFile model) {	
+		return null;	
+	}	
+	
+	//保存对象	
+	@Override	
+	public void save(MultipartFile multipartFile, final Map<String, Object> params) {
+		//（一）保存数据文件记录-同时返回文件保存的文件记录id
+		final ModelsDataFile modelsDataFile = saveDataFile(multipartFile);
+
+		try {
+			InputStream inputStream = multipartFile.getInputStream();
+			//分析数据文件，并保存到数据库
+			final List<ModelsFileRowValue> fileValueList = ImportUtils.importCsvFile(inputStream, modelsDataFile, modelsDataFileMapper, modelsFileInfoMapper, params);
+
+			//关闭流
+			closeStream(inputStream);
+
+			/*//调用模型变量统计
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					VariableExchangeApi.saveForModelSend(modelsDataFile);
+				}
+			}).start();*/
+
+			if (fileValueList.size() > 0) {
+				//（三）保存文件变量
+				//批量保存数据文件中的变量
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						batchInsertDataValue(fileValueList, params);
+					}
+				}).start();
+
+			} else {
+				throw new MyRuntimeException("文件中没有数据");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 保存数据文件记录
+	 * @param multipartFile
+	 * @return
+	 */
+	public ModelsDataFile saveDataFile(MultipartFile multipartFile){
+		//文件原名称
+		String filename = multipartFile.getOriginalFilename();
+		//文件类型
+		String fileType = filename.substring(filename.lastIndexOf(".")+1);
+
+		ModelsDataFile modelsDataFile = new ModelsDataFile();
+
+		modelsDataFile.setName(filename.substring(0, filename.indexOf(".")));
+		modelsDataFile.setType(fileType);
+
+		return modelsDataFile;
+	}
+
+	/**
+	 * 获取文件类型
+	 * @param fileType
+	 * @return
+	 */
+	public Integer getFileType(String fileType){
+		Integer type = null;
+
+		if (".csv".equalsIgnoreCase(fileType)) {
+			type = 0;
+		} else if (".txt".equalsIgnoreCase(fileType)) {
+			type = 1;
+		} else if (".xls".equalsIgnoreCase(fileType) || ".xlsx".equalsIgnoreCase(fileType)) {
+			type = 2;
+		}
+
+		return type;
+	}
+
+	/**
+	 * 关闭流操作
+	 * @param in
+	 */
+	public void closeStream(InputStream in){
+		if(null != in){
+			try{
+				in.close();
+				in = null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * 批量保存数据文件中的变量
+	 * @param list
+	 */
+	public void batchInsertDataValue(List<ModelsFileRowValue> list, Map<String, Object> params){
+		//当前用户名称
+		String currentUserName = "";
+		if (params != null && params.size() > 0 && params.get("currentUserName") != null) {
+			currentUserName = (String) params.get("currentUserName");
+		}
+
+		//1、分页数据信息-批量处理
+		//总记录数
+		int totalSize = list.size();
+		//每页N条
+		int pageSize = 1000;
+		//共N页
+		int totalPage = (totalSize / pageSize) == 0 ? 1 : (totalSize / pageSize);
+		//余数
+		int remain = totalSize % pageSize;
+
+		if (totalSize < pageSize) {
+			pageSize = list.size();
+		} else {
+			if (remain > 0) {
+				totalPage += 1;
+			}
+		}
+
+		//2、组装新数据
+		final List<ModelsFileRowValue> newList = new ArrayList<>();
+		for (int pageNum = 1; pageNum < totalPage + 1; pageNum++) {
+			//开始页
+			int starNum = (pageNum - 1) * pageSize;
+			//结束页
+			int endNum = pageNum * pageSize > totalSize ? (totalSize) : pageNum * pageSize;
+
+			//不能整除，处理余数
+			if (pageNum == totalPage && remain > 0) {
+				endNum = starNum + remain;
+			}
+
+			for (int i = starNum; i < endNum; i++) {
+				ModelsFileRowValue rowValue = list.get(i);
+
+				rowValue.setCreateDate(new Date());
+				rowValue.setCreatorName(currentUserName);
+
+				newList.add(rowValue);
+			}
+
+			modelsFileRowValueMapper.batchInsert(newList);
+
+			/*new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try{
+						modelsFileValueMapper.batchInsert(newList);
+					}catch (Exception e){
+						e.printStackTrace();
+					}
+				}
+			}).start();*/
+
+			/*//移出已经保存过的数据
+			list.removeAll(newlist);*/
+			//移出当前保存的数据
+			newList.clear();
+		}
+	}
+	
+	//更新对象	
+	@Override	
+	public int update(ModelsDataFile model) {	
+		return modelsDataFileMapper.updateByPrimaryKey(model);	
+	}	
+		
+	//删除对象	
+	@Override	
+	public int deleteById(Integer id) {	
+		return modelsDataFileMapper.deleteByPrimaryKey(id);	
+	}	
+		
+	//其他查询	
+	@Override	
+	public Map<String, Object> getOther() {	
+		return null;	
+	}	
+}	

@@ -1,0 +1,231 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模型库-模型列表</title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    /*页面初始化*/
+    $(function(){
+        /*列表数据*/
+        getData();
+    });
+
+    /*列表数据*/
+    function getData(){
+        $.ajax({
+            url:"${ctx}/modelsLibrary/getModelsList",
+            type:'POST',
+            data:{
+                "keyWord":$("#keyWord").val(),//关键字搜索
+                "pageSize":12,//每页展示数
+                "pageNum":$("#currentPage").val(),//当前页
+            },
+            async: false,
+            success:function(data){
+                if (200 == data.code) {
+                    var modelList = data.data;
+
+                    $("#dataFileContent").html("");
+                    var htmlContent = createTable(modelList.list);
+                    $("#modelListContent").html(htmlContent);
+                    var pageStr = createPage(modelList.total, modelList.pageNum,modelList.pages);
+                    $("#pageDiv").html(pageStr);
+                } else {
+                    jAlert(data.msg);
+                    console.error(data.msg);
+                }
+            }
+        });
+    }
+    //数据模型列表
+    function createTable(data){
+        var htmlContent = "";
+        for(var i = 0;i < data.length;i++) {
+            htmlContent += "<li>";
+            htmlContent += "<div class='file-card'>";
+            htmlContent += "<i class='file-card-del' ' onclick='delModelInfo("+data[i].id+")'></i>";
+            htmlContent += "<div class='file-info'>";
+            htmlContent += "<div class='file-abstact'>";
+
+            if (!isValueNull(data[i].modelName)) {
+                htmlContent += "<em></em>";
+            } else {
+                var modelName = data[i].modelName;
+                if(modelName.length>8){
+                    modelName = modelName.substring(0,8)+"...";
+                }
+                htmlContent += "<em title='"+data[i].modelName+"' >"+modelName+"</em>"
+            }
+
+            htmlContent += "<i>" + (data[i].createTimeStr == null ? '' : data[i].createTimeStr) + "</i>";
+            htmlContent += "<div class='file-size-date'><b>所属项目</b>";
+            if (!isValueNull(data[i].programName)) {
+                htmlContent += "<i></i>";
+            } else {
+                var programName = data[i].programName;
+                if(programName.length>14){
+                    programName = programName.substring(0,14)+"...";
+                }
+                htmlContent += "<i title='"+data[i].programName+"'>"+programName+"</i>";
+            }
+            htmlContent += "</div>";
+            htmlContent += "<div class='file-size-date'><b>所属算法</b>";
+            if (!isValueNull(data[i].arithmeticName)) {
+                htmlContent += "<i></i>";
+            } else {
+                var arithmeticName = data[i].arithmeticName;
+                if(arithmeticName.length>10){
+                    arithmeticName = arithmeticName.substring(0,9)+"...";
+                }
+                htmlContent += "<i title='"+data[i].arithmeticName+"'>"+arithmeticName+"</i>";
+            }
+            htmlContent += "</div>";
+            htmlContent += "</div>";
+            htmlContent += "</div>";
+            htmlContent += "<div class='file-desc'>";
+            htmlContent += "<span class='file-desc-label'>描述:</span>";
+            htmlContent += "<div class='file-desc-right'>";
+            if (!isValueNull(data[i].description)) {
+                htmlContent += "<p >暂无描述</p>";
+            } else {
+                var description = data[i].description;
+                if(description.length>10){
+                    description = description.substring(0,10)+"...";
+                }
+                htmlContent += "<p title='"+data[i].description+"'>"+description+"</p>";
+            }
+            htmlContent += "<a href='${ctx}/modelsLibrary/toModelsDetailPage?modelId="+data[i].id+"'>详情>></a></div>";
+            htmlContent += "</div>";
+            htmlContent += "</div>";
+            htmlContent += "</li>";
+        }
+
+        return htmlContent;
+    }
+
+    //删除文件信息
+    function delModelInfo(id) {
+        //列表url
+        var listUrl = "${ctx}/modelsLibrary/toModelsListPage";
+        if (isValueNull(id)) {
+            jConfirm('确认删除？',function(){
+                $.ajax({
+                    url:"${ctx}/modelsLibrary/deleteModelById",
+                    type:'POST',
+                    data:{
+                        "modelId":id,
+                    },
+                    async: false,
+                    success:function(data){
+                        if (200 == data.code) {
+                            jAlert("删除成功！", listUrl);
+                        } else {
+                            jAlert("删除失败！", listUrl);
+                            console.error(data.msg);
+                        }
+                    }
+                });
+            });
+        } else {
+            jAlert("删除失败！");
+            console.error("模型id为空！")
+        }
+    }
+    //判断是否为空
+    function isValueNull(obj) {
+        var flag = true;
+        if (obj == null || obj == "" || obj == undefined) {
+            flag = false;
+        }
+        return flag;
+    }
+    //条件查询
+    function searchFile() {
+        getData();
+    }
+    //回车查询
+    function enterSearch(){
+        if (event.keyCode == 13){
+            event.returnValueS = false;
+            event.cancel = true;
+            getData();
+        }
+    }
+
+    //分页跳转
+    function jumpToPage(curPage){
+        if(typeof(curPage) != "undefined"){
+            $("#currentPage").val(curPage);
+        }else{
+            $("#currentPage").val(1);
+        }
+        //查询
+        getData();
+    }
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>模型库</h3>
+                    <p>模型列表</p>
+                </div>
+                <!-- //page-title -->
+                <div class="query-box">
+                    <div class="srch-box">
+                        <i class="input-enter-icon" onclick="searchFile()"></i>
+                        <input class="j-input srch-ipt" type="text" id="keyWord" placeholder="请输入模型名称/所属项目名称"
+                               onkeydown="enterSearch();" />
+                        <div class="srch-match">
+                            <ul >
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <%--<a class="j-button create-project-btn">
+                        模型对比
+                    </a>--%>
+                </div>
+                <!-- //query-box -->
+            </div>
+            <!-- //main-header -->
+            <div class="file-list">
+                <ul id="modelListContent">
+
+                </ul>
+            </div>
+            <!-- file-list -->
+            <!-- 分页.html start -->
+            <input type="hidden" id="currentPage" name="currentPage" value="1"/>
+            <%@ include file="../commons/tabPage.jsp"%>
+            <!-- 分页.html end -->
+            <!-- file-list -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+
+</body>
+</html>

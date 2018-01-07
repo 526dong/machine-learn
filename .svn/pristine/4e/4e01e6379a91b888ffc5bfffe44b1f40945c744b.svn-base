@@ -1,0 +1,108 @@
+package com.ccx.models.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class ModelsModelDataBaseInfo {
+    private Long id;
+
+    private String modelDataName;
+
+    private BigDecimal sampleNum;
+
+    private BigDecimal dimensionality;
+
+    private BigDecimal deficiencyRate;
+
+    private Integer dataFileId;
+
+    private String description;
+
+    private String creater;
+
+    private Date createTime;
+
+    public ModelsModelDataBaseInfo(Long id, String modelDataName, BigDecimal sampleNum, BigDecimal dimensionality, BigDecimal deficiencyRate, Integer dataFileId, String description, String creater, Date createTime) {
+        this.id = id;
+        this.modelDataName = modelDataName;
+        this.sampleNum = sampleNum;
+        this.dimensionality = dimensionality;
+        this.deficiencyRate = deficiencyRate;
+        this.dataFileId = dataFileId;
+        this.description = description;
+        this.creater = creater;
+        this.createTime = createTime;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getModelDataName() {
+        return modelDataName;
+    }
+
+    public void setModelDataName(String modelDataName) {
+        this.modelDataName = modelDataName == null ? null : modelDataName.trim();
+    }
+
+    public BigDecimal getSampleNum() {
+        return sampleNum;
+    }
+
+    public void setSampleNum(BigDecimal sampleNum) {
+        this.sampleNum = sampleNum;
+    }
+
+    public BigDecimal getDimensionality() {
+        return dimensionality;
+    }
+
+    public void setDimensionality(BigDecimal dimensionality) {
+        this.dimensionality = dimensionality;
+    }
+
+    public BigDecimal getDeficiencyRate() {
+        return deficiencyRate;
+    }
+
+    public void setDeficiencyRate(BigDecimal deficiencyRate) {
+        this.deficiencyRate = deficiencyRate;
+    }
+
+    public Integer getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Integer dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCreater() {
+        return creater;
+    }
+
+    public void setCreater(String creater) {
+        this.creater = creater == null ? null : creater.trim();
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+}

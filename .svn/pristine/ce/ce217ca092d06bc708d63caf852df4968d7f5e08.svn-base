@@ -1,0 +1,193 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>角色管理</title>
+    <link rel="stylesheet" href="${ctx}/resources/css/style.css">
+    <script src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+/*页面初始化*/
+$(function() {
+    /*列表数据*/
+    findRoleList();
+
+    //每页显示条数
+    $("#select_box0").on("click","li",function(){
+        $("#next_select0 span").html($(this).attr("data-id"));
+        $("#currentPage").val(1);
+        findRoleList();
+    })
+    //页数跳转
+    $("#currentNum").blur(function(){
+        var currentNum=  $("#currentNum").val();
+        $("#currentPage").val(currentNum);
+        findRoleList();
+    })
+})
+
+/*列表数据*/
+function findRoleList() {
+    $.ajax({
+        url : "${ctx}/role/findAll",
+        type : 'POST',
+        data : {
+            pageSize:$("#next_select0 span").text(),//每页展示数
+            currentPage : $("#currentPage").val(),//当前页
+        },
+        async : false,
+        success : function(data) {
+            var htmlStr = createTable(data.list);
+            $("#htmlContent").html(htmlStr);
+//            var pageStr = creatPage(data.total, data.pageNum,data.pages);
+//            $("#pageDiv").html(pageStr);
+        }
+    });
+}
+
+//创建用户列表
+function createTable(data) {
+    var htmlContent = "";
+    for (var i = 0; i < data.length; i++) {
+        var name = data[i].name;
+        if(null==name||typeof(name)=="undefined"||""==name){
+            name = "";
+        }
+        var createTime = data[i].createTimeDate;
+        if(null==createTime||typeof(createTime)=="undefined"||""==createTime){
+            createTime = "";
+        }
+        htmlContent += "<tr>";
+        htmlContent += "<td>" + (parseInt(i) + 1)+ "</td>";
+        htmlContent += "<td >" + name + "</td>";
+        htmlContent += "<td>" + createTime + "</td>";
+        htmlContent += "<td>";
+        htmlContent += "<span class='operation op-modify' onclick=update('"+data[i].id+"')><i></i><b>修改</b></span>";
+        htmlContent += "<span class='operation op-setting' onclick=assign('"+data[i].id+"')><i></i><b>设置权限</b></span>";
+        htmlContent += "<span class='operation op-delete' onclick=isDel('"+data[i].id+"')><i></i><b>删除</b></span>";
+        htmlContent += "</td>";
+        htmlContent += "</tr>";
+    }
+    return htmlContent;
+}
+
+//分页跳转
+function jumpToPage(curPage){
+    if(typeof(curPage) != "undefined"){
+        $("#currentPage").val(curPage);
+    }else{
+        $("#currentPage").val(1);
+    }
+    //查询
+    findRoleList();
+}
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <%--头文件====结束--%>
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>角色管理</h3>
+                </div>
+                <div class="fr">
+                    <a href="${ctx}/role/addRole"><span class="j-button">创建角色</span></a>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div class="role-management">
+                <table class="j-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px;" >序号</th>
+                        <th>角色名称</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="htmlContent">
+
+                    </tbody>
+                </table>
+            </div>
+            <!-- //role-management -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- //content -->
+</div>
+<!-- //j-container -->
+
+<script>
+    /**
+     * 角色管路操作
+     *
+     **/
+    bindOnDoc('click','.role-management .operation',function(e){
+        var _this = $(this);
+        var className = _this.attr('class').split(' ');
+        for(var o in className){
+            if(className[o].indexOf('op-')>-1){
+                type = className[o].substr(className[o].indexOf('op-')+3);
+                break;
+            }
+        };
+        e.stopPropagation();
+    });
+
+
+    /*
+     编辑
+     */
+    function update(id) {
+        window.location.href = "${ctx}/role/update?id="+id;
+    }
+
+    /*
+     设置权限
+     */
+    function assign(id) {
+        window.location.href = "${ctx}/role/selectPermissionByRoleId?id="+id;
+    }
+
+    /*
+     删除
+     */
+    function isDel(id) {
+        var href = "/role/toRoleManagerPage";
+        jConfirm('确认删除？',function(){
+            $.ajax({
+                url : "${ctx}/role/deleteRole",
+                type : 'POST',
+                data : {
+                    "id":id
+                },
+                success : function(data) {
+                    if (data == "0000") {
+                        jAlert("角色删除成功!",href);
+                    } else if (data == "888") {
+                        jAlert("该角色下存在正常用户，无法删除!",href);
+                    }else{
+                        jAlert("角色删除失败!",href);
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

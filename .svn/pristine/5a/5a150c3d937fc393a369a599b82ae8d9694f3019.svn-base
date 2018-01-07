@@ -1,0 +1,17 @@
+package com.ccx.models.mapper;
+
+import com.ccx.models.model.ModelsVarNumricCount;
+
+public interface ModelsVarNumricCountMapper {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(ModelsVarNumricCount record);
+
+    int insertSelective(ModelsVarNumricCount record);
+
+    ModelsVarNumricCount selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(ModelsVarNumricCount record);
+
+    int updateByPrimaryKey(ModelsVarNumricCount record);
+}

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsVarNumricCountMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsVarNumricCount" >
+    <id column=" id" property="id" jdbcType="INTEGER" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="field_id" property="fieldId" jdbcType="INTEGER" />
+    <result column="var_name" property="varName" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="missing_n" property="missingN" jdbcType="INTEGER" />
+    <result column="missing_pct" property="missingPct" jdbcType="DECIMAL" />
+    <result column="range" property="range" jdbcType="VARCHAR" />
+    <result column="mean" property="mean" jdbcType="DECIMAL" />
+    <result column="std" property="std" jdbcType="DECIMAL" />
+    <result column="min" property="min" jdbcType="DECIMAL" />
+    <result column="one_four" property="oneFour" jdbcType="DECIMAL" />
+    <result column="two_four" property="twoFour" jdbcType="DECIMAL" />
+    <result column="three_four" property="threeFour" jdbcType="DECIMAL" />
+    <result column="the_max" property="theMax" jdbcType="DECIMAL" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="iv" property="iv" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    " id", data_file_id, field_id, var_name, type, missing_n, missing_pct, "range", mean,
+    std, min, one_four, two_four, three_four, the_max, create_time, iv
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_var_numric_count
+    where " id" = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_var_numric_count
+    where " id" = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <!--通过数据文件删除-->
+  <delete id="deleteByDataFileId" parameterType="java.lang.Integer" >
+    delete from models_var_numric_count
+    where data_file_id = #{dataFileId,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsVarNumricCount" >
+    insert into models_var_numric_count ( data_file_id, field_id,
+      var_name, type, missing_n, 
+      missing_pct, range, mean, 
+      std, min, one_four, 
+      two_four, three_four, the_max, 
+      create_time, iv)
+    values (#{dataFileId,jdbcType=BIGINT}, #{fieldId,jdbcType=INTEGER},
+      #{varName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{missingN,jdbcType=INTEGER}, 
+      #{missingPct,jdbcType=DECIMAL}, #{range,jdbcType=VARCHAR}, #{mean,jdbcType=DECIMAL}, 
+      #{std,jdbcType=DECIMAL}, #{min,jdbcType=DECIMAL}, #{oneFour,jdbcType=DECIMAL}, 
+      #{twoFour,jdbcType=DECIMAL}, #{threeFour,jdbcType=DECIMAL}, #{theMax,jdbcType=DECIMAL}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{iv,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsVarNumricCount" >
+    insert into models_var_numric_count
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        " id",
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="fieldId != null" >
+        field_id,
+      </if>
+      <if test="varName != null" >
+        var_name,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="missingN != null" >
+        missing_n,
+      </if>
+      <if test="missingPct != null" >
+        missing_pct,
+      </if>
+      <if test="range != null" >
+        range,
+      </if>
+      <if test="mean != null" >
+        mean,
+      </if>
+      <if test="std != null" >
+        std,
+      </if>
+      <if test="min != null" >
+        min,
+      </if>
+      <if test="oneFour != null" >
+        one_four,
+      </if>
+      <if test="twoFour != null" >
+        two_four,
+      </if>
+      <if test="threeFour != null" >
+        three_four,
+      </if>
+      <if test="theMax != null" >
+        the_max,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="iv != null" >
+        iv,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null" >
+        #{fieldId,jdbcType=INTEGER},
+      </if>
+      <if test="varName != null" >
+        #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="missingN != null" >
+        #{missingN,jdbcType=INTEGER},
+      </if>
+      <if test="missingPct != null" >
+        #{missingPct,jdbcType=DECIMAL},
+      </if>
+      <if test="range != null" >
+        #{range,jdbcType=VARCHAR},
+      </if>
+      <if test="mean != null" >
+        #{mean,jdbcType=DECIMAL},
+      </if>
+      <if test="std != null" >
+        #{std,jdbcType=DECIMAL},
+      </if>
+      <if test="min != null" >
+        #{min,jdbcType=DECIMAL},
+      </if>
+      <if test="oneFour != null" >
+        #{oneFour,jdbcType=DECIMAL},
+      </if>
+      <if test="twoFour != null" >
+        #{twoFour,jdbcType=DECIMAL},
+      </if>
+      <if test="threeFour != null" >
+        #{threeFour,jdbcType=DECIMAL},
+      </if>
+      <if test="theMax != null" >
+        #{theMax,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iv != null" >
+        #{iv,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsVarNumricCount" >
+    update models_var_numric_count
+    <set >
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null" >
+        field_id = #{fieldId,jdbcType=INTEGER},
+      </if>
+      <if test="varName != null" >
+        var_name = #{varName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="missingN != null" >
+        missing_n = #{missingN,jdbcType=INTEGER},
+      </if>
+      <if test="missingPct != null" >
+        missing_pct = #{missingPct,jdbcType=DECIMAL},
+      </if>
+      <if test="range != null" >
+        range = #{range,jdbcType=VARCHAR},
+      </if>
+      <if test="mean != null" >
+        mean = #{mean,jdbcType=DECIMAL},
+      </if>
+      <if test="std != null" >
+        std = #{std,jdbcType=DECIMAL},
+      </if>
+      <if test="min != null" >
+        min = #{min,jdbcType=DECIMAL},
+      </if>
+      <if test="oneFour != null" >
+        one_four = #{oneFour,jdbcType=DECIMAL},
+      </if>
+      <if test="twoFour != null" >
+        two_four = #{twoFour,jdbcType=DECIMAL},
+      </if>
+      <if test="threeFour != null" >
+        three_four = #{threeFour,jdbcType=DECIMAL},
+      </if>
+      <if test="theMax != null" >
+        the_max = #{theMax,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iv != null" >
+        iv = #{iv,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsVarNumricCount" >
+    update models_var_numric_count
+    set data_file_id = #{dataFileId,jdbcType=BIGINT},
+      field_id = #{fieldId,jdbcType=INTEGER},
+      var_name = #{varName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      missing_n = #{missingN,jdbcType=INTEGER},
+      missing_pct = #{missingPct,jdbcType=DECIMAL},
+      range = #{range,jdbcType=VARCHAR},
+      mean = #{mean,jdbcType=DECIMAL},
+      std = #{std,jdbcType=DECIMAL},
+      min = #{min,jdbcType=DECIMAL},
+      one_four = #{oneFour,jdbcType=DECIMAL},
+      two_four = #{twoFour,jdbcType=DECIMAL},
+      three_four = #{threeFour,jdbcType=DECIMAL},
+      the_max = #{theMax,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      iv = #{iv,jdbcType=DECIMAL}
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectListByModel" parameterType="com.ccx.models.model.ModelsVarNumricCount" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+      from models_var_numric_count where true
+    <if test="null != dataFileId">
+      and data_file_id = #{dataFileId,jdbcType=BIGINT}
+    </if>
+  </select>
+</mapper>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsProgramMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsProgram" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="data_file_id" property="dataFileId" jdbcType="INTEGER" />
+    <result column="data_file_name" property="dataFileName" jdbcType="VARCHAR" />
+    <result column="data_sample_num" property="dataSampleNum" jdbcType="INTEGER" />
+    <result column="target_id" property="targetId" jdbcType="INTEGER" />
+    <result column="target_name" property="targetName" jdbcType="VARCHAR" />
+    <result column="index_id" property="indexId" jdbcType="INTEGER" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="arithmetic_ids" property="arithmeticIds" jdbcType="VARCHAR" />
+    <result column="arithmetic_names" property="arithmeticNames" jdbcType="VARCHAR" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_time_str" property="createTimeStr" jdbcType="VARCHAR" />
+    <result column="finish_time" property="finishTime" jdbcType="TIMESTAMP" />
+    <result column="cast_time" property="castTime" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="model_conf" property="modelConf" jdbcType="INTEGER" />
+    <result column="delete_flag" property="deleteFlag" jdbcType="SMALLINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, data_file_id, data_file_name, data_sample_num, target_id, target_name, 
+    index_id, index_name, arithmetic_ids, arithmetic_names, creator, create_time, finish_time,
+    cast_time, status, model_conf, delete_flag
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_program
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_program
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsProgram" >
+    insert into models_program (id, name, data_file_id, 
+      data_file_name, data_sample_num, target_id, 
+      target_name, index_id, index_name, 
+      arithmetic_ids, arithmetic_names, creator, 
+      create_time, finish_time, cast_time, 
+      status, model_conf, delete_flag
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{dataFileId,jdbcType=INTEGER}, 
+      #{dataFileName,jdbcType=VARCHAR}, #{dataSampleNum,jdbcType=INTEGER}, #{targetId,jdbcType=INTEGER}, 
+      #{targetName,jdbcType=VARCHAR}, #{indexId,jdbcType=INTEGER}, #{indexName,jdbcType=VARCHAR}, 
+      #{arithmeticIds,jdbcType=VARCHAR}, #{arithmeticNames,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{finishTime,jdbcType=TIMESTAMP}, #{castTime,jdbcType=VARCHAR}, 
+      #{status,jdbcType=SMALLINT}, #{modelConf,jdbcType=INTEGER}, #{deleteFlag,jdbcType=SMALLINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsProgram" >
+    insert into models_program
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="dataFileName != null" >
+        data_file_name,
+      </if>
+      <if test="dataSampleNum != null" >
+        data_sample_num,
+      </if>
+      <if test="targetId != null" >
+        target_id,
+      </if>
+      <if test="targetName != null" >
+        target_name,
+      </if>
+      <if test="indexId != null" >
+        index_id,
+      </if>
+      <if test="indexName != null" >
+        index_name,
+      </if>
+      <if test="arithmeticIds != null" >
+        arithmetic_ids,
+      </if>
+      <if test="arithmeticNames != null" >
+        arithmetic_names,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="finishTime != null" >
+        finish_time,
+      </if>
+      <if test="castTime != null" >
+        cast_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="modelConf != null" >
+        model_conf,
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=INTEGER},
+      </if>
+      <if test="dataFileName != null" >
+        #{dataFileName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSampleNum != null" >
+        #{dataSampleNum,jdbcType=INTEGER},
+      </if>
+      <if test="targetId != null" >
+        #{targetId,jdbcType=INTEGER},
+      </if>
+      <if test="targetName != null" >
+        #{targetName,jdbcType=VARCHAR},
+      </if>
+      <if test="indexId != null" >
+        #{indexId,jdbcType=INTEGER},
+      </if>
+      <if test="indexName != null" >
+        #{indexName,jdbcType=VARCHAR},
+      </if>
+      <if test="arithmeticIds != null" >
+        #{arithmeticIds,jdbcType=VARCHAR},
+      </if>
+      <if test="arithmeticNames != null" >
+        #{arithmeticNames,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null" >
+        #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="castTime != null" >
+        #{castTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="modelConf != null" >
+        #{modelConf,jdbcType=INTEGER},
+      </if>
+      <if test="deleteFlag != null" >
+        #{deleteFlag,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsProgram" >
+    update models_program
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=INTEGER},
+      </if>
+      <if test="dataFileName != null" >
+        data_file_name = #{dataFileName,jdbcType=VARCHAR},
+      </if>
+      <if test="dataSampleNum != null" >
+        data_sample_num = #{dataSampleNum,jdbcType=INTEGER},
+      </if>
+      <if test="targetId != null" >
+        target_id = #{targetId,jdbcType=INTEGER},
+      </if>
+      <if test="targetName != null" >
+        target_name = #{targetName,jdbcType=VARCHAR},
+      </if>
+      <if test="indexId != null" >
+        index_id = #{indexId,jdbcType=INTEGER},
+      </if>
+      <if test="indexName != null" >
+        index_name = #{indexName,jdbcType=VARCHAR},
+      </if>
+      <if test="arithmeticIds != null" >
+        arithmetic_ids = #{arithmeticIds,jdbcType=VARCHAR},
+      </if>
+      <if test="arithmeticNames != null" >
+        arithmetic_names = #{arithmeticNames,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null" >
+        finish_time = #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="castTime != null" >
+        cast_time = #{castTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="modelConf != null" >
+        model_conf = #{modelConf,jdbcType=INTEGER},
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag = #{deleteFlag,jdbcType=SMALLINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsProgram" >
+    update models_program
+    set name = #{name,jdbcType=VARCHAR},
+      data_file_id = #{dataFileId,jdbcType=INTEGER},
+      data_file_name = #{dataFileName,jdbcType=VARCHAR},
+      data_sample_num = #{dataSampleNum,jdbcType=INTEGER},
+      target_id = #{targetId,jdbcType=INTEGER},
+      target_name = #{targetName,jdbcType=VARCHAR},
+      index_id = #{indexId,jdbcType=INTEGER},
+      index_name = #{indexName,jdbcType=VARCHAR},
+      arithmetic_ids = #{arithmeticIds,jdbcType=VARCHAR},
+      arithmetic_names = #{arithmeticNames,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      finish_time = #{finishTime,jdbcType=TIMESTAMP},
+      cast_time = #{castTime,jdbcType=VARCHAR},
+      status = #{status,jdbcType=SMALLINT},
+      model_conf = #{modelConf,jdbcType=INTEGER},
+      delete_flag = #{deleteFlag,jdbcType=SMALLINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectPageList" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />, DATE_FORMAT(create_time,'%Y-%m-%d %H:%i') create_time_str
+      from models_program
+    where delete_flag = 0
+    <if test="null != keyWord and '' != keyWord">
+      and (name like concat('%', #{keyWord, jdbcType=VARCHAR}, '%') or data_file_name like concat('%', #{keyWord, jdbcType=VARCHAR}, '%'))
+    </if>
+  </select>
+
+  <select id="selectArithmeticList" resultType="com.ccx.models.model.ModelsArithmetic">
+    select id, name from models_Arithmetic where status  = 1
+  </select>
+</mapper>

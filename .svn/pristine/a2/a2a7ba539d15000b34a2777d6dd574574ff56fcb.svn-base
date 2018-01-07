@@ -1,0 +1,156 @@
+package com.ccx.models.service.impl.modelsLibrary;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.modelsLibrary.ModelsLibraryApi;
+import com.ccx.models.api.modelsLibrary.ModelsLibraryDataApi;
+import com.ccx.models.mapper.modelsLibrary.ModelsLibraryDataMapper;
+import com.ccx.models.model.ModelsExtractImportRowValue;
+import com.ccx.models.model.ModelsExtractTestRecord;
+import com.ccx.models.model.SectionCount;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileValue;
+import com.ccx.models.service.impl.datafile.CommonFileValue;
+import com.ccx.models.util.TimerConcurrentHashMap;
+
+@Service("ModelsLibraryDataApi")
+public class ModelsLibraryDataServiceImpl implements ModelsLibraryDataApi {
+
+	private static Logger logger = LogManager.getLogger(ModelsLibraryDataServiceImpl.class);
+	
+	@Autowired
+    private ModelsLibraryDataMapper modelsLibraryDataMapper;
+	
+	@Override
+	public List<SectionCount> modelTextResult(String id) {
+		return modelsLibraryDataMapper.modelTextResult(id);
+		 
+	}
+
+	@Override
+	public SectionCount modelTextCount(String id) {
+		return modelsLibraryDataMapper.modelTextCount(id);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<String, String> saveModelTest(Map<String, Object> params) {
+		Map<String, String> map = new HashMap<String, String>();
+		Long modelsExtractInfoId = Long.parseLong((String) params.get("modelId"));
+		Integer testType = Integer.parseInt(params.get("testType").toString());
+		ModelsExtractTestRecord bean = new ModelsExtractTestRecord();
+		ModelsExtractImportRowValue rowBean = new ModelsExtractImportRowValue();
+		List<ModelsExtractImportRowValue> list = new ArrayList<ModelsExtractImportRowValue>();
+		
+		TimerConcurrentHashMap<String,Object> timerConcurrentHashMap = ModelsLibraryApi.timerConcurrentHashMap;
+		
+		CommonFileValue.DataFile dataFile = (CommonFileValue.DataFile) timerConcurrentHashMap.get("commonFileValue");
+		
+		if (dataFile == null) {
+			map.put("status", "3");
+			return map;
+		}
+		//文件信息
+		ModelsDataFile newDataFile = dataFile.getDataFile();
+		//表头信息
+		List<CommonFileValue.FileInfo> fileInfoList = dataFile.getFileInfoList();
+		//文件内容信息
+		List<CommonFileValue.FileRowValue> rowFileInfoList = dataFile.getFileRowValueList();
+		
+		List<ModelsFileValue> fileValue = dataFile.getIndexColumnValueList();
+		
+		//表头字段
+		List<String> titleList = new ArrayList<>();
+		for (int i = 0; i < fileInfoList.size(); i++) {
+			titleList.add(fileInfoList.get(i).getFileInfo().getName());
+		}
+		String titleJson = JSON.toJSONString(titleList);
+		
+		
+		//封装测试记录信息
+		bean.setModelsExtractInfoId(modelsExtractInfoId);
+		bean.setFileName(newDataFile.getName());
+		bean.setFilePath(newDataFile.getFileUrl());
+		bean.setFileSize(newDataFile.getSize());
+		bean.setFileType(newDataFile.getType());
+		bean.setTitleValue(titleJson);
+		bean.setSampleNum(newDataFile.getSize());
+		bean.setTestType(testType);
+		bean.setDelFlag(0);
+		bean.setCreater(newDataFile.getCreatorName());
+		
+		try {
+			logger.debug("开始存储数据=====》");
+			modelsLibraryDataMapper.saveModelExtractTest(bean);//模型测试记录入库
+			//封装模型导入文件信息
+			for (int i = 0; i < rowFileInfoList.size(); i++) {
+				rowBean.setModelsExtractTestRecordId(bean.getId());
+				rowBean.setCreater(newDataFile.getCreatorName());
+				rowBean.setIndexName(fileValue.get(i).getValue());
+				rowBean.setRowValue(rowFileInfoList.get(0).getFileRowValue().getRowValue());
+				list.add(rowBean);
+				rowBean = new ModelsExtractImportRowValue();
+			}
+			
+			//1、分页数据信息-批量处理
+			//总记录数
+			int totalSize = list.size();
+			//每页N条
+			int pageSize = 1000;
+			//共N页
+			int totalPage = (totalSize / pageSize) == 0 ? 1 : (totalSize / pageSize);
+			//余数
+			int remain = totalSize % pageSize;
+
+			if (totalSize < pageSize) {
+				pageSize = list.size();
+			} else {
+				if (remain > 0) {
+					totalPage += 1;
+				}
+			}
+
+			//2、组装新数据
+			final List<ModelsExtractImportRowValue> newList = new ArrayList<>();
+			for (int pageNum = 1; pageNum < totalPage + 1; pageNum++) {
+				//开始页
+				int starNum = (pageNum - 1) * pageSize;
+				//结束页
+				int endNum = pageNum * pageSize > totalSize ? (totalSize) : pageNum * pageSize;
+
+				//不能整除，处理余数
+				if (pageNum == totalPage && remain > 0) {
+					endNum = starNum + remain;
+				}
+
+				for (int i = starNum; i < endNum; i++) {
+					ModelsExtractImportRowValue rowValue = list.get(i);
+					newList.add(rowValue);
+				}
+				modelsLibraryDataMapper.saveBatchModelTest(newList);//批量存储文件信息
+
+				//移出当前保存的数据
+				newList.clear();
+			}
+			timerConcurrentHashMap.remove("newDataFile");
+			timerConcurrentHashMap.remove("fileInfoList");
+			timerConcurrentHashMap.remove("fileRowValueList");
+			map.put("status", "2");
+		} catch (Exception e) {
+			map.put("status", "3");
+			logger.debug("预测失败，错误信息："+e);
+		}
+		return map;
+		
+	}
+
+}

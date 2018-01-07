@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.IPMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.Ip" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="ip_address" property="ipAddress" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="create_plantform" property="createPlantform" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="ip_upper_limit" property="ipUpperLimit" jdbcType="INTEGER"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from abs_ip
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.Ip" >
+    insert into abs_ip (id, ip_address, create_time, 
+      creator, create_plantform, state
+      )
+    values (#{id,jdbcType=INTEGER}, #{ipAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{creator,jdbcType=VARCHAR}, #{createPlantform,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="java.util.Map">
+    update abs_ip
+    set ip_address = #{ipAddress,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, ip_address, create_time, creator, create_plantform, state
+    from abs_ip
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="findIPList" resultMap="BaseResultMap" >
+    select id, ip_address, create_time, creator, create_plantform, state
+    from abs_ip
+    <where>
+		state = 0
+		<if test="insId != null ">
+			and institution_id = #{insId}
+		</if>
+	</where>
+    order by create_time desc
+  </select>
+  
+  <update id="updateState" parameterType="java.lang.Integer">
+  	update abs_ip
+  	set state = 1
+  	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectIPCount" resultType="java.lang.Integer">
+  	select count(*)
+  	from abs_ip
+  	where state = 0
+  </select>
+  
+  <update id="setUpperLimit" parameterType="java.lang.Integer">
+  	update abs_ip
+  	set ip_upper_limit = #{ipLimit,jdbcType=INTEGER}
+  </update>
+  
+  <select id="checkIP" resultType="java.lang.Integer">
+  	select count(0)
+  	from abs_ip
+  	where 1=1
+  		and state = 0
+  		and ip_address = #{loginIp,jdbcType=VARCHAR}
+  		and institution_id = #{insId,jdbcType=INTEGER}
+  </select>
+  
+</mapper>

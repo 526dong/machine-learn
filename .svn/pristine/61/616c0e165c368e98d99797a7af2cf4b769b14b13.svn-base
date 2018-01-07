@@ -1,0 +1,146 @@
+package com.ccx.models.modelsLibrary;
+
+import com.ccx.models.api.modelsLibrary.ModelsLibraryDataApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.mapper.ModelsExtractOutPathMapper;
+import com.ccx.models.model.ModelsExtractOutPath;
+import com.ccx.models.model.SectionCount;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.DownloadUtil;
+import com.ccx.models.util.UsedUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsLibraryData")
+public class ModelsLibraryDataController extends BaseController {
+	private static Logger logger = LogManager.getLogger(ModelsLibraryDataController.class);
+	@Autowired
+    private ModelsLibraryDataApi modelsLibraryDataApi;
+
+	@Autowired
+	private ModelsExtractOutPathMapper modelsExtractOutPathMapper;
+
+	/**
+	 * 模型测试页面
+	 *
+	 * @return
+	 */
+	@GetMapping("/toModelText")
+	public String toUserManagerPage() {
+		return "modelsLibrary/modelText";
+	}
+
+	/**
+	 * 模型结果页面
+	 *
+	 * @return
+	 */
+	@GetMapping("/toModelResult")
+	public String goModelResult(HttpServletRequest request) {
+		request.setAttribute("id", request.getParameter("id"));
+		request.setAttribute("modelId", request.getParameter("modelId"));
+		request.setAttribute("type", request.getParameter("type"));
+		String type = null==request.getParameter("type")?"":request.getParameter("type");
+		String url = "modelsLibrary/modelResultNo";
+		//如果为有监督测试的话，跳转到另一个页面
+		if(1 == Integer.valueOf(type)){
+			url = "modelsLibrary/modelResultYes";
+		}
+		return url;
+	}
+	
+	/**
+	 * 模型结果列表
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/modelTextResult", method = RequestMethod.POST)
+	@ResponseBody
+	public List<List<String>> modelTextResult(HttpServletRequest request) {
+		String id = request.getParameter("id");
+		return  modelsLibraryDataApi.modelTextResult(id);
+		/*for (int i = 0; i < sectionCountList.size(); i++) {
+			String predictProb = sectionCountList.get(i).getPredictProb().substring(1, 
+					 sectionCountList.get(i).getPredictProb().length()-1).replace("\"","");
+			sectionCountList.get(i).setPredictProb(predictProb);
+			String rowValue = sectionCountList.get(i).getRowValue().substring(1, 
+					 sectionCountList.get(i).getRowValue().length()-1).replace("\"","");
+			sectionCountList.get(i).setRowValue(rowValue);
+		}*/
+	}
+	
+	/**
+	 * 模型库-统计区间
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/modelTextCount", method = RequestMethod.POST)
+	@ResponseBody
+	public SectionCount modelTextCount(HttpServletRequest request) {
+		//获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+		String id = (String) params.get("id");
+		SectionCount list = modelsLibraryDataApi.modelTextCount(id);
+		return list;
+		
+	}
+
+	/**
+	 * 模型库-模型测试-开始预测
+	 * @param request
+	 * @return
+	 */
+	@PostMapping(value = "/startModelTest")
+	@ResponseBody
+	public Map<String, String> startModelTest(HttpServletRequest request) {
+		//获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+		
+		Map<String, String> map = modelsLibraryDataApi.saveModelTest(params);
+		return map;
+		
+	}
+
+	/**
+	 * @Description: 下载测试结果
+	 * @Author: wxn
+	 * @Date: 2017/12/14 19:03:19
+	 * @Param:
+	 * @Return
+	 */
+	@RequestMapping(value = "/downTextResult", method = RequestMethod.GET)
+	@ResponseBody
+	public void downTextResult(HttpServletRequest request,HttpServletResponse response) {
+		String modelId = request.getParameter("modelId") == null ? "" : request.getParameter("modelId");
+		if(UsedUtil.isNotNull(modelId)){
+			try {
+				//根据模型id获取下载路径
+                ModelsExtractOutPath modelsExtractOutPath = modelsExtractOutPathMapper.selectByModelId(Long.valueOf(modelId));
+                if(null != modelsExtractOutPath){
+                    String path = modelsExtractOutPath.getFilePath();
+					if(UsedUtil.isNotNull(path)){
+						String fileName = path.substring(path.lastIndexOf("/")+1,path.length());
+						//下载
+						DownloadUtil.download(path,fileName,response);
+					}
+                }
+			} catch (Exception e) {
+				logger.info("下载失败，失败原因==========",e);
+			}
+		}
+	}
+
+
+}

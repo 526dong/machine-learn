@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.UserRoleMapper">
+	<resultMap id="BaseResultMap" type="com.ccx.models.model.UserRole">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="user_id" property="userId" jdbcType="BIGINT" />
+		<result column="role_id" property="roleId" jdbcType="BIGINT" />
+	</resultMap>
+	<select id="selectRoleIdListByUserId" parameterType="java.lang.Long"
+		resultType="java.lang.Long">
+		select role_id AS roleId from abs_user_role where user_id =
+		#{userId}
+	</select>
+
+	<update id="updateRoleId" parameterType="com.ccx.models.model.UserRole">
+		update abs_user_role_fg
+		set
+		role_id = #{roleId,jdbcType=BIGINT}
+		where id =
+		#{id,jdbcType=BIGINT}
+	</update>
+
+	<insert id="addRoleToUser" parameterType="com.ccx.models.model.UserRole">
+		insert into
+		abs_user_role_fg (id, user_id, role_id
+		)
+		values (#{id,jdbcType=BIGINT},
+		#{userId,jdbcType=BIGINT},
+		#{roleId,jdbcType=BIGINT}
+		)
+	</insert>
+
+	<select id="selectUserRole" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, user_id, role_id
+		from abs_user_role_fg
+		where user_id =
+		#{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectRoleId" parameterType="java.lang.Long"
+		resultType="java.lang.Long">
+		select role_id
+		from abs_user_role_fg
+		where user_id = #{userId,jdbcType=BIGINT}
+	</select>
+</mapper>

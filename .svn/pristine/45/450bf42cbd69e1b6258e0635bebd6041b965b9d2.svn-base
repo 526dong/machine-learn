@@ -1,0 +1,143 @@
+package com.ccx.models.manager;
+
+import com.ccx.models.bean.Base;
+import com.ccx.models.bean.Field;
+import com.ccx.models.bean.ProgramOutPutBean;
+import com.ccx.models.mapper.dataexchange.DataExchangeMapper;
+import com.ccx.models.model.ModelsProgram;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.util.HttpClientUtil;
+import com.ccx.models.util.JsonUtils;
+import com.ccx.models.util.PropertiesUtil;
+import com.ccx.models.util.SignTools;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+@Component
+public class HttpDataExchangeManager {
+
+    private  Logger log = LogManager.getLogger(this.getClass());
+
+
+    @Autowired
+    private DataExchangeMapper dataExchangeMapper;
+
+    /**
+     * 获取项目数据并传递给模型组
+     * @param  file
+     * @param  program
+     * @return
+     */
+    public String sendMsgToModel(ModelsDataFile file,ModelsProgram program){
+        Base base = new Base(file.getId(),file.getName(),null,null);
+        ProgramOutPutBean bean=new ProgramOutPutBean();
+        BeanUtils.copyProperties(file,base);
+        base.setFileType(file.getType());
+        base.setFielDelimiter(file.getFileDelimiter());
+        bean.setBase(base);
+        bean.setFields(dataExchangeMapper.selectModelFieldData(file.getId()));
+        String json=null;
+        if(program==null){
+            bean.setType(0);
+            bean.setReqId(file.getId()+"-"+System.currentTimeMillis()%1000000);
+            bean.setUserPath(PropertiesUtil.getProperty("model_user_fileBasePath")+file.getCreatorName());
+            log.info(file.getId()+",调用模型平台变量统计接口，参数为:"+JsonUtils.toJson(bean));
+            json= httpjson(PropertiesUtil.getData("prop/resource-template.properties","model.http.url"),bean);
+            log.info("模型平台变量统计返回数据，id,"+file.getId()+"结果:"+json);
+            return json.replace("NaN","null").replace("\"Null\"","null")
+                    .replace("//10.0.5.136/","d:/data/");
+            //return json.replace("NaN","null").replace("\"Null\"","null");
+        }
+        bean.setType(1);
+        bean.setUserPath(PropertiesUtil.getProperty("model_user_fileBasePath")+program.getCreator());
+        String[] sf=program.getArithmeticNames().split(",");
+        for(String str:sf){
+            if(!"".equals(str.trim())){
+                base.setArithmetic(str);
+                bean.setReqId(str+"-"+program.getId()+"-"+System.currentTimeMillis()%1000000);
+                log.info(program.getId()+",算法，"+str+",调用模型平台模型统计接口，参数为:"+JsonUtils.toJson(bean));
+                String js= httpjson(PropertiesUtil.getData("prop/resource-template.properties","model.http.url"),bean);
+                log.info("模型平台模型统计返回数据，id,"+program.getId()+",算法，"+str+"，结果:"+js);
+                //待处理异步返回
+            }
+        }
+        return  "0000";
+    }
+    /**
+     *调用模型组Http服务
+     * @param url
+     * @param data
+     * @return
+     */
+    public  String httpjson(String url,Object data) {
+        Map<String, Object> map = new HashMap<>();
+        String res="";
+        try {
+            /*String account="";
+            String reqTid="";
+            String privateKey="";
+            String sign=getSisn(account,reqTid,privateKey);
+            Map<String,Object> passData=new HashMap<>();
+            passData.put("account",account);
+            passData.put("reqTid",reqTid);
+            passData.put("data",data);
+            passData.put("sign",sign);*/
+            res= HttpClientUtil.sendPostSSLRequest(url,
+                    JsonUtils.toJson(data), "UTF-8","application/json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            log.info("调用模型服务，url:"+url+",参数"+JsonUtils.toJson(data));
+        }
+        return res;
+    }
+
+    /**
+     * 获取签名
+     * @param account
+     * @param reqTid
+     * @param privateKey
+     * @return
+     */
+    private  String getSisn(String account,String reqTid,String privateKey){
+        Map<String, String> parammap = new HashMap<String, String>();
+        parammap.put("account",account);
+        parammap.put("reqTid",reqTid);
+        return SignTools.getSignature((HashMap<String, String>) parammap,privateKey);
+    }
+
+    public static abstract class Save<E,M> {
+
+        public abstract void insert(E info, M mapper);
+
+        public abstract void delete(Integer dataFileId, M mapper);
+
+        public void insertBatch(List<E> e, M m) {
+            for (E str : e) {
+                insert(str, m);
+            }
+        }
+
+        public void insertBatch(List<E> e, M m, Integer dataFileId) {
+            if (dataFileId != null) {
+                delete(dataFileId, m);
+            }
+
+            for (E str : e) {
+                insert(str, m);
+            }
+        }
+    }
+}

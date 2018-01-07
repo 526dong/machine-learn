@@ -1,0 +1,333 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: zhaotm
+  Date: 2017/11/21
+  Time: 11:34
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>实验室-项目库 </title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/comet4j.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            pushTradeMsg();
+            findProgram();
+
+            //页数跳转
+            $("#currentNum").blur(function(){
+                var currentNum=  $("#currentNum").val();
+                $("#currentPage").val(currentNum);
+                findProgram();
+            })
+        });
+
+        //消息推送
+        function pushTradeMsg(){
+            JS.Engine.start('${ctx}/message/conn');
+            JS.Engine.on({
+                model : function(info){//侦听一个channel
+
+                 if (info.code){
+                     jAlert('项目"'+info.name+'",'+info.sf+'算法计算完成');
+                 }else {
+                     jAlert('项目"'+info.name+'",'+info.sf+'算法计算失败');
+                 }
+                 if (info.ifend){
+                     var li=$("#id"+info.id).parent().parent().parent().parent();
+                     if (info.status==0){
+                         jAlert('项目算法全部完成，部分算法计算失败,详细信息：'+info.msg);
+                         $("#id"+info.id).text('完成');
+                         $("#time_"+info.id).text(info.time);
+                         li.children().attr("style","cursor:hand");
+                         li.children().attr("onclick","toModelReport("+info.id+")");
+                     }else if (info.status==1){
+                         $("#id"+info.id).text('完成');
+                         $("#time_"+info.id).text(info.time);
+                         li.children().attr("style","cursor:hand");
+                         li.children().attr("onclick","toModelReport("+info.id+")");
+                         jAlert('项目算法全部完成，所有算法计算成功,详细信息：'+info.msg);
+                     }else {
+                         $("#id"+info.id).text('失败');
+                         jAlert('项目算法全部完成，所有算法计算失败,详细信息：'+info.msg);
+                     }
+                 }
+                /*    if (info.status==0){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法计算完成');
+                    }else if (info.status==1){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法计算完成');
+                    }else {
+
+                    }
+
+                        if (info.code=='1111'){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法及其它算法全部完成');
+                        $("#id"+info.data.id).text('完成');
+                        li.children().attr("style","cursor:hand");
+                        li.children().attr("onclick","toModelReport("+info.data.id+")");
+                    }else if (info.code=='2222'){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法计算完成，所有计算完毕，部分失败');
+                        $("#id"+info.data.id).text('失败');
+                        li.children().attr("style","cursor:hand");
+                        li.children().attr("onclick","toModelReport("+info.data.id+")");
+                    }else if (info.code=='8888'){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法计算失败，所有计算完毕，部分失败');
+                        $("#id"+info.data.id).text('失败');
+                        li.children().attr("style","cursor:hand");
+                        li.children().attr("onclick","toModelReport("+info.data.id+")");
+                    }else if (info.code=='9999'){
+                        jAlert('项目"'+info.data.name+'",'+info.data.arithmeticNames+'算法计算失败');
+                    }*/
+                }
+            });
+
+        }
+
+        //分页跳转
+        function jumpToPage(curPage){
+            if(typeof(curPage) != "undefined"){
+                $("#currentPage").val(curPage);
+            }else{
+                $("#currentPage").val(1);
+            }
+            //查询
+            findProgram();
+        }
+
+        //
+        function enterSearch() {
+            if (event.keyCode == 13){
+                event.returnValue=false;
+                event.cancel = true;
+                findProgram();
+            }
+        }
+
+        //查modelajax
+        function findProgram() {
+            $.ajax({
+                url:"${ctx}/program/indexList",
+                type:"POST",
+                dataType:"json",
+                data: {
+                    "pageSize":5,//一页显示的条数
+                    "pageNum" : $("#currentPage").val(),//当前页
+                    "keyWord": $("#keyWord").val()
+                },
+                success:function (data) {
+                    if (200 == data.code) {
+                        var datas = data.data;
+                        createTable(datas.list);
+                        var pageStr = createPage(datas.total, datas.pageNum,datas.pages);
+                        $("#pageDiv").html(pageStr);
+                    } else {
+                        jAlert("加载失败！")
+                    }
+                }
+            });
+        }
+
+        //创建用户列表
+        function createTable(rows) {
+            var liHtml = "<ul class='clearfix'>";
+
+            for (var i=0; i<rows.length; i++) {
+                var row = rows[i];
+                var status = row.status;
+                var statusShow = status == 0? '未执行' : (status == 1? '计算中' : (status==2?'完成':'失败'));
+
+
+                if (2 == status) {
+                    liHtml += "<li class='project-lib-item clearfix'>";
+                    liHtml += "<div class='project-cell project-name' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>"+row.name+"</p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-data' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>数据表<br>";
+                    liHtml += "<span>"+row.dataFileName+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-sample' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>样本量<br>";
+                    liHtml += "<span>"+row.dataSampleNum+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-algorithm' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>算法<br>";
+                    liHtml += "<span>"+row.arithmeticNames+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-createtiem' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>创建时间<br>";
+                    liHtml += "<span>"+row.createTimeStr+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-time-cost' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p>用时<br>";
+                    liHtml += "<span>"+(row.castTime == null ? '': row.castTime)+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-state' style='cursor:hand' onclick='toModelReport("+row.id+");'>";
+                    liHtml += "<p><span class='project-state-icon' id='id"+row.id+"'>"+statusShow+"</p></span>";
+                } else if (0 == status) {
+                    liHtml += "<li class='project-lib-item clearfix'>";
+                    liHtml += "<div class='project-cell project-name' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>"+row.name+"</p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-data' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>数据表<br>";
+                    liHtml += "<span>"+row.dataFileName+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-sample' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>样本量<br>";
+                    liHtml += "<span>"+row.dataSampleNum+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-algorithm' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>算法<br>";
+                    liHtml += "<span>"+row.arithmeticNames+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-createtiem' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>创建时间<br>";
+                    liHtml += "<span>"+row.createTimeStr+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-time-cost' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p>用时<br>";
+                    liHtml += "<span>"+(row.castTime == null ? '': row.castTime)+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-state' style='cursor:hand' onclick='edit("+row.id+");'>";
+                    liHtml += "<p><span class='project-state-icon' >"+statusShow+"</p></span>";
+                }else{
+                    liHtml += "<li class='project-lib-item clearfix'>";
+                    liHtml += "<div class='project-cell project-name'>";
+                    liHtml += "<p>"+row.name+"</p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-data'>";
+                    liHtml += "<p>数据表<br>";
+                    liHtml += "<span>"+row.dataFileName+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-sample'>";
+                    liHtml += "<p>样本量<br>";
+                    liHtml += "<span>"+row.dataSampleNum+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-algorithm'>";
+                    liHtml += "<p>算法<br>";
+                    liHtml += "<span>"+row.arithmeticNames+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-createtiem'>";
+                    liHtml += "<p>创建时间<br>";
+                    liHtml += "<span>"+row.createTimeStr+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-time-cost'>";
+                    liHtml += "<p>用时<br>";
+                    liHtml += "<span id='time_"+row.id+"'>"+(row.castTime == null ? '': row.castTime)+"</span></p>";
+                    liHtml += "</div>";
+
+                    liHtml += "<div class='project-cell project-state'>";
+                    liHtml += "<p><span class='project-state-icon' id='id"+row.id+"'>"+statusShow+"</p></span>";
+                }
+                liHtml += "</div>";
+
+                liHtml += "<div class='project-del' onclick='del("+row.id+");'></div>";
+                liHtml += "</li>";
+            }
+            if (0 ==rows.length) {
+                liHtml += "暂无数据";
+            }
+            liHtml += "</ul>";
+            $("#programContent").html(liHtml);
+        }
+
+        function toModelReport(programId) {
+            window.location.href="${ctx}/modelsReport/toModelsReportPage?programId="+programId;
+        }
+
+        //删除
+        function del(id) {
+            jConfirm("你真的要删除项目项目么？", function () {
+                $.ajax({
+                    url: "${ctx}/program/del",
+                    type: "POST",
+                    dataType: "json",
+                    data: {"id": id},
+                    success: function (data) {
+                        if (200 == data.code) {
+                            jAlert("删除成功！", "${ctx}/program/index")
+                        } else {
+                            jAlert("删除失败！")
+                        }
+                    }
+                })
+            });
+        }
+
+        function edit(id) {
+            window.location.href = "${ctx}/program/toEditProgramPage?id="+id;
+        }
+    </script>
+</head>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+            <div class="main">
+                <div class="main-header clearfix">
+                    <div class="page-title">
+                        <h3>实验室</h3>
+                        <p>项目列表</p>
+                    </div>
+
+                    <div class="query-box">
+                        <div class="srch-box">
+                            <i class="input-enter-icon" onclick="findProgram()"></i>
+                            <input class="j-input srch-ipt" type="text" id="keyWord" name="keyWord" placeholder="输入项目名/数据文件名搜索" onkeyup="enterSearch(this);" />
+                        </div>
+                        <%--<a class="j-button import-file" href="${ctx}/program/addOrEdit?id=-1">--%>
+                            <%--<span>创建新项目</span>--%>
+                        <%--</a>--%>
+                    </div>
+                    <!-- //query-box -->
+                </div>
+
+                <!-- //main-header -->
+                <div class="project-lib" id="programContent">
+
+                </div>
+                <!-- file-list -->
+                <!-- 分页.html start -->
+                <!-- 分页.html start -->
+                <input type="hidden" id="currentPage" name="currentPage" value="1"/>
+                <%@ include file="../commons/tabPage.jsp"%>
+                <!-- 分页.html end -->
+                <!-- 分页.html end -->
+            </div>
+            <!-- //main -->
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.datafile.ModelsFileRowValueMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.datafile.ModelsFileRowValue" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="row_value" property="rowValue" jdbcType="LONGVARCHAR" />
+    <result column="file_id" property="fileId" jdbcType="INTEGER" />
+    <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, row_value, file_id, creator_name, create_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_file_row_value
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <!--通过数据文件id查询每行数据-->
+  <select id="selectByDataFileId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from models_file_row_value
+    where file_id = #{dataFileId,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_file_row_value
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.datafile.ModelsFileRowValue" >
+    insert into models_file_row_value (id, row_value, file_id, creator_name, create_date)
+    values (#{id,jdbcType=INTEGER}, #{rowValue,jdbcType=LONGVARCHAR}, #{fileId,jdbcType=INTEGER},
+      #{creatorName,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <!--批量保存变量数据-->
+  <insert id="batchInsert" parameterType="java.util.List" >
+    insert into models_file_row_value (row_value, file_id, creator_name, create_date) values
+    <foreach collection="list" item="bean" index="index" separator=",">
+      (#{bean.rowValue,jdbcType=LONGVARCHAR}, #{bean.fileId,jdbcType=INTEGER},
+      #{bean.creatorName,jdbcType=VARCHAR}, #{bean.createDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.datafile.ModelsFileRowValue" >
+    update models_file_row_value
+    set row_value = #{rowValue,jdbcType=LONGVARCHAR},
+      file_id = #{fileId,jdbcType=INTEGER},
+      creator_name = #{creatorName,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,110 @@
+package com.ccx.models.modelsLibrary;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ccx.models.api.modelsLibrary.ModelsLibraryDataApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.model.ModelsExtractTargetValue;
+import com.ccx.models.model.SectionCount;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.JsonResult;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsLibraryData")
+public class ModelsLibraryDataController extends BaseController {
+
+	private static Logger logger = LogManager.getLogger(ModelsLibraryDataController.class);
+
+	@Autowired
+    private ModelsLibraryDataApi modelsLibraryDataApi;
+
+	/**
+	 * 模型测试页面
+	 *
+	 * @return
+	 */
+	@GetMapping("/toModelText")
+	public String toUserManagerPage() {
+		return "modelsLibrary/modelText";
+	}
+
+	/**
+	 * 模型结果页面
+	 *
+	 * @return
+	 */
+	@GetMapping("/toModelResult")
+	public String goModelResult() {
+		return "modelsLibrary/modelResult";
+	}
+	
+	/**
+	 * 模型结果列表
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/modelTextResult", method = RequestMethod.POST)
+	@ResponseBody
+	public JsonResult modelTextResult(HttpServletRequest request) {
+		//获取查询条件
+//		Map<String, Object> params = ControllerUtil.requestMap(request);
+		//分页
+		PageInfo<ModelsExtractTargetValue> pages = new PageInfo<ModelsExtractTargetValue>();
+		PageHelper.startPage(getPageNum(), getPageSize());
+		try {
+			pages = modelsLibraryDataApi.modelTextResult();
+			//成功标识
+			return JsonResult.ok(pages);
+		} catch (Exception e) {
+			logger.error("获取模型测试记录列表失败:", e);
+			return JsonResult.error("获取模型测试记录列表失败！");
+		}
+	}
+	
+	/**
+	 * 模型库-统计区间
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/modelTextCount", method = RequestMethod.POST)
+	@ResponseBody
+	public SectionCount modelTextCount(HttpServletRequest request) {
+		SectionCount list = modelsLibraryDataApi.modelTextCount();
+		return list;
+		
+	}
+
+	/**
+	 * 模型库-模型测试-开始预测
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/startModelTest", method = RequestMethod.POST)
+	@ResponseBody
+	public String startModelTest(HttpServletRequest request) {
+		//获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+		
+		String result = modelsLibraryDataApi.startModelTest(params);
+		return result;
+		
+	}
+
+
+}

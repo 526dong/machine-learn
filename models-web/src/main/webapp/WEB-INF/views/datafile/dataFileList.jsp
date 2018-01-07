@@ -1,0 +1,193 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>数据文件-数据文件列表</title>
+    <link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+/*页面初始化*/
+$(function(){
+    /*列表数据*/
+    getData();
+});
+/*列表数据*/
+function getData(){
+    $.ajax({
+        url:"${ctx}/modelsDataFile/findAll",
+        type:'POST',
+        data:{
+            "keyWord":$("#keyWord").val(),//关键字搜索
+            "pageSize":$("#next_select0 span").text(),//每页展示数
+            "pageNum":$("#currentPage").val(),//当前页
+         },
+        async: false,
+        success:function(data){
+            if (200 == data.code) {
+                var datafile = data.data;
+
+                $("#dataFileContent").html("");
+                //ul li
+                var htmlContent = createLi(datafile.list);
+                $("#dataFileContent").html(htmlContent);
+                var pageStr = createPage(datafile.total, datafile.pageNum,datafile.pages);
+                $("#pageDiv").html(pageStr);
+            } else {
+                jAlert(data.msg);
+                console.error(data.msg);
+            }
+        }
+    });
+}
+//数据文件列表
+function createLi(data){
+    var htmlContent = "";
+    for(var i = 0;i < data.length;i++) {
+        htmlContent += "<li>";
+        htmlContent += "<div class='file-card'>";
+        htmlContent += "<i class='file-card-del' ' onclick='delFileInfo("+data[i].id+")'></i>";
+        htmlContent += "<div class='file-info'>";
+        htmlContent += "<div class='file-type-icon'></div>";
+        htmlContent += "<div class='file-abstact'>";
+
+        if (data[i].name == null) {
+            htmlContent += "<em></em>";
+        } else {
+            htmlContent += "<em title='"+data[i].name+"' style='width: 160px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap'>"+data[i].name+"</em>"
+        }
+
+        htmlContent += "<div class='file-size-date'><b>" + (data[i].size == null ? "" : data[i].size) + "</b><i>" + (data[i].createDate == null ? "" : (""+data[i].createDate).substring(0,10)) + "</i></div>";
+        htmlContent += "</div>";
+        htmlContent += "</div>";
+        htmlContent += "<div class='file-desc'>";
+        htmlContent += "<span class='file-desc-label'>描述:</span>";
+        htmlContent += "<div class='file-desc-right'><p style='min-height: 18px;'>" + (data[i].description == null ? "" : data[i].description) + "</p><a href='${ctx}/modelsDataFile/fileInfo?id="+data[i].id+"&isUpdate=0'>详情>></a></div>";
+        htmlContent += "</div>";
+        htmlContent += "</div>";
+        htmlContent += "</li>";
+    }
+
+    return htmlContent;
+}
+//删除文件信息
+function delFileInfo(id) {
+    if (isValueNull(id)) {
+        jConfirm('确认删除？',function(){
+            //列表url
+            var listUrl = "${ctx}/modelsDataFile/list";
+
+            $.ajax({
+                url:"${ctx}/modelsDataFile/delete",
+                type:'POST',
+                data:{
+                    "dataFileId":id,
+                },
+                async: false,
+                success:function(data){
+                    if (200 == data.code) {
+                        jAlert("删除成功！", listUrl);
+                    } else {
+                        jAlert("删除失败！", listUrl);
+                        console.error(data.msg);
+                    }
+                }
+            });
+        });
+    } else {
+        console.error("数据文件id为空！")
+    }
+}
+//判断是否为空
+function isValueNull(obj) {
+    var flag = true;
+    if (obj == null || obj == "" || obj == undefined) {
+        flag = false;
+    }
+    return flag;
+}
+//条件查询
+function searchFile() {
+    getData();
+}
+//回车查询
+function enterSearch(){
+    if (event.keyCode == 13){
+        event.returnValueS = false;
+        event.cancel = true;
+        searchFile();
+    }
+}
+//导入
+function importDataFile() {
+    window.location.href = "${ctx}/modelsDataFile/importDataFile";
+}
+//分页跳转
+function jumpToPage(curPage){
+    if(typeof(curPage) != "undefined"){
+        $("#currentPage").val(curPage);
+    }else{
+        $("#currentPage").val(1);
+    }
+    //查询
+    getData();
+}
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <!-- //header -->
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        <!-- //side-nav -->
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>数据文件</h3>
+                    <p>文件列表</p>
+                </div>
+                <!-- //page-title -->
+                <div class="query-box">
+                    <div class="srch-box">
+                        <i class="input-enter-icon" onclick="searchFile()"></i>
+                        <input class="j-input srch-ipt" id="keyWord" placeholder="请输入数据文件名称" onkeydown="enterSearch();" value="" type="text">
+                        <div class="srch-match">
+                            <ul >
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                                <li>匹配结果1</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <%--<a class="j-button import-file" onclick="importDataFile();">--%>
+                        <%--<i class="add-file-icon"></i>--%>
+                        <%--<span>导入</span>--%>
+                    <%--</a>--%>
+                </div>
+                <!-- //query-box -->
+            </div>
+            <!-- //main-header -->
+            <div class="file-list">
+                <ul id="dataFileContent"></ul>
+            </div>
+            <!-- 分页.html start -->
+            <input type="hidden" id="currentPage" name="currentPage" value="1"/>
+            <%@ include file="../commons/tabPage.jsp"%>
+            <!-- 分页.html end -->
+            <!-- file-list -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+</body>
+</html>

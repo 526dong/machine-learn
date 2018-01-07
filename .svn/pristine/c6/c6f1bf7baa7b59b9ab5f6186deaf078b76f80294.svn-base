@@ -1,0 +1,50 @@
+package com.ccx.models.mapper.laboratory;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+public interface ModelsReportMapper {
+
+    /**
+     * 根据项目id获取项目基本信息
+     * @param programId
+     * @return
+     */
+    LinkedHashMap<String, Object> getProgramMapById(Long programId);
+
+    /**
+     * 根据项目id获取模型数据分析结果list
+     * @param programId
+     * @return
+     */
+    List<LinkedHashMap<String,Object>> getModelDateAnalyInfoById(Long programId);
+
+    /**
+     * 根据项目id获取模型数据评价指标list
+     * @param programId
+     * @return
+     */
+    List<LinkedHashMap<String,Object>> getModelDateEvaluateIndexById(Long programId);
+
+    /**
+     * 根据项目id获取Score分组详情list
+     * @param programId
+     * @return
+     */
+    List<LinkedHashMap<String,Object>> getScoreGroupListById(Long programId);
+
+    /**
+     * 根据项目id获取概率分箱list
+     * @param programId
+     * @return
+     */
+    List<LinkedHashMap<String,Object>> getProbabilityBinningListById(Long programId);
+
+    /**
+     * 根据数据文件id获取变量重要性排序list
+     * @param dataFileId
+     * @return
+     */
+    List<LinkedHashMap<String,Object>> getVarImportanceSortById(Long dataFileId);
+	
+}

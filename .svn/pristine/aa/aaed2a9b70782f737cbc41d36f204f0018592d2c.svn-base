@@ -1,0 +1,221 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>账户管理</title>
+    <link rel="stylesheet" href="${ctx}/resources/css/style.css">
+    <script src="${ctx}/resources/js/main.js"></script>
+</head>
+<style type="text/css">
+    .userAndRolehover:hover{
+        border:1px solid rgba(55, 91, 148,.9);
+        background-color: rgba(6, 34, 71,.9);
+    }
+</style>
+<script type="text/javascript">
+    /*页面初始化*/
+    $(function() {
+        /*列表数据*/
+        findUserList();
+
+
+        //页数跳转
+        $("#currentNum").blur(function(){
+            var currentNum=  $("#currentNum").val();
+            $("#currentPage").val(currentNum);
+            findUserList();
+        })
+    })
+
+    /*列表数据*/
+    function findUserList() {
+        $.ajax({
+            url : "${ctx}/user/findAll",
+            type : 'POST',
+            data : {
+                pageSize:$("#next_select0 span").text(),//每页展示数
+                currentPage : $("#currentPage").val(),//当前页
+            },
+            async : false,
+            success : function(data) {
+                var htmlStr = createTable(data.list);
+                $("#htmlContent").html(htmlStr);
+                var pageStr = createPage(data.total, data.pageNum,data.pages);
+                $("#pageDiv").html(pageStr);
+            }
+        });
+    }
+    //创建用户列表
+    function createTable(data) {
+        var htmlContent = "";
+        for (var i = 0; i < data.length; i++) {
+            var loginName = data[i].loginName;
+            if(null==loginName||typeof(loginName)=="undefined"||""==loginName){
+                loginName = "";
+            }
+            var name = data[i].name;
+            if(null==name||typeof(name)=="undefined"||""==name){
+                name = "";
+            }
+            var roleName = data[i].roleName;
+            if(null==roleName||typeof(roleName)=="undefined"||""==roleName){
+                roleName = "";
+            }
+            var phone = data[i].phone;
+            if(null==phone||typeof(phone)=="undefined"||""==phone){
+                phone = "";
+            }
+            var email = data[i].email;
+            if(null==email||typeof(email)=="undefined"||""==email){
+                email = "";
+            }
+            var createTime = data[i].createTime;
+            if(null==createTime||typeof(createTime)=="undefined"||""==createTime){
+                createTime = "";
+            }
+            htmlContent += "<tr class='userAndRolehover'>";
+            htmlContent += "<td>" + (parseInt(i) + 1)+ "</td>";
+            htmlContent += "<td>" + loginName + "</td>";
+            htmlContent += "<td>" + name + "</td>";
+            htmlContent += "<td>" + roleName + "</td>";
+            htmlContent += "<td>" + phone + "</td>";
+            htmlContent += "<td>" + email + "</td>";
+            htmlContent += "<td>" + createTime + "</td>";
+            htmlContent += "<td>";
+            htmlContent += "<span class='operation op-modify' onclick=update('"+data[i].id+"')><i></i><b>修改</b></span>";
+            htmlContent += "<span class='operation op-delete' onclick=isDel('"+data[i].id+"','"+data[i].loginName+"')><i></i><b>删除</b></span>";
+            htmlContent += "</td>";
+            htmlContent += "</tr>";
+        }
+        return htmlContent;
+    }
+
+
+    //分页跳转
+    function jumpToPage(curPage){
+        if(typeof(curPage) != "undefined"){
+            $("#currentPage").val(curPage);
+        }else{
+            $("#currentPage").val(1);
+        }
+        //查询
+        findUserList();
+    }
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <%--头文件====结束--%>
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+
+          <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>用户管理</h3>
+                </div>
+                <div class="fr">
+                    <a href="javaScript:addUser();"><span class="j-button">创建账户</span></a>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div class="account-management">
+                <table class="j-table">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>账号</th>
+                        <th>姓名</th>
+                        <th>角色</th>
+                        <th>手机号码</th>
+                        <th>邮箱</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="htmlContent">
+
+
+                    </tbody>
+                </table>
+            </div>
+            <!-- //account-management -->
+              <!-- 分页.html start -->
+              <!-- 分页.html start -->
+              <input type="hidden" id="currentPage" name="currentPage" value="1"/>
+              <%@ include file="../commons/tabPage.jsp"%>
+              <!-- 分页.html end -->
+              <!-- 分页.html end -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- //content -->
+</div>
+<!-- //j-container -->
+
+<script>
+    /**
+     * 账户管路操作
+     *
+     **/
+    bindOnDoc('click','.account-management .operation',function(e){
+        var _this = $(this);
+        var className = _this.attr('class').split(' ');
+        for(var o in className){
+            if(className[o].indexOf('op-')>-1){
+                type = className[o].substr(className[o].indexOf('op-')+3);
+                break;
+            }
+        };
+        e.stopPropagation();
+    });
+
+    /*
+    创建用户
+     */
+    function addUser(){
+        window.location.href = "${ctx }/user/addUser";
+    }
+
+    /*
+     编辑
+     */
+    function update(id) {
+        window.location.href = "${ctx}/user/update?id=" + id;
+    }
+
+    /*
+     注销用户
+     */
+    function isDel(id,loginName){
+        var href = "${ctx}/user/toUserManagerPage";
+        jConfirm('确认删除？',function(){
+            $.ajax({
+                url : "${ctx}/user/isDel",
+                type : 'POST',
+                data : {
+                    "id":id
+                },
+                success : function(data) {
+                    if (data == "0000") {
+                        jAlert("用户&nbsp;"+loginName+"&nbsp;删除成功!",href);
+                    } else {
+                        jAlert("用户&nbsp;"+loginName+"&nbsp;删除失败!",href);
+                    }
+                }
+            });
+        });
+    }
+
+
+</script>
+</body>
+</html>

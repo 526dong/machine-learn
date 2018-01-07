@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsOutputPathMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsOutputPath" >
+    <id column=" id" property="id" jdbcType="INTEGER" />
+    <result column="program_id" property="programId" jdbcType="BIGINT" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="BIGINT" />
+    <result column="log_path" property="logPath" jdbcType="VARCHAR" />
+    <result column="predict_res_path" property="predictResPath" jdbcType="VARCHAR" />
+    <result column="analysis_report" property="analysisReport" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    " id", program_id, arithmetic_id, log_path, predict_res_path, analysis_report
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_output_path
+    where " id" = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_output_path
+    where " id" = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsOutputPath" >
+    insert into models_output_path ( program_id, arithmetic_id,
+      log_path, predict_res_path, analysis_report
+      )
+    values ( #{programId,jdbcType=BIGINT}, #{arithmeticId,jdbcType=BIGINT},
+      #{logPath,jdbcType=VARCHAR}, #{predictResPath,jdbcType=VARCHAR}, #{analysisReport,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsOutputPath" >
+    insert into models_output_path
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        " id",
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="logPath != null" >
+        log_path,
+      </if>
+      <if test="predictResPath != null" >
+        predict_res_path,
+      </if>
+      <if test="analysisReport != null" >
+        analysis_report,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="logPath != null" >
+        #{logPath,jdbcType=VARCHAR},
+      </if>
+      <if test="predictResPath != null" >
+        #{predictResPath,jdbcType=VARCHAR},
+      </if>
+      <if test="analysisReport != null" >
+        #{analysisReport,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsOutputPath" >
+    update models_output_path
+    <set >
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=BIGINT},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      </if>
+      <if test="logPath != null" >
+        log_path = #{logPath,jdbcType=VARCHAR},
+      </if>
+      <if test="predictResPath != null" >
+        predict_res_path = #{predictResPath,jdbcType=VARCHAR},
+      </if>
+      <if test="analysisReport != null" >
+        analysis_report = #{analysisReport,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsOutputPath" >
+    update models_output_path
+    set program_id = #{programId,jdbcType=BIGINT},
+      arithmetic_id = #{arithmeticId,jdbcType=BIGINT},
+      log_path = #{logPath,jdbcType=VARCHAR},
+      predict_res_path = #{predictResPath,jdbcType=VARCHAR},
+      analysis_report = #{analysisReport,jdbcType=VARCHAR}
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

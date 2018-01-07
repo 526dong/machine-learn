@@ -1,0 +1,58 @@
+/*
+package com.ccx.models.message;
+
+import org.comet4j.core.CometContext;
+import org.comet4j.core.CometEngine;
+import org.springframework.stereotype.Component;
+
+*/
+/**
+ * 
+ * @ClassName:  MsgPushUtil   
+ * @Description:TODO(comet4j推送消息)   
+ * @author: 李龙 
+ * @date:   2017年3月30日 下午2:17:26
+ *//*
+
+@Component
+public class MsgPush {
+		*/
+/**
+		 * 
+		 * @Title: sendMsgToClient   
+		 * @Description: TODO(全部推送)   
+		 * @param: @param msg
+		 * @param: @param channel
+		 * @param: @return      
+		 * @return: boolean      
+		 * @throws
+		 *//*
+
+	    public  boolean sendMsgToClient(Object msg, String channel){
+	        CometEngine engine = CometContext.getInstance().getEngine();  
+	        System.out.println(engine==null);
+	        if(engine!=null&&msg!=null&&channel!=null){
+	        	engine.sendToAll(channel,msg);  
+	        }
+	         return true;  
+	    }  
+	    */
+/**
+	     * 
+	     * @Title: sendMsgToUser   
+	     * @Description: TODO(单人推送)   
+	     * @param: @param msg
+	     * @param: @param channel
+	     * @param: @param connId
+	     * @param: @return      
+	     * @return: boolean      
+	     * @throws
+	     *//*
+
+	    public  boolean sendMsgToUser(Object msg, String channel, String connId){
+	    	CometEngine engine = CometContext.getInstance().getEngine(); 
+	    	 engine.sendTo(channel, engine.getConnection(connId),msg);  
+	    	return true;  
+	    }  
+}
+*/

@@ -1,0 +1,363 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>数据文件-文件详情</title>
+	<link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+    <script type="text/javascript" src="${ctx}/resources/js/echarts.min.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    var myChart;
+
+    // 当前显示的iv图的序号
+	$(function(){
+        /**
+         * iv选择
+         */
+        $(document).on('click','.analysis-switch span',function(){
+            var _this = $(this);
+            var index = _this.index();
+
+            _this.addClass('active').siblings('.active').removeClass('active')
+            $('.tab-panel-item').eq(index).fadeIn(200).siblings('.tab-panel-item:visible').fadeOut(200);
+            if(index == 1){
+                lineBarMixedChart();
+            }
+        });
+
+        // 查看全部
+        $(document).on('click','.check-all-value',function(){
+            var _this = $(this);
+            var parent = _this.parents('.sub-module');
+            var target = parent.find('.value-list');
+            if(target.find('tbody').find('tr').size() < 4){
+                return ;
+            }
+            var offset;
+            if(_this.hasClass('active')){
+                _this.removeClass('active');
+                _this.text('查看全部');
+                target.css('maxHeight','160px');
+            }else{
+                _this.addClass('active');
+                _this.text('收起');
+                target.css('maxHeight','none');
+                offset = target.children('.value-list-end').offset();
+                $("body,html").animate({
+                    scrollTop:offset.top //让body的scrollTop等于pos的top，就实现了滚动
+                })
+            }
+        })
+
+        // 点击iv列表，切换右侧内容
+        $(document).on('click','.clickable-var',function(){
+            var _this = $(this);
+            var parent = _this.parent();
+
+            $("#varName").text(_this.text());
+            _this.addClass('active');
+            parent.siblings('tr').find('.active').removeClass('active');
+
+            myChart = echarts.init(document.getElementById("iv_chart"));
+            //myChart.showOnLoad();
+            $.ajax({
+                url:"${ctx}/modelsDataFile/varIvList",
+                type:"POST",
+                dataType:"json",
+                data: {"varName":_this.text(), "dataFileId": _this.find("input").val()},
+                success:function (data) {
+                    if (200 == data.code) {
+                        var ivArr = data.data;
+                        var xArr = new Array();
+                        var totalArr = new Array();
+                        var perArr = new Array();
+                        var trHtml = "";
+
+                        $.each(ivArr, function (i, iv) {
+                            xArr.push(iv.bins);
+                            totalArr.push(iv.total);
+                            perArr.push(iv.badPer);
+
+                            trHtml += "<tr>";
+                            trHtml += "<td>"+iv.bins+"</td>";
+                            trHtml += "<td>"+iv.good+"</td>";
+                            trHtml += "<td>"+iv.bad+"</td>";
+                            trHtml += "<td>"+iv.total+"</td>";
+                            trHtml += "<td>"+iv.badPer+"</td>";
+                            trHtml += "</tr>";
+
+                        });
+                        //myChart.hideLoading();
+                        lineBarMixedChart(xArr, totalArr, perArr);
+                        $("#binsBody").html(trHtml);
+                    } else {
+                        alert("数据标记加载失败");
+                    }
+                }
+            });
+        });
+	});
+
+    function lineBarMixedChart(xArr, totalArr, perArr){
+        var option = {
+            title: {show:false},
+            color:['#028de2','#fcdc6f'],
+            grid:[{
+                left: 60,bottom: 30,right: 70,top: 50
+            }],
+            tooltip:{show:true,trigger:'axis'},
+            legend:{show:false},
+            xAxis:{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                data:xArr
+            },
+            yAxis:[{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff',margin: 60,textStyle:{align:'left'}},
+                splitLine:{show:false},
+
+            },{
+                axisLine:{lineStyle:{color: '#103763'}},
+                axisTick:{lineStyle:{color: '#7c808c'}},
+                axisLabel:{fontSize:12,color: '#c0d7ff'},
+                splitLine:{show:false}
+            }],
+            series:[
+                {
+                    type: 'bar',
+                    name: '样本数量',
+                    barWidth: '30%',
+                    data:totalArr
+                },
+                {
+                    type: 'line',
+                    name: '正样本率',
+                    yAxisIndex:1,
+                    symbol:'none',
+                    data:perArr
+                }
+            ]
+        };
+        myChart.setOption(option);
+    };
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+	<%--头文件====开始--%>
+	<jsp:include page="../commons/topHead.jsp"/>
+	<!-- //header -->
+	<div class="content">
+		<%--导航栏====开始--%>
+		<jsp:include page="../commons/leftNavigation.jsp"/>
+		<%--导航栏====结束--%>
+		<!-- //side-nav -->
+		<div class="main">
+			<div class="main-header clearfix">
+				<div class="page-title">
+					<h3>数据文件</h3>
+					<p>变量分析</p>
+				</div>
+			</div>
+			<!-- //main-header -->
+
+			<div class="file-details">
+				<div class="file-details-header">
+					<div class="file-details-icon"></div>
+					<div class="file-details-header-right">
+						<div class="file-details-name-size">
+							<em>${dataBaseInfo.modelDataName}</em>
+							<b>${dataBaseInfo.sampleNum}</b>
+							<b>维度：${dataBaseInfo.dimensionality}</b>
+							<b>缺失率：${dataBaseInfo.deficiencyRate}</b>
+                            <span class="evaluate-date"><fmt:formatDate value="${dataBaseInfo.createTime}" pattern="yyy-MM-dd" /></span>
+						</div>
+						<p class="file-details-desc">
+							描述:
+							<span>${dataBaseInfo.description}</span>
+						</p>
+					</div>
+				</div>
+				<!-- //file-details-header -->
+
+                <div class="value-analysis">
+                    <div class="tab-switch analysis-switch">
+                        <span class="j-button active">变量统计</span>
+                        <span class="j-button">IV值分析</span>
+                    </div>
+
+                    <div class="tab-panel">
+                        <div class="tab-panel-item" style="display:block;">
+                            <div class="sub-module">
+                                <div class="module-subtitle">
+                                    <i></i>
+                                    <span>离散型变量</span>
+                                    <b class="j-button check-all-value fr">查看全部</b>
+                                </div>
+                                <div class="value-list">
+                                    <table class="j-table">
+                                        <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>变量名</th>
+                                            <th>数据类型</th>
+                                            <th>缺失个数</th>
+                                            <th>缺失率</th>
+                                            <th>取值个数</th>
+                                            <th>值出现最多个数</th>
+                                            <th>值出现最多比例</th>
+                                            <th>值出现第二多个数</th>
+                                            <th>值出现第二多比例</th>
+                                            <th>值出现第三多个数</th>
+                                            <th>值出现第三多个数</th>
+                                            <th>取值列表</th>
+                                            <th>IV</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach items="${varCategoryCountList}" var="varCategoryCount" varStatus="status">
+                                            <tr>
+                                                <td>${status.index}</td>
+                                                <td>${varCategoryCount.varName}</td>
+                                                <td>${varCategoryCount.type}</td>
+                                                <td>${varCategoryCount.missingN}</td>
+                                                <td>${varCategoryCount.missingPct}</td>
+                                                <td>${varCategoryCount.nunique}</td>
+                                                <td>${varCategoryCount.top1}</td>
+                                                <td>${varCategoryCount.top1Pct}</td>
+                                                <td>${varCategoryCount.top2}</td>
+                                                <td>${varCategoryCount.top2Pct}</td>
+                                                <td>${varCategoryCount.top3}</td>
+                                                <td>${varCategoryCount.top3Pct}</td>
+                                                <td>${varCategoryCount.vList}</td>
+                                                <td>${varCategoryCount.iv}</td>
+                                            </tr>
+                                        </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- //value-info -->
+                            </div>
+
+                            <div class="sub-module">
+                                <div class="module-subtitle">
+                                    <i></i>
+                                    <span>离散型变量</span>
+                                    <b class="j-button check-all-value fr">查看全部</b>
+                                </div>
+                                <div class="value-list">
+                                    <table class="j-table">
+                                        <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>变量名</th>
+                                            <th>数据类型</th>
+                                            <th>缺失个数</th>
+                                            <th>缺失率</th>
+                                            <th>取值范围</th>
+                                            <th>均值</th>
+                                            <th>方差</th>
+                                            <th>最小值</th>
+                                            <th>四分之一分位数</th>
+                                            <th>中位数</th>
+                                            <th>四分之三分位数</th>
+                                            <th>最大值</th>
+                                            <th>IV</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach items="${varNumricCountList}" var="varNumricCount" varStatus="status">
+                                            <tr>
+                                                <td>${status.index}</td>
+                                                <td>${varNumricCount.varName}</td>
+                                                <td>${varNumricCount.type}</td>
+                                                <td>${varNumricCount.missingN}</td>
+                                                <td>${varNumricCount.missingPct}</td>
+                                                <td>${varNumricCount.range}</td>
+                                                <td>${varNumricCount.mean}</td>
+                                                <td>${varNumricCount.std}</td>
+                                                <td>${varNumricCount.min}</td>
+                                                <td>${varNumricCount.oneFour}</td>
+                                                <td>${varNumricCount.twoFour}</td>
+                                                <td>${varNumricCount.threeFour}</td>
+                                                <td>${varNumricCount.theMax}</td>
+                                                <td>${varNumricCount.iv}</td>
+                                            </tr>
+                                        </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- //value-info -->
+                            </div>
+                        </div>
+
+                        <div class="tab-panel-item">
+                            <div class="clearfix" style="margin-top: 30px">
+                                    <div class="iv-left fl">
+                                        <table class="j-table">
+                                            <thead>
+                                            <tr>
+                                                <th>varname</th>
+                                                <th>IV</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach items="${varList}" var="var" varStatus="status">
+                                                    <c:if test="${0 == status.index}">
+                                                        <tr>
+                                                            <td class="clickable-var active">${var.name}<input type="hidden" name="dataFileId" value="${var.fileId}" /></td>
+                                                            <td>${var.iv}%</td>
+                                                        </tr>
+                                                    </c:if>
+                                                    <c:if test="${0 != status.index}">
+                                                        <tr>
+                                                            <td class="clickable-var">${var.name}<input type="hidden" name="dataFileId" value="${var.fileId}" /></td>
+                                                            <td>${var.iv}%</td>
+                                                        </tr>
+                                                    </c:if>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="iv-right active">
+                                        <div id="varName" style="font-size: 14px; color: #fff;"></div>
+                                        <div class="linebar-mixed">
+                                            <div class="linebar-mixed-legend"><i></i><span>总样本数量</span><b></b><span>正样本率</span></div>
+                                            <div class="linebar-mixed-chart" id="iv_chart"></div>
+                                        </div>
+                                        <div style="max-height: 442px; margin-top: 30px;">
+                                            <table class="j-table">
+                                                <thead>
+                                                <tr>
+                                                    <th>bins</th>
+                                                    <th>good</th>
+                                                    <th>bad</th>
+                                                    <th>total</th>
+                                                    <th>bad_per</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="binsBody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+			        </div>
+                </div>
+            <!-- //file-details -->
+		    </div>
+		<!-- //main -->
+        </div>
+	</div>
+	<!-- //content -->
+</div>
+<!-- //j-container -->
+</body>
+</html>

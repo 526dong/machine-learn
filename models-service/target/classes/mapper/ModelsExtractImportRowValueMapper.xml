@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsExtractImportRowValueMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsExtractImportRowValue" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="models_extract_test_record_id" property="modelsExtractTestRecordId" jdbcType="BIGINT" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.ccx.models.model.ModelsExtractImportRowValue" extends="BaseResultMap" >
+    <result column="row_value" property="rowValue" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, models_extract_test_record_id, index_name, creater, create_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    row_value
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from models_extract_import_row_value
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_extract_import_row_value
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsExtractImportRowValue" >
+    insert into models_extract_import_row_value (id, models_extract_test_record_id, index_name, 
+      creater, create_time, row_value
+      )
+    values (#{id,jdbcType=BIGINT}, #{modelsExtractTestRecordId,jdbcType=BIGINT}, #{indexName,jdbcType=VARCHAR}, 
+      #{creater,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{rowValue,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsExtractImportRowValue" >
+    insert into models_extract_import_row_value
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="modelsExtractTestRecordId != null" >
+        models_extract_test_record_id,
+      </if>
+      <if test="indexName != null" >
+        index_name,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="rowValue != null" >
+        row_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="modelsExtractTestRecordId != null" >
+        #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      </if>
+      <if test="indexName != null" >
+        #{indexName,jdbcType=VARCHAR},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rowValue != null" >
+        #{rowValue,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsExtractImportRowValue" >
+    update models_extract_import_row_value
+    <set >
+      <if test="modelsExtractTestRecordId != null" >
+        models_extract_test_record_id = #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      </if>
+      <if test="indexName != null" >
+        index_name = #{indexName,jdbcType=VARCHAR},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rowValue != null" >
+        row_value = #{rowValue,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ccx.models.model.ModelsExtractImportRowValue" >
+    update models_extract_import_row_value
+    set models_extract_test_record_id = #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      index_name = #{indexName,jdbcType=VARCHAR},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      row_value = #{rowValue,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsExtractImportRowValue" >
+    update models_extract_import_row_value
+    set models_extract_test_record_id = #{modelsExtractTestRecordId,jdbcType=BIGINT},
+      index_name = #{indexName,jdbcType=VARCHAR},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

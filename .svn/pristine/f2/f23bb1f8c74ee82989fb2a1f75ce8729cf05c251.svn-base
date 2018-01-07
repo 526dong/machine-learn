@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsVarPathMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsVarPath" >
+    <id column=" id" property="id" jdbcType="INTEGER" />
+    <result column="data_file_id" property="dataFileId" jdbcType="BIGINT" />
+    <result column="html_url" property="htmlUrl" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    " id", data_file_id, html_url
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_var_path
+    where " id" = #{id,jdbcType=INTEGER}
+  </select>
+
+  <!--通过数据文件id查询html_url-->
+  <select id="selectHtmlUrlByDataFileId" resultType="string" parameterType="java.lang.Integer" >
+    select html_url
+    from models_var_path
+    where data_file_id = #{dataFileId,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from models_var_path
+    where " id" = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsVarPath" >
+    insert into models_var_path ( data_file_id, html_url
+      )
+    values ( #{dataFileId,jdbcType=BIGINT}, #{htmlUrl,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsVarPath" >
+    insert into models_var_path
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        " id",
+      </if>
+      <if test="dataFileId != null" >
+        data_file_id,
+      </if>
+      <if test="htmlUrl != null" >
+        html_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dataFileId != null" >
+        #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="htmlUrl != null" >
+        #{htmlUrl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsVarPath" >
+    update models_var_path
+    <set >
+      <if test="dataFileId != null" >
+        data_file_id = #{dataFileId,jdbcType=BIGINT},
+      </if>
+      <if test="htmlUrl != null" >
+        html_url = #{htmlUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsVarPath" >
+    update models_var_path
+    set data_file_id = #{dataFileId,jdbcType=BIGINT},
+      html_url = #{htmlUrl,jdbcType=VARCHAR}
+    where " id" = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

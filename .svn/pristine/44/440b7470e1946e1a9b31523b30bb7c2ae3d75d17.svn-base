@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.ModelsModelDataAnalyInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.ModelsModelDataAnalyInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="sample_num" property="sampleNum" jdbcType="DECIMAL" />
+    <result column="sum_dimensionality" property="sumDimensionality" jdbcType="DECIMAL" />
+    <result column="into_dimensionality" property="intoDimensionality" jdbcType="DECIMAL" />
+    <result column="importance_var" property="importanceVar" jdbcType="DECIMAL" />
+    <result column="plus_minus_rate" property="plusMinusRate" jdbcType="DECIMAL" />
+    <result column="plus_rate" property="plusRate" jdbcType="DECIMAL" />
+    <result column="program_id" property="programId" jdbcType="INTEGER" />
+    <result column="arithmetic_id" property="arithmeticId" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, type, sample_num, sum_dimensionality, into_dimensionality, importance_var, plus_minus_rate, 
+    plus_rate, program_id, arithmetic_id, creater, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_model_data_analy_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from models_model_data_analy_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ccx.models.model.ModelsModelDataAnalyInfo" >
+    insert into models_model_data_analy_info ( type, sample_num,
+      sum_dimensionality, into_dimensionality, 
+      importance_var, plus_minus_rate, plus_rate, 
+      program_id, arithmetic_id, creater, 
+      create_time)
+    values ( #{type,jdbcType=INTEGER}, #{sampleNum,jdbcType=DECIMAL},
+      #{sumDimensionality,jdbcType=DECIMAL}, #{intoDimensionality,jdbcType=DECIMAL}, 
+      #{importanceVar,jdbcType=DECIMAL}, #{plusMinusRate,jdbcType=DECIMAL}, #{plusRate,jdbcType=DECIMAL}, 
+      #{programId,jdbcType=INTEGER}, #{arithmeticId,jdbcType=INTEGER}, #{creater,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.ModelsModelDataAnalyInfo" >
+    insert into models_model_data_analy_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="sampleNum != null" >
+        sample_num,
+      </if>
+      <if test="sumDimensionality != null" >
+        sum_dimensionality,
+      </if>
+      <if test="intoDimensionality != null" >
+        into_dimensionality,
+      </if>
+      <if test="importanceVar != null" >
+        importance_var,
+      </if>
+      <if test="plusMinusRate != null" >
+        plus_minus_rate,
+      </if>
+      <if test="plusRate != null" >
+        plus_rate,
+      </if>
+      <if test="programId != null" >
+        program_id,
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id,
+      </if>
+      <if test="creater != null" >
+        creater,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="sampleNum != null" >
+        #{sampleNum,jdbcType=DECIMAL},
+      </if>
+      <if test="sumDimensionality != null" >
+        #{sumDimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="intoDimensionality != null" >
+        #{intoDimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="importanceVar != null" >
+        #{importanceVar,jdbcType=DECIMAL},
+      </if>
+      <if test="plusMinusRate != null" >
+        #{plusMinusRate,jdbcType=DECIMAL},
+      </if>
+      <if test="plusRate != null" >
+        #{plusRate,jdbcType=DECIMAL},
+      </if>
+      <if test="programId != null" >
+        #{programId,jdbcType=INTEGER},
+      </if>
+      <if test="arithmeticId != null" >
+        #{arithmeticId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.ModelsModelDataAnalyInfo" >
+    update models_model_data_analy_info
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="sampleNum != null" >
+        sample_num = #{sampleNum,jdbcType=DECIMAL},
+      </if>
+      <if test="sumDimensionality != null" >
+        sum_dimensionality = #{sumDimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="intoDimensionality != null" >
+        into_dimensionality = #{intoDimensionality,jdbcType=DECIMAL},
+      </if>
+      <if test="importanceVar != null" >
+        importance_var = #{importanceVar,jdbcType=DECIMAL},
+      </if>
+      <if test="plusMinusRate != null" >
+        plus_minus_rate = #{plusMinusRate,jdbcType=DECIMAL},
+      </if>
+      <if test="plusRate != null" >
+        plus_rate = #{plusRate,jdbcType=DECIMAL},
+      </if>
+      <if test="programId != null" >
+        program_id = #{programId,jdbcType=INTEGER},
+      </if>
+      <if test="arithmeticId != null" >
+        arithmetic_id = #{arithmeticId,jdbcType=INTEGER},
+      </if>
+      <if test="creater != null" >
+        creater = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.ModelsModelDataAnalyInfo" >
+    update models_model_data_analy_info
+    set type = #{type,jdbcType=INTEGER},
+      sample_num = #{sampleNum,jdbcType=DECIMAL},
+      sum_dimensionality = #{sumDimensionality,jdbcType=DECIMAL},
+      into_dimensionality = #{intoDimensionality,jdbcType=DECIMAL},
+      importance_var = #{importanceVar,jdbcType=DECIMAL},
+      plus_minus_rate = #{plusMinusRate,jdbcType=DECIMAL},
+      plus_rate = #{plusRate,jdbcType=DECIMAL},
+      program_id = #{programId,jdbcType=INTEGER},
+      arithmetic_id = #{arithmeticId,jdbcType=INTEGER},
+      creater = #{creater,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

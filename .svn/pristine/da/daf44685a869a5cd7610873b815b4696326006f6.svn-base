@@ -1,0 +1,27 @@
+package com.ccx.models.service.impl.laboratory;
+
+import com.ccx.models.api.laboratory.ModelsReportApi;
+import com.ccx.models.mapper.laboratory.ModelsReportMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.LinkedHashMap;
+
+@Service("modelsReportApi")
+public class ModelsReportServiceImpl implements ModelsReportApi {
+		
+	@Autowired
+    private ModelsReportMapper modelsReportMapper;
+
+	/**
+	 * 根据项目id获取项目基本信息
+	 * @param programId
+	 * @return
+	 */
+	@Override
+	public LinkedHashMap<String, Object> getProgramMapById(Long programId) {
+		return modelsReportMapper.getProgramMapById(programId);
+	}
+
+
+}

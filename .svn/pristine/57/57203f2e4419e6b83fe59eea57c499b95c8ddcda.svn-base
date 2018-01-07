@@ -1,0 +1,120 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模型测试</title>
+    <link rel="stylesheet" type="text/css" href="${ctx}/resources/permission/easyui/themes/black/easyui.css"/>
+    <script type="text/javascript" src="${ctx}/resources/permission/jquery.cookie.js"></script>
+    <script src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    $(function() {
+    	modelTextList();
+    });
+
+    //无监督测试-导入数据
+    function noMonitorUpload(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/noMonitorUpload',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	
+            	
+            }
+        });
+    }
+    
+    //有监督测试-导入数据
+    function monitorUpload(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/monitorUpload',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	
+            	
+            }
+        });
+    }
+    
+    //开始测试
+    function startTest(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/startTest',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	
+            	
+            }
+        });
+    }
+    
+	//获取测试记录数据
+    function modelTextList(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/modelTextList',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	createModelTextTable(data);
+            }
+        });
+        
+    }
+	
+    //测试记录列表
+	function createModelTextTable(data) {
+		var data = data[0].data;
+		var tableStr = "";
+		var len = data.length;
+		for (var i = 0; i < len; i++) {
+			tableStr = tableStr + "<tr>";
+			tableStr = tableStr + "<td>"+(i+1)+"</td>";
+			tableStr = tableStr
+					+ "<td>"+ (data[i].fileName == "" || data[i].fileName == null ? "--": data[i].fileName) + "</td>";
+			tableStr = tableStr
+					+ "<td>"+ (data[i].sampleNum == "" || data[i].sampleNum == null ? "--": data[i].sampleNum) + "</td>";
+			if(null != data[i].testType && "" != data[i].testType){
+				if(data[i].testType == 0){
+					tableStr = tableStr + "<td>无监督</td>";
+				}else if(data[i].testType == 1){
+					tableStr = tableStr + "<td>有监督</td>";
+				}
+			}else{
+				tableStr = tableStr + "<td>--</td>";
+			}
+			tableStr = tableStr
+					+ "<td>"+ (data[i].createTime == "" || data[i].createTime == null ? "--": data[i].createTime) + "</td>";
+			
+			tableStr = tableStr + "</tr>";
+		}
+		if (len == 0) {
+			tableStr = tableStr + "<tr style='text-align: center'>"
+					+ "<td colspan='5'><font >暂无记录</font></td>" + "</tr>";
+		}
+		return tableStr;
+	}
+</script>
+<body>
+模型库
+
+</body>
+</html>

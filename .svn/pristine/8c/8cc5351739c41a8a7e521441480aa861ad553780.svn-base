@@ -1,0 +1,43 @@
+package com.ccx.models.message;
+
+import com.ccx.models.Constants;
+import com.ccx.models.util.TimerConcurrentHashMap;
+import org.comet4j.core.CometConnection;
+import org.comet4j.core.CometContext;
+import org.comet4j.core.CometEngine;
+import org.comet4j.core.event.ConnectEvent;
+import org.comet4j.core.listener.ConnectListener;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Map;
+
+public class MsgPushListener implements ServletContextListener {
+
+	public static Map<String, Object> comet_map=new TimerConcurrentHashMap<>(null,1000);
+	@Override
+	public void contextInitialized(ServletContextEvent arg0) {
+			System.out.println("=========================");
+			System.out.println("初始化消息机制");
+			System.out.println("=========================");
+	       CometContext cc = CometContext.getInstance();
+	       cc.registChannel(Constants.PUSH_CHANNEL_MODEL);
+	       CometEngine engine = CometContext.getInstance().getEngine();
+	       engine.addConnectListener(new ConnectListener() {
+			
+			@Override
+			public boolean handleEvent(ConnectEvent connEvent) {
+				System.out.println("========建立连接=========");
+		        final CometConnection conn = connEvent.getConn();
+		        final String connId = conn.getId();
+		        comet_map.put(connId, System.currentTimeMillis());
+		        return true;  
+			}
+		});
+	}
+	@Override
+    public void contextDestroyed(ServletContextEvent contextEvent) {
+		System.out.println("断开.........");
+	}  
+
+}

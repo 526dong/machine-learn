@@ -1,0 +1,48 @@
+package com.ccx.models.model.datafile;
+
+/**
+ * @description 文件详情
+ * @author xzd
+ * @date 2017/11/21
+ */
+public class ModelsFileInfo {
+    private Integer id;
+
+    private String name;
+
+    private Byte type;
+
+    private Integer fileId;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
+    }
+
+    public Integer getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(Integer fileId) {
+        this.fileId = fileId;
+    }
+}

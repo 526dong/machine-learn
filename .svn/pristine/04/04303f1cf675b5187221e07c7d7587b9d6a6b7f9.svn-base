@@ -1,0 +1,416 @@
+package com.ccx.models.bean;
+
+import com.ccx.models.model.*;
+import com.ccx.models.util.JsonUtils;
+import com.ccx.models.util.MapUtils;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/24
+ */
+public class RecivePutOutBean {
+
+    //请求ID 规范为,fileId-时间戳
+    private String reqId;
+
+    //请求时间戳
+    private String reqTime;
+
+    //返回方式
+    private Integer type;
+
+    private DataDescription dataDescription;
+
+    private VariableAnalysis variableAnalysis;
+
+    private ModelOutput modelOutput;
+
+    private OtherOutput otherOutput;
+
+    public static class DataDescription{
+        //数据概览
+        private Map<String,Object> datasetInfo;
+
+        private VarSummary varSummary;
+
+        //详细变量分析html文件存放路径
+        private Map<String,Object> detailVarPath;
+
+        //数据概览
+        public ModelsModelDataBaseInfo getModelsModelDataBaseInfo(Integer dataFileId,String description, String creater){
+            return new ModelsModelDataBaseInfo(null,(String) datasetInfo.get("数据集名称")
+                    ,object2BigDecimal(datasetInfo.get("样本量"))
+                    ,object2BigDecimal(datasetInfo.get("维度")),null,dataFileId,null,creater,new Date());
+        }
+        //获取离散型变量统计指标
+        public List<ModelsVarCategoryCount> getModelsVarCategoryCount(  Long dataFileId
+               ){
+            List<ModelsVarCategoryCount> list=new ArrayList<>();
+            for(Map<String,Object> str:varSummary.getCateVar()){
+                ModelsVarCategoryCount count= MapUtils.changeMapToBean(str,ModelsVarCategoryCount.class);
+                count.setDataFileId(dataFileId);
+                count.setCreateTime(new Date());
+                count.setIv(object2BigDecimal(str.get("IV")));
+                count.setType((String) str.get("Type"));
+                list.add(count);
+            }
+            return list;
+        }
+
+        //获取连续性变量统计指标
+        public List<ModelsVarNumricCount> getModelsVarNumricCount(  Long dataFileId ){
+            List<ModelsVarNumricCount> list=new ArrayList<>();
+            for(Map<String,Object> str:varSummary.getNumVar()){
+                ModelsVarNumricCount count= MapUtils.changeMapToBean(str,ModelsVarNumricCount.class);
+                count.setDataFileId(dataFileId);
+                count.setCreateTime(new Date());
+                count.setIv(object2BigDecimal(str.get("IV")));
+                count.setOneFour(object2BigDecimal(str.get("quantile1")));
+                count.setTwoFour(object2BigDecimal(str.get("median")));
+                count.setThreeFour(object2BigDecimal(str.get("quantile3")));
+                count.setTheMax(object2BigDecimal(str.get("max")));
+                count.setType((String) str.get("Type"));
+                list.add(count);
+            }
+            return list;
+        }
+
+        public Map<String, Object> getDatasetInfo() {
+            return datasetInfo;
+        }
+
+        public void setDatasetInfo(Map<String, Object> datasetInfo) {
+            this.datasetInfo = datasetInfo;
+        }
+
+
+        public Map<String, Object> getDetailVarPath() {
+            return detailVarPath;
+        }
+
+        public void setDetailVarPath(Map<String, Object> detailVarPath) {
+            this.detailVarPath = detailVarPath;
+        }
+
+        public VarSummary getVarSummary() {
+            return varSummary;
+        }
+
+        public void setVarSummary(VarSummary varSummary) {
+            this.varSummary = varSummary;
+        }
+    }
+
+    public class  VarSummary{
+        //离散型变量统计指标
+        private List<Map<String,Object>> cateVar;
+
+        //连续性变量统计指标
+        private List<Map<String,Object>> numVar;
+        public List<Map<String, Object>> getCateVar() {
+            return cateVar;
+        }
+
+        public void setCateVar(List<Map<String, Object>> cateVar) {
+            this.cateVar = cateVar;
+        }
+
+        public List<Map<String, Object>> getNumVar() {
+            return numVar;
+        }
+
+        public void setNumVar(List<Map<String, Object>> numVar) {
+            this.numVar = numVar;
+        }
+
+    }
+
+    public static class  VariableAnalysis{
+        //重要变量分析
+        private List<Map<String,Object>> impVar;
+
+        //topN变量与目标变量关系表格路径
+        private String topNpath;
+
+        public List<Map<String,Object>> getImpVar() {
+            return impVar;
+        }
+
+
+
+        //重要变量分析
+        public List<ModelsImportantCount> getModelsImportantCount(  Long dataFileId,Integer programId,Integer arithmeticId
+               ){
+            List<ModelsImportantCount> list=new ArrayList<>();
+            for(Map<String,Object> str:impVar){
+                ModelsImportantCount count= MapUtils.changeMapToBean(str,ModelsImportantCount.class);
+                count.setDataFileId(dataFileId);
+                count.setArithmeticId(arithmeticId);
+                count.setFieldId(programId);
+                count.setCreateTime(new Date());
+                count.setVarName((String)str.get("Feature_Name"));
+                list.add(count);
+            }
+            return list;
+        }
+
+        public void setImpVar(List<Map<String, Object>> impVar) {
+            this.impVar = impVar;
+        }
+
+        public String getTopNpath() {
+            return topNpath;
+        }
+
+        public void setTopNpath(String topNpath) {
+            this.topNpath = topNpath;
+        }
+
+    }
+
+    //模型输出
+    public static class ModelOutput{
+        //训练集测试集数据预览
+        private List<Map<String,Object>> modeldataInfo;
+
+        //模型评价指标报告
+        private List<Map<String, Object>> modelreport;
+
+        //输出图路径
+        private AucksPlot aucksPlot;
+
+        // 概率分析报告
+        private List<Map<String, Object>> pvalueReport;
+
+
+        //获取训练集测试集数据预览
+        public List<ModelsModelDataAnalyInfo> getModelsModelDataAnalyInfo(Integer programId,Integer arithmeticId,String creter){
+            List<ModelsModelDataAnalyInfo> list=new ArrayList<>();
+            int i=0;
+            for(Map<String,Object> str:modeldataInfo){
+                list.add(new ModelsModelDataAnalyInfo(null,i++,object2BigDecimal(str.get("样本量")),object2BigDecimal(str.get("总维度")),object2BigDecimal(str.get("入模维度")),
+                        object2BigDecimal(str.get("重要变量")),object2BigDecimal(str.get("正负样本比")),object2BigDecimal(str.get("正样本比例")),
+                        programId,arithmeticId,creter,new Date()));
+            }
+            return list;
+        }
+        
+        //模型评价指标报告
+        public List<ModelsModelDataEvaluateIndex> getModelsModelDataEvaluateIndex(  Integer programId,Integer arithmeticId,String creter){
+            List<ModelsModelDataEvaluateIndex> list=new ArrayList<>();
+            Integer type=0;
+            for(Map<String,Object> str:modelreport){
+                ModelsModelDataEvaluateIndex count= MapUtils.changeMapToBean(str,ModelsModelDataEvaluateIndex.class);
+                count.setProgramId(programId);
+                count.setCreateTime(new Date());
+                count.setArithmeticId(arithmeticId);
+                count.setCreater(creter);
+                count.setF1Score(object2BigDecimal(str.get("f1-score")));
+                count.setAuc(object2BigDecimal(str.get("AUC")));
+                count.setKs(object2BigDecimal(str.get("KS")));
+                count.setType(type++);
+                count.setPrecisions(str.get("precision")==null?null:new BigDecimal(str.get("precision").toString()));
+                list.add(count);
+            }
+            return list;
+        }
+        //概率分析报告
+        public List<ModelsScoreGroupStatistics> getModelsModelsScoreGroupStatistics(  Integer programId,Integer arithmeticId,String creter){
+            List<ModelsScoreGroupStatistics> list=new ArrayList<>();
+            for(Map<String,Object> str:pvalueReport){
+                ModelsScoreGroupStatistics count= MapUtils.changeMapToBean(str,ModelsScoreGroupStatistics.class);
+                count.setProgramId(programId==null?null:programId.longValue());
+                count.setCreateTime(new Date());
+                count.setArithmeticId(arithmeticId==null?null:arithmeticId.longValue());
+                count.setCreater(creter);
+                count.setIv(object2BigDecimal(str.get("IV")));
+                count.setFactor(object2BigDecimal(str.get("factor_per")));
+                count.setBinsScore((String)str.get("bins"));
+                list.add(count);
+            }
+            return list;
+        }
+
+
+        public List<Map<String, Object>> getModeldataInfo() {
+            return modeldataInfo;
+        }
+
+        public void setModeldataInfo(List<Map<String, Object>> modeldataInfo) {
+            this.modeldataInfo = modeldataInfo;
+        }
+
+
+        public AucksPlot getAucksPlot() {
+            return aucksPlot;
+        }
+
+        public void setAucksPlot(AucksPlot aucksPlot) {
+            this.aucksPlot = aucksPlot;
+        }
+
+        public List<Map<String, Object>> getModelreport() {
+            return modelreport;
+        }
+
+        public void setModelreport(List<Map<String, Object>> modelreport) {
+            this.modelreport = modelreport;
+        }
+
+        public List<Map<String, Object>> getPvalueReport() {
+            return pvalueReport;
+        }
+
+        public void setPvalueReport(List<Map<String, Object>> pvalueReport) {
+            this.pvalueReport = pvalueReport;
+        }
+    }
+
+
+   //训练集相关图的输出路径
+   public static class AucksPlot{
+        //训练集KS指标路径
+        private String trainKSpath;
+        //训练集AUC指标路径
+        private String trainAUCpath;
+        //测试集KS指标路径
+        private String testKSpath;
+        //训练集AUC指标路径
+        private String testAUCpath;
+
+       public String getTrainKSpath() {
+           return trainKSpath;
+       }
+
+       public void setTrainKSpath(String trainKSpath) {
+           this.trainKSpath = trainKSpath;
+       }
+
+       public String getTrainAUCpath() {
+           return trainAUCpath;
+       }
+
+       public void setTrainAUCpath(String trainAUCpath) {
+           this.trainAUCpath = trainAUCpath;
+       }
+
+       public String getTestKSpath() {
+           return testKSpath;
+       }
+
+       public void setTestKSpath(String testKSpath) {
+           this.testKSpath = testKSpath;
+       }
+
+       public String getTestAUCpath() {
+           return testAUCpath;
+       }
+
+       public void setTestAUCpath(String testAUCpath) {
+           this.testAUCpath = testAUCpath;
+       }
+   }
+
+
+   public static class  OtherOutput{
+        //所有数据预测概率文件路径
+        private List<String> predictResPath;
+        //分析过程的日志文件路径
+        private String modelPath;
+        //分析结果的Excel表格下载路径
+        private String analysisReport;
+
+       public String getPredictResPath() {
+           return JsonUtils.toJson(predictResPath);
+       }
+
+       public void setPredictResPath(List<String> predictResPath) {
+           this.predictResPath = predictResPath;
+       }
+
+       public String getModelPath() {
+           return modelPath;
+       }
+
+       public void setModelPath(String modelPath) {
+           this.modelPath = modelPath;
+       }
+
+       public String getAnalysisReport() {
+           return analysisReport;
+       }
+
+       public void setAnalysisReport(String analysisReport) {
+           this.analysisReport = analysisReport;
+       }
+   }
+
+
+    public String getReqId() {
+        return reqId;
+    }
+
+    public void setReqId(String reqId) {
+        this.reqId = reqId;
+    }
+
+    public String getReqTime() {
+        return reqTime;
+    }
+
+    public void setReqTime(String reqTime) {
+        this.reqTime = reqTime;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public DataDescription getDataDescription() {
+        return dataDescription;
+    }
+
+    public void setDataDescription(DataDescription dataDescription) {
+        this.dataDescription = dataDescription;
+    }
+
+    public VariableAnalysis getVariableAnalysis() {
+        return variableAnalysis;
+    }
+
+    public void setVariableAnalysis(VariableAnalysis variableAnalysis) {
+        this.variableAnalysis = variableAnalysis;
+    }
+
+    public ModelOutput getModelOutput() {
+        return modelOutput;
+    }
+
+    public void setModelOutput(ModelOutput modelOutput) {
+        this.modelOutput = modelOutput;
+    }
+
+    public OtherOutput getOtherOutput() {
+        return otherOutput;
+    }
+
+    public void setOtherOutput(OtherOutput otherOutput) {
+        this.otherOutput = otherOutput;
+    }
+    
+    public static BigDecimal object2BigDecimal(Object o){
+        if(o==null) return null;
+        return new BigDecimal(o.toString());
+    }
+}

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.datafile.ModelsDataFileMapper" >
+  <resultMap id="BaseResultMap" type="com.ccx.models.model.datafile.ModelsDataFile" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="size" property="size" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_delete_flag" property="deleteFlag" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, size, type, file_url, description, creator_name, create_date, is_delete_flag
+  </sql>
+  <!--主键查询-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+    and id = #{id,jdbcType=INTEGER}
+  </select>
+  <!--无分页列表-->
+  <select id="getList" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select
+    <include refid="Base_Column_List" />
+    from models_data_file
+    where is_delete_flag = 0
+    <if test="null != params.keyWord and '' != params.keyWord" >
+      and (name like CONCAT('%',#{params.keyWord},'%')
+      or creator_name like CONCAT('%',#{params.keyWord},'%'))
+    </if>
+  </select>
+  <!--逻辑删除-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    update models_data_file
+    set is_delete_flag = 1
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <!--保存时返回id-->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    insert into models_data_file (name, size, type, file_url, description, creator_name, create_date)
+    values (#{name,jdbcType=VARCHAR}, #{size,jdbcType=INTEGER}, #{type,jdbcType=INTEGER},
+      #{fileUrl,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{creatorName,jdbcType=VARCHAR},
+      #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    insert into models_data_file
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="size != null" >
+        size,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="fileUrl != null" >
+        file_url,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="creatorName != null" >
+        creator_name,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="deleteFlag != null" >
+        is_delete_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null" >
+        #{size,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="fileUrl != null" >
+        #{file_url,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorName != null" >
+        #{creatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        #{deleteFlag,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    update models_data_file
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="size != null" >
+        size = #{size,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="fileUrl != null" >
+        #{file_url,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorName != null" >
+        creator_name = #{creatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        is_delete_flag = #{deleteFlag,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ccx.models.model.datafile.ModelsDataFile" >
+    update models_data_file
+    set name = #{name,jdbcType=VARCHAR},
+      size = #{size,jdbcType=INTEGER},
+      type = #{type,jdbcType=INTEGER},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      creator_name = #{creatorName,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      is_delete_flag = #{deleteFlag,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectPageList" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from models_data_file
+      where is_delete_flag = 0
+  </select>
+</mapper>

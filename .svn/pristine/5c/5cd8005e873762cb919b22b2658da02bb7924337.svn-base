@@ -1,0 +1,47 @@
+package com.ccx.models.laboratory;
+
+import com.ccx.models.api.laboratory.ModelsReportApi;
+import com.ccx.models.base.BaseController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+
+/**
+ * 模型报告
+ */
+@Controller
+@RequestMapping("/modelsReport")
+public class ModelsReportController extends BaseController {
+
+	private static Logger logger = LogManager.getLogger(ModelsReportController.class);
+
+	@Autowired
+	private ModelsReportApi modelsReportApi;
+
+	/**
+	 * 跳转到模型报告页面
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/toModelsReportPage")
+	public String toModelsReportPage(HttpServletRequest request){
+//		Long programId = (long) Integer.parseInt(request.getParameter("programId"));
+//		//根据项目id获取项目基本信息
+//		LinkedHashMap<String,Object> programMap = new LinkedHashMap<String,Object>();
+//		try{
+//			programMap = modelsReportApi.getProgramMapById(programId);
+//		}catch (Exception e){
+//			logger.info("实验室-----模型报告-----根据项目id获取项目基本信息失败",e);
+//		}
+//		request.setAttribute("programMap",programMap);
+		return "laboratory/modelReport";
+	}
+
+
+}

@@ -1,0 +1,12 @@
+database.database=mysql
+database.show_sql=true
+#mysql config
+database.driverClass=com.mysql.jdbc.Driver
+# server for backup
+database.username=u_risk
+database.password=m1LbSdRevB98eUoF
+database.jdbcUrl=jdbc:mysql://192.168.100.35:3306/ccx_credit_risk?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+
+#database.username=root
+#database.password=root
+#database.jdbcUrl=jdbc:mysql://127.0.0.1:3306/ccx_credit_risk?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8

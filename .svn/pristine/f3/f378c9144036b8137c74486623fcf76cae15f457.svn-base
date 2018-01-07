@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.modelsLibrary.ModelsLibraryDataMapper" >
+  
+  <resultMap id="modelsLibraryMap" type="com.ccx.models.model.ModelsExtractTargetValue" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="predict_prob" property="predictProb" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <!--模型库 统计区间 -->
+   <resultMap id="sectionMap" type="com.ccx.models.model.SectionCount" >
+    <result column="section1" property="section1" jdbcType="VARCHAR" />
+    <result column="section2" property="section2" jdbcType="VARCHAR" />
+    <result column="section3" property="section3" jdbcType="VARCHAR" />
+    <result column="section4" property="section4" jdbcType="VARCHAR" />
+    <result column="section5" property="section5" jdbcType="VARCHAR" />
+    <result column="section6" property="section6" jdbcType="VARCHAR" />
+    <result column="section7" property="section7" jdbcType="VARCHAR" />
+    <result column="section8" property="section8" jdbcType="VARCHAR" />
+    <result column="section9" property="section9" jdbcType="VARCHAR" />
+    <result column="section10" property="section10" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, index_name, predict_prob, create_date
+  </sql>
+  
+  <!-- 模型测试结果列表 -->
+  <select id="modelTextResult" resultMap="modelsLibraryMap" >
+      select
+      <include refid="Base_Column_List" />
+      from models_extract_target_value
+     
+  </select>
+  
+  <!-- 模型库 柱状图统计 -->
+  <select id="modelTextCount" resultMap="sectionMap" >
+      select
+		sum(case when scope='section1' then 1 else 0 end) as 'section1',
+		sum(case when scope='section2' then 1 else 0 end) as 'section2',
+		sum(case when scope='section3' then 1 else 0 end) as 'section3',
+		sum(case when scope='section4' then 1 else 0 end) as 'section4',
+		sum(case when scope='section5' then 1 else 0 end) as 'section5',
+		sum(case when scope='section6' then 1 else 0 end) as 'section6',
+		sum(case when scope='(0.5-0.7]' then 1 else 0 end) as 'section7',
+		sum(case when scope='section8' then 1 else 0 end) as 'section8',
+		sum(case when scope='section9' then 1 else 0 end) as 'section9',
+		sum(case when scope='section10' then 1 else 0 end) as 'section10'
+		from 
+		(
+				SELECT
+						con.index_name,
+					CASE
+				WHEN index_name BETWEEN 0 AND 0.1 THEN 'section1'
+				WHEN index_name BETWEEN 0.1 AND 0.2 THEN 'section2'
+				WHEN index_name BETWEEN 0.2 AND 0.3 THEN 'section3'
+				WHEN index_name BETWEEN 0.3 AND 0.4 THEN 'section4'
+				WHEN index_name BETWEEN 0.4 AND 0.5 THEN 'section5'
+				WHEN index_name BETWEEN 0.5 AND 0.6 THEN 'section6'
+				WHEN index_name BETWEEN 0.6 AND 0.7 THEN 'section7'
+				WHEN index_name BETWEEN 0.7 AND 0.8 THEN 'section8'
+				WHEN index_name BETWEEN 0.8 AND 0.9 THEN 'section9'
+				WHEN index_name BETWEEN 0.9 AND 1 THEN 'section10'
+				END AS scope
+				FROM
+						models_extract_target_value con      
+		)
+		t1
+  </select>
+
+   <!-- 模型测试记录入库 -->
+   <insert id="saveModelExtractTest" parameterType="java.util.List">
+        insert into models_extract_test_record 
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="modelsExtractInfoId != null" >
+                models_extract_info_id,
+            </if>
+            <if test="fileName != null" >
+                file_name,
+            </if>
+            <if test="filePath != null" >
+                file_path,
+            </if>
+            <if test="fileSize != null" >
+                file_size,
+            </if>
+            <if test="fileType != null" >
+                file_type,
+            </if>
+            <if test="description != null" >
+                description,
+            </if>
+            <if test="sampleNum != null" >
+                sample_num,
+            </if>
+            <if test="testType != null" >
+                test_type,
+            </if>
+            <if test="delFlag != null" >
+                del_flag,
+            </if>
+            <if test="creater != null" >
+                creater,
+            </if>
+            create_time,
+            <if test="titleValue != null" >
+                title_value,
+            </if>
+            
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="modelsExtractInfoId != null" >
+                #{modelsExtractInfoId,jdbcType=BIGINT},
+            </if>
+            <if test="fileName != null" >
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="filePath != null" >
+                #{filePath,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null" >
+                #{fileSize,jdbcType=INTEGER},
+            </if>
+            <if test="fileType != null" >
+                #{fileType,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="sampleNum != null" >
+                #{sampleNum,jdbcType=INTEGER},
+            </if>
+            <if test="testType != null" >
+                #{testType,jdbcType=INTEGER},
+            </if>
+            <if test="delFlag != null" >
+                #{delFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creater != null" >
+                #{creater,jdbcType=VARCHAR},
+            </if>
+            now(),
+            <if test="titleValue != null" >
+                #{titleValue,jdbcType=VARCHAR},
+            </if>
+            
+        </trim>
+          
+   </insert>
+
+   <!-- 模型测试记录入库 -->
+   <insert id="saveBatchModelTest" parameterType="java.util.List">
+        insert into models_extract_import_row_value 
+        	(models_extract_test_record_id, row_value,index_name,creater,create_time)
+        values
+          <foreach collection="list" open="(" separator="," close=")" item="id">
+            (#{item.modelsExtractTestRecordId,jdbcType=INTEGER}, 
+            #{item.rowValue,jdbcType=VARCHAR},
+            #{item.indexName,jdbcType=VARCHAR}),
+            #{item.creater,jdbcType=VARCHAR}),
+            now()
+        </foreach>
+   </insert>
+
+</mapper>

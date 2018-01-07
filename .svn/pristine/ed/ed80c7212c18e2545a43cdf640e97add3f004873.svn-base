@@ -1,0 +1,170 @@
+package com.ccx.models.datafile;
+
+import com.alibaba.fastjson.JSON;
+import com.ccx.models.api.datafile.ModelsDataFileApi;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.service.impl.datafile.CommonFileValue;
+import com.ccx.models.service.impl.datafile.CommonGetFileValue;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.JsonResult;
+import com.ccx.models.util.MyRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @description 数据文件
+ * @author xzd
+ * @date 2017/11/21
+ */
+@Controller	
+@RequestMapping("/modelsDataFile")
+public class ModelsDataFileController {
+	private static final Logger logger = LoggerFactory.getLogger(ModelsDataFileController.class);
+		
+	@Autowired	
+	private ModelsDataFileApi modelsDataFileApi;
+
+	//获取文件数据的公共方法
+	@Autowired
+	private CommonGetFileValue commonGetFileValue;
+
+	/**
+	 * 数据文件列表展示
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		return new ModelAndView("datafile/dataFileList");
+	}
+
+	/**
+	 * 查询数据文件列表
+	 * @return
+	 */
+	@PostMapping("/findAll")
+	@ResponseBody
+	public JsonResult findAll(HttpServletRequest request){
+		//获取查询条件
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+
+		try {
+			List<ModelsDataFile> list = modelsDataFileApi.getList(params);
+
+			//成功标识
+			return JsonResult.ok(list);
+		} catch (Exception e) {
+			logger.error("查询数据文件失败:", e);
+			//失败标识
+			return JsonResult.error("查询数据文件失败！");
+		}
+	}
+
+	/**
+	 * 数据文件导入页面
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/importDataFile")
+	public ModelAndView importDataFile(HttpServletRequest request) {
+		return new ModelAndView("datafile/dataFileImport");
+	}
+
+	/**
+	 * 数据文件导入
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/doImportDataFile")
+	@ResponseBody
+	public String doImportDataFile(HttpServletRequest request, HttpServletResponse response, @RequestParam("dataFile") MultipartFile dataFile) {
+		//result jsp map
+		Map<String, Object> resultMap = new HashMap<>();
+		//获取参数
+		Map<String, Object> params = ControllerUtil.requestMap(request);
+
+		if (dataFile == null || dataFile.isEmpty()) {
+			resultMap.put("code", 401);
+			logger.error("上传文件报错，错误原因============>没有上传文件");
+			return JSON.toJSONString(resultMap);
+		}
+
+		try {
+			modelsDataFileApi.save(dataFile, params);
+			resultMap.put("code", 200);
+		} catch (Exception e) {
+			if (e instanceof MyRuntimeException) {
+				resultMap.put("code", 401);
+			} else {
+				resultMap.put("code", 500);
+			}
+			logger.error("文件导入失败！", e);
+		}
+
+		return JSON.toJSONString(resultMap);
+	}
+
+	/**
+	 * 文件详情
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("/fileInfo")
+	public ModelAndView fileInfo(HttpServletRequest request, @RequestParam(required = true) Integer id) {
+		request.setAttribute("dataFileId", id);
+
+		return new ModelAndView("datafile/fileInfo");
+	}
+
+	/**
+	 * 查询数据文件详情和文件变量以及变量值
+	 * @return
+	 */
+	@PostMapping("/findFileInfo")
+	@ResponseBody
+	public JsonResult findFileInfo(HttpServletRequest request, @RequestParam(required = true) Integer dataFileId){
+		try {
+			//通过数据文件id获取文件信息
+			CommonFileValue.DataFile dataFile = commonGetFileValue.getDataFile(dataFileId);
+
+			//成功标识
+			return JsonResult.ok(dataFile);
+		} catch (Exception e) {
+			logger.error("查询数据文件信息失败:", e);
+			//失败标识
+			return JsonResult.error("查询数据文件信息失败！");
+		}
+	}
+
+	/**
+	 * 删除文件信息
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/delete")
+	@ResponseBody
+	public JsonResult delete(HttpServletRequest request, @RequestParam(required = true) Integer dataFileId) {
+		try {
+			//逻辑删除
+			modelsDataFileApi.deleteById(dataFileId);
+
+			//成功标识
+			return JsonResult.ok(null);
+		} catch (Exception e) {
+			logger.error("删除数据文件失败:", e);
+			//失败标识
+			return JsonResult.error("删除数据文件失败！");
+		}
+	}
+}	

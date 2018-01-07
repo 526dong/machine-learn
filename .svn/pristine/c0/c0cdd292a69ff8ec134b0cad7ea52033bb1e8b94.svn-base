@@ -1,0 +1,200 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>数据文件-文件详情</title>
+	<link type="text/css" href="${ctx}/resources/css/base.css" rel="stylesheet" />
+	<link type="text/css" href="${ctx}/resources/css/common.css" rel="stylesheet" />
+	<%--<script type="text/javascript" src="${ctx}/resources/js/common.js"></script>--%>
+	<script type="text/javascript" src="${ctx}/resources/js/enterprise/ajaxfileupload.js"></script>
+</head>
+<script type="text/javascript">
+/*页面初始化*/
+$(function(){
+	/*列表数据*/
+	getData();
+});
+/*
+/!*列表数据*!/
+function getData(){
+	$.ajax({
+		url:"${ctx}/modelsDataFile/findAll",
+		type:'POST',
+		/!*data:{
+			"pageNo":pageNo,
+			"pageSize":pageSize,
+			"keyWord":$("#keyWord").val(),//关键字搜索
+			"startDate":$("#startDate").val(),
+			"endDate":$("#endDate").val()
+		},*!/
+		async: false,
+		success:function(data){
+			if (200 == data.code) {
+			    /!*$("#test").text(data.data);*!/
+				/!*var page = data.data;
+				var reData = page.rows;*!/
+				//clear
+				$("#dataFileContent").html("");
+				//tbody
+				var htmlStr = createTable(data.data);
+				$("#dataFileContent").html(htmlStr);
+				 /!*!//page
+				var pageStr = creatPage(page.total, page.pageNo, page.totalPage);
+				$("#pageDiv").html(pageStr);*!/
+			} else {
+                /!*alert(data.msg);
+                console.error(data.msg);*!/
+            }
+		}
+	});
+}
+//数据文件列表
+function createTable(data){
+	var htmlContent = "";
+
+	for(var i=0;i<data.length;i++){
+		htmlContent += "<tr>";
+		htmlContent += "<td>"+(parseInt(i)+1)+"</td>";
+		if (data[i].name != null) {
+			htmlContent += "<td title='"+data[i].name+"'style='overflow: hidden;text-overflow:ellipsis;white-space: nowrap'>"+data[i].name+"</td>"
+		} else {
+			htmlContent += "<td></td>";
+		}
+ 		htmlContent += "<td>"+(data[i].size == null ? '' : data[i].size)+"</td>";
+		htmlContent += "<td>"+(data[i].description == null ? '' : data[i].description)+"</td>";
+		htmlContent += "<td>"+(data[i].createDate == null ? '' : data[i].createDate)+"</td>";
+
+		htmlContent += "<td class='audit_td3 audit_td4'>";
+		 htmlContent += "<a class='detail_btn' href='javascript:;' onclick='fileInfo("+data[i].entId+");'>文件详情</a>";
+		 htmlContent += "</td>";
+
+		htmlContent += "</tr>";
+	}
+
+	return htmlContent;
+}
+*/
+//查看详情
+function fileInfo(id){
+    if (isValueNull(id)) {
+        window.location.href = "${ctx}/modelsDataFile/fileInfo?id="+id;
+	} else {
+        console.error("数据文件id为空！")
+	}
+}
+//判断是否为空
+function isValueNull(obj) {
+    var flag = true;
+	if (obj == null || obj == "" || obj == undefined) {
+	    flag = false;
+	}
+	return flag;
+}
+
+</script>
+<body class="body_bg">
+<div class="main">
+	<%--<!--页面头部 start -->
+	<%@ include file="../commons/topHead.jsp"%>
+	<!--页面头部 end -->
+	<!-- center.html start -->
+	<div class="main_center">
+		<!--页面左侧导航栏 start -->
+		<%@ include file="../commons/leftNavigation.jsp"%>
+		<!-- 页面左侧导航栏 end -->
+		<!-- 右侧内容.html start -->--%>
+		<div class="right_content">
+			<h3 class="place_title">
+				<span>当前位置：</span>
+				<a href="javascript:void(0)">数据文件</a>
+				<span>></span>
+				<a href="${ctx}/modelsDataFile/list">数据文件列表</a>
+			</h3>
+			<div class="shade main_minHeight">
+				<div class="search_box clear">
+					<div class="search_btn fr">
+						<a href="javaScript:;" class="fr" onclick="searchEnt();">查询</a>
+						<input type="text" class="fr" id="keyWord" value="" style="width: 240px;" />
+					</div>
+				</div>
+				<div>
+					<input type="button" class="fr" value="导入" onclick="importDataFile();" />
+				</div>
+				<div class="module_height">
+					<form>
+						<table class="module_table">
+							<thead>
+							<tr>
+								<th class="module_width1">序号</th>
+								<th>文件名称</th>
+								<th>文件包含行数</th>
+								<th>文件描述</th>
+								<th>创建时间</th>
+								<th class="module_width1">操作</th>
+							</tr>
+							</thead>
+							<tbody id="dataFileContent"></tbody>
+						</table>
+					</form>
+				</div>
+				<%--<!-- 分页.html start -->
+				<%@include file="../commons/tabPage.jsp" %>
+				<!-- 分页.html end -->
+			</div>
+			<!-- footer.html start -->
+			<%@ include file="../commons/foot.jsp"%>
+			<!-- footer.html end -->--%>
+		</div>
+		<!-- 右侧内容.html end -->
+	</div>
+	<!-- center.html end -->
+</div>
+<%--<!-- 遮罩层 start -->
+<div class="layer" id="layer"></div>
+<!-- 遮罩层 end -->
+<!-- 导入数据文件 start -->
+<div class="popup popup2" id="data_popup">
+	<a href="javaScript:;" class="close"></a>
+	<h3 class="popup_title">导入数据文件</h3>
+	<div class="file_parent" style="height: 80px">
+		<strong class="fl">选择文件</strong>
+		<div class="fl file_div">
+			<a href="javaScript:;">+ 添加文件</a>
+			<input type="file" name="dataFile" id="dataFile" value="" onchange="fileUpload($(this))" />
+		</div>
+		<table style="margin-left: 35px;">
+			<tr style="margin-left: 20px;">
+				<td>文件名称</td>
+				<td>
+					<input id="fileName" type="text" style="margin-left: 20px;border: 1px;outline: 1px" />
+				</td>
+			</tr>
+			<tr style="margin-left: 20px;">
+				<td>文件类型</td>
+				<td>
+					&lt;%&ndash;<input id="fileType" type="text" style="margin-left: 20px;border: 1px;outline: 1px" />&ndash;%&gt;
+					<select id="fileType" style="margin-left: 20px;">
+						<option value=0">csv</option>
+						<option value=1">txt</option>
+						<option value=2">xls/xlsx</option>
+					</select>
+				</td>
+			</tr>
+			<tr style="margin-left: 20px;">
+				<td>文件概述</td>
+				<td>
+					<input id="fileDesc" type="text" style="margin-left: 20px;border: 1px;outline: 1px" />
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="addBody_btn popup_btn clear">
+		<a href="javaScript:;" class="addBody_btn_a1" onclick="submitImportDataFile(this)">录入</a>
+		<a href="javaScript:;" class="addBody_btn_a2">取消</a>
+	</div>
+</div>
+<!-- 导入数据文件 end -->--%>
+</body>
+</html>
+

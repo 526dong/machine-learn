@@ -1,0 +1,190 @@
+package com.ccx.models.util;
+
+import com.ccx.models.mapper.datafile.ModelsDataFileMapper;
+import com.ccx.models.mapper.datafile.ModelsFileInfoMapper;
+import com.ccx.models.model.datafile.ModelsDataFile;
+import com.ccx.models.model.datafile.ModelsFileInfo;
+import com.ccx.models.model.datafile.ModelsFileValue;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author Created by xzd on 2017/11/21.
+ * @Description 文件导入工具类
+ */
+public class ImportUtils {
+    private static Map<String, ConcurrentHashMap<Integer, Integer>> dataMap;
+
+    /**
+     * 导入csv文件
+     * @param inputStream
+     * @return
+     */
+    public static List<ModelsFileValue> importCsvFile(InputStream inputStream, ModelsDataFile modelsDataFile,
+              ModelsDataFileMapper modelsDataFileMapper, ModelsFileInfoMapper modelsFileInfoMapper){
+        //数据-未处理
+        List<String> dataList = new ArrayList<>();
+
+        //所有变量数据-已经处理
+        List<ModelsFileValue> fileValueList = new ArrayList<>();
+
+        //统计多少行
+        int rowNumber = 0;
+
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(new InputStreamReader(inputStream));
+
+            //行读取
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                rowNumber++;
+
+                if (line.length() > 2) {
+                    dataList.add(line.substring(1, line.length()-1));
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            if(br != null){
+                try {
+                    br.close();
+                    br = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        //文件所包含的行数
+        modelsDataFile.setSize(rowNumber);
+        modelsDataFile.setCreateDate(new Date());
+
+        //数据文件刚刚保存的id
+        modelsDataFileMapper.insert(modelsDataFile);
+
+        if (dataList != null && dataList.size() > 0) {
+            fileValueList = analysisData(dataList, modelsDataFile.getId(), modelsFileInfoMapper);
+        }
+
+        return fileValueList;
+    }
+
+    /**
+     * 分析数据
+     * @param importList
+     */
+    public static List<ModelsFileValue> analysisData(List<String> importList, Integer dataFileId, ModelsFileInfoMapper modelsFileInfoMapper){
+        //（二）保存文件信息
+        //分析完之后的数据集合
+        List<ModelsFileValue> fileValueList = new ArrayList<>();
+        //存储文件字段集合
+        LinkedList<Integer> linkedList = new LinkedList<>();
+
+        //一、处理表头，即文件信息表
+        Object objTitle = importList.get(0);
+
+        if (objTitle != null) {
+            //一行数据
+            String columnTitle = objTitle.toString().replace("\"","");
+
+            if (columnTitle.contains(",")) {
+                String[] columnTitleArr = columnTitle.split(",");
+
+                for (int j = 0; j < columnTitleArr.length; j++) {
+                    ModelsFileInfo fileInfo = new ModelsFileInfo();
+                    fileInfo.setName(columnTitleArr[j]);
+                    fileInfo.setFileId(dataFileId);
+                    modelsFileInfoMapper.insert(fileInfo);
+                    linkedList.add(fileInfo.getId());
+                }
+            } else {
+                ModelsFileInfo fileInfo = new ModelsFileInfo();
+                fileInfo.setName(columnTitle);
+                modelsFileInfoMapper.insert(fileInfo);
+                linkedList.add(fileInfo.getId());
+            }
+        }
+
+        //二、处理字段数据
+        for (int i = 1; i < importList.size(); i++) {
+            Object obj = importList.get(i);
+
+            if (obj != null) {
+                //一行数据
+                String column = obj.toString().replace("\"","");
+
+                if (column.contains(",")) {
+                    String[] columnArr = column.split(",");
+
+                    if (linkedList.size() == columnArr.length) {
+                        for (int j = 0; j < columnArr.length; j++) {
+                            ModelsFileValue fileValue = new ModelsFileValue();
+
+                            //校验是否为数字
+                            boolean isNumber = isPositiveDecimal(columnArr[j]);
+
+                            if (isNumber) {
+                                fileValue.setValue(Double.valueOf(columnArr[j]));
+                                fileValue.setFileInfoId(linkedList.get(j));
+
+                                fileValueList.add(fileValue);
+                            } else {
+                                throw new MyRuntimeException("csv文件中存在非数字值！");
+                            }
+                        }
+                    } else {
+                        throw new MyRuntimeException("csv文件中存在空值！");
+                    }
+                } else {
+                    ModelsFileValue fileValue = new ModelsFileValue();
+                    fileValue.setValue(Double.valueOf(column));
+                    fileValue.setFileInfoId(linkedList.get(0));
+
+                    fileValueList.add(fileValue);
+                }
+            }
+        }
+
+        return fileValueList;
+    }
+
+    /**
+     * 是否为整数和小数
+     * @param param
+     * @return
+     */
+    public static boolean isPositiveDecimal(String param){
+        return isMatch("0", param) || isMatch("^\\+{0,1}[1-9]\\d*", param) ||
+            isMatch("\\+{0,1}[0]\\.[1-9]*|\\+{0,1}[1-9]\\d*\\.\\d*", param);
+    }
+
+    /**
+     * 正则判断是否为整数和小数
+     * @param regex
+     * @param param
+     * @return
+     */
+    private static boolean isMatch(String regex, String param){
+        if (param == null || param.trim().equals("")) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(regex);
+        Matcher isNum = pattern.matcher(param);
+
+        return isNum.matches();
+    }
+
+    //txt
+
+    //excel
+}

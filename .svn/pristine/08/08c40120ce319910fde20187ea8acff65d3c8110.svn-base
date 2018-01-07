@@ -1,0 +1,16 @@
+.entering_form{background:#fff; color:#7d808a;display:table;}
+.top_nav{ height:65px;}
+.part1,.part2,.part3,.part4,.part5{display:table;margin:0 15px 0 24px;padding:35px 0; border-bottom:1px dotted #dcdee7; }
+.part1 img,.part2 img,.part3 img,.part4 img,.part5 img{width:20px; height:20px;display:inline-block;padding-right:10px}
+.part_left {float:left;padding:26px 54px 0 30px;}
+.part_right {float:left;padding-top:26px;margin-left:55px;}
+.part_left ul li label,.part_right ul li label,.part_long ul li label{width:107px;height:33px;display:inline-block;}
+.part_left ul li,.part_right ul li{ padding: 5px 0;width:440px;}
+.part_left ul li input,.part_right ul li input{ border:1px solid #dcdee7;border-radius:5px;width:304px;height:33px;margin-right:8px;}
+.part_right ul li input[type=date]{background: url(../image/cal.png) no-repeat 98%;}
+.part_long{float:left;background:#fff;padding:0 54px 0 30px;}
+.part_long ul li{padding: 5px 0;}
+.part_long ul li input{ border:1px solid #dcdee7;border-radius:5px;width:148px;height:33px;margin-right:8px;}
+.part_long ul li input[type=address]{width:322px;}
+.button{border:1px solid #7a53fc;border-radius:20px;background:#7a53fc;width:200px;height:40px;margin:90px auto;}
+.button a{color:#fff; line-height:40px; margin-left:85px;}

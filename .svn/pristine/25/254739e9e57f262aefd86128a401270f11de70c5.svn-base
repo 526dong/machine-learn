@@ -1,0 +1,178 @@
+package com.ccx.models.api;
+
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
+import com.ccx.models.model.vo.UserVo;
+import org.springframework.cache.Cache;
+
+import com.ccx.models.model.Module;
+import com.ccx.models.model.User;
+import com.ccx.models.model.UserNum;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 
+ * @description User 表数据服务层接口
+ * @author zxr
+ * @date 2017 上午11:58:05
+ */
+public interface UserApi{
+
+	/**
+	 * 根据登录名查询用户
+	 * @param uservo
+	 * @return
+	 */
+	List<User> selectByLoginName(User uservo);
+
+	/**
+	 * 查询显示的用户vo信息
+	 * @return
+	 */
+	PageInfo<UserVo> findAll(Map<String,Object> params);
+	
+	/**
+	 * 
+	 * @Title: getUserNumByInsId  
+	 * @author: WXN
+	 * @Description: 通过机构id获取该机构下最多可设置的账号数量(这里用一句话描述这个方法的作用)   
+	 * @param: @param insId
+	 * @param: @return      
+	 * @return: UserNum      
+	 * @throws
+	 */
+	UserNum getUserNumByInsId(long insId);
+	/**
+	 * 
+	 * @Title: getHasUserNum  
+	 * @author: WXN
+	 * @Description: 获取该机构下已经创建的账号数量(这里用一句话描述这个方法的作用)   
+	 * @param: @param insId
+	 * @param: @return      
+	 * @return: String      
+	 * @throws
+	 */
+	int getHasUserNum(long insId);
+
+	/**
+	 * 查询用户信息
+	 * @param id
+	 * @return
+	 */
+	User selectUserById(Long id);
+
+	/**
+	 * 修改用户信息
+	 * @param user
+	 */
+	String updateTO(User user);
+
+	/**
+	 * 保存新增用户信息
+	 * @param user
+	 */
+	void doAddUser(User user);
+
+	/**
+	 * 修改密码
+	 * @param user
+	 */
+	void resetPassword(User user);
+
+	/**
+	 * 根据用户名得到用户
+	 * @param username
+	 * @return
+	 */
+	User getUserByName(String loginName);
+	
+	List<User> getUserListByName(String loginName);
+
+	/**
+	 * 创建新用户的信息
+	 * @param request
+	 * @param user
+	 * @return
+	 */
+	User getUser(HttpServletRequest request, User user);
+
+	/**
+	 * 修改用户的信息
+	 * @param request
+	 * @param user
+	 * @return
+	 */
+	User getEditUser(HttpServletRequest request, User user);
+
+	/**
+	 * 解冻用户
+	 * @param id
+	 */
+	String unfreeze(Long id);
+
+	/**
+	 * 用户被锁定
+	 * @param id 
+	 */
+	void lockUser(Long id);
+
+	/**
+	 * 解锁用户
+	 * @param id
+	 * @param cache 
+	 */
+	void unlock(Long id, Cache cache);
+
+	/**
+	 * 冻结用户
+	 * @param id
+	 */
+	String freezeUser(Long id);
+
+	/**
+	 * 注销用户
+	 * @param id
+	 */
+	String deleteUser(Long id);
+	
+	/**
+	 * 
+	 * @Title: getModuleByInsId  
+	 * @author: 获取后台给机构分配的模块
+	 * @Description: TODO(这里用一句话描述这个方法的作用)   
+	 * @param: @param insId
+	 * @param: @return      
+	 * @return: List<Module>      
+	 * @throws
+	 */
+	List<Module> getModuleByInsId(Long insId);
+	
+	/**
+	 * 
+	 * @Title: getMyModuleByInsId  
+	 * @author: WXN
+	 * @Description: 查询当前登陆人所拥有的模块
+	 * @param: @param insId
+	 * @param: @return      
+	 * @return: List<Module>      
+	 * @throws
+	 */
+	List<Module> getMyModuleByInsId(Long insId,Long userId);
+	
+	/**
+	 * 
+	 * @Title: getMyCanUseModuleByInsId  
+	 * @author: WXN
+	 * @Description: 查询当前登陆人所拥有的模块,不限制日期
+	 * @param: @param insId
+	 * @param: @return      
+	 * @return: List<Module>      
+	 * @throws
+	 */
+	List<Module> getMyCanUseModuleByInsId(Long insId,Long userId);
+	
+	
+	
+}

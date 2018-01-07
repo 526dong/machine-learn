@@ -1,0 +1,107 @@
+package com.ccx.models.program;
+
+import com.ccx.models.api.ModelsProgramApi;
+import com.ccx.models.base.BaseController;
+import com.ccx.models.model.ModelsProgram;
+import com.ccx.models.util.ControllerUtil;
+import com.ccx.models.util.JsonResult;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+	
+@Controller	
+@RequestMapping("/program")
+public class ProgramController extends BaseController {
+
+	private Logger log = LogManager.getLogger(ProgramController.class);
+		
+	@Autowired	
+	private ModelsProgramApi modelsProgramService;
+		
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/index", method=RequestMethod.GET)
+	public ModelAndView modelsProgramIndex(HttpServletRequest request) {	
+		ModelAndView mnv = new ModelAndView("program/programIndex");
+		return mnv;	
+	}
+
+	/*
+	 * @author zhaotm
+	 * @description
+	 * @date
+	*/
+	@RequestMapping(value="/indexList", method=RequestMethod.POST)
+	@ResponseBody
+	public JsonResult indexList(HttpServletRequest request) {
+		Map<String, Object> paramsMap = ControllerUtil.requestMap(request);
+
+		try {
+			PageHelper.startPage(super.getPageNum(), super.getPageSize());
+			PageInfo<ModelsProgram> page = modelsProgramService.getPageList(paramsMap);
+			return JsonResult.ok(page);
+		} catch (Exception e) {
+			log.error("项目列表失败：", e);
+			return JsonResult.error(null);
+		}
+	}
+
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/addOrEdit", method=RequestMethod.GET)
+	public ModelAndView modelsProgramAddOrEdit(Integer id) {
+		ModelAndView mnv = new ModelAndView("program/programAddOrEdit");
+
+		try {
+			if (id.intValue() != -1) {
+				ModelsProgram program = modelsProgramService.getById(id);
+				mnv.addObject("program", program);
+			}
+
+			//List<Arithmetic> arithmeticList = modelsProgramService.selectArithmeticList();
+			//mnv.addObject("arithmeticList", arithmeticList);
+
+		} catch (Exception e){
+			log.error("项目新增失败：", e);
+		}	
+		return mnv;	
+	}	
+		
+	/*	
+	 * @author zhaotm 	
+	 * @description	
+	 * @date	
+	*/	
+	@RequestMapping(value="/addOrEditSave", method=RequestMethod.POST)
+	@ResponseBody	
+	public Map<String, Object> modelsProgramAddOrEditSave(ModelsProgram model) {
+		Map<String, Object> resultMap = new HashMap<>();	
+			
+		try {	
+			modelsProgramService.save(model);	
+			resultMap.put("code", 200);	
+		} catch (Exception e) {	
+			resultMap.put("code", 500);	
+		}	
+		return resultMap;	
+	}	
+		
+		
+}	

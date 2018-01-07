@@ -1,0 +1,226 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试结果</title>
+    <link rel="stylesheet" type="text/css" href="${ctx}/resources/css/style.css"/>
+    <script type="text/javascript" src="${ctx}/resources/js/echarts.min.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+    $(function() {
+    	modelTextResult();
+    	modelTextCount();//统计区间
+    });
+
+    //统计区间
+    function modelTextCount(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/modelTextCount',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	modelChart(data);
+            }
+        });
+        
+    }
+    
+	//获取测试结果数据
+    function modelTextResult(){
+    	$.ajax({
+            url : '${ctx}/modelsLibraryData/modelTextResult',
+            data:{},
+            datatype: 'json',
+            contentType: 'application/json',
+            type : "POST",
+            async : true,
+            success: function(data){
+            	var modelList = data.data;
+
+                $("#testResBody").html("");
+                var htmlContent = createTable(modelList.list);
+                $("#testResBody").html(htmlContent);
+                var pageStr = createPage(modelList.total, modelList.pageNum,modelList.pages);
+                $("#pageDiv").html(pageStr);
+            }
+        });
+        
+    }
+	
+	
+	
+    //测试记录列表
+	function createModelTextResTable(data) {
+		var data = data[0].data;
+		var tableStr = "";
+		var len = data.length;
+		for (var i = 0; i < len; i++) {
+			tableStr = tableStr + "<tr>";
+			tableStr = tableStr + "<td>"+(i+1)+"</td>";
+			tableStr = tableStr
+					+ "<td>"+ (data[i].fileName == "" || data[i].fileName == null ? "--": data[i].fileName) + "</td>";
+			tableStr = tableStr
+					+ "<td>"+ (data[i].sampleNum == "" || data[i].sampleNum == null ? "--": data[i].sampleNum) + "</td>";
+			if(null != data[i].testType && "" != data[i].testType){
+				if(data[i].testType == 0){
+					tableStr = tableStr + "<td>无监督</td>";
+				}else if(data[i].testType == 1){
+					tableStr = tableStr + "<td>有监督</td>";
+				}
+			}else{
+				tableStr = tableStr + "<td>--</td>";
+			}
+			tableStr = tableStr
+					+ "<td>"+ (data[i].createTime == "" || data[i].createTime == null ? "--": data[i].createTime) + "</td>";
+			
+			tableStr = tableStr + "</tr>";
+		}
+		if (len == 0) {
+			tableStr = tableStr + "<tr style='text-align: center'>"
+					+ "<td colspan='5'><font >暂无记录</font></td>" + "</tr>";
+		}
+		return tableStr;
+	}
+    
+	//柱状图
+	function modelChart(data){
+	    var myChart = echarts.init(document.getElementById("linebar_mixed_chart_1"));
+	    var option = {
+	        color: ['#3398DB'],
+	        tooltip : {
+	            trigger: 'axis',
+	            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	            }
+	        },
+	        grid: {
+	            left: '0',
+	            right: '4%',
+	            top: '3%',
+	            bottom: '3%',
+	            containLabel: true
+	        },
+	        xAxis : [
+	            {
+	                axisLine:{
+	                  lineStyle:{
+	                      color: '#124173'
+	                  }
+	                },
+	                type : 'category',
+	                data : ['(0-0.1]','(0.1-0.2]','(0.2-0.3]','(0.3-0.4]','(0.4-0.5]',
+	                		'(0.5-0.6]','(0.6-0.7]','(0.7-0.8]','(0.8-0.9]','(0.9-1]'],
+	                axisTick: {
+	                    alignWithLabel: true
+	                }
+	            }
+	        ],
+	        yAxis : [
+	            {
+	                axisLine:{
+	                    lineStyle:{
+	                        color: '#124173'
+	                    }
+	                },
+	                type : 'value',
+	                splitLine:{
+	                    show:true,
+	                    lineStyle: {
+	                        color: '#483d8b',
+	                        type: 'dashed',
+	                        width: "1"
+	                    }
+	                }
+	            }
+	        ],
+	        series : [
+	            {
+	                name:'直接访问',
+	                type:'bar',
+	                barWidth: '30%',
+	                data:[data.section1,data.section2,data.section3,data.section4,data.section5,
+	                      data.section6,data.section7,data.section8,data.section9,data.section10]
+	            }
+	        ]
+	    };
+	    myChart.setOption(option);
+	};
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象"><!-- //website-bg -->
+<div class="j-container">
+    <%--头文件====开始--%>
+    <jsp:include page="../commons/topHead.jsp"/>
+    <%--头文件====结束--%>
+    <div class="content">
+        <%--导航栏====开始--%>
+        <jsp:include page="../commons/leftNavigation.jsp"/>
+        <%--导航栏====结束--%>
+        
+        <div class="main">
+            <div class="main-header clearfix">
+                <div class="page-title">
+                    <h3>模型库</h3>
+                    <p>模型详情>>测试结果</p>
+                </div>
+            </div>
+            <!-- //main-header -->
+            <div class="model-report-details">
+                <div class="model-report-contents">
+                    <div class="model-report-content" style="display: block">
+                        <div class="module-subtitle">
+                            <i></i>
+                            <span>SCORE分组详情-预测</span>
+                        </div>
+                        <div class="linebar-mixed">
+                            <div class="linebar-mixed-chart" id="linebar_mixed_chart_1"></div>
+                        </div>
+                        <div class="module-subtitle">
+                            <i></i>
+                            <span>预测分数预览</span>
+                        </div>
+                        <div class="score-group">
+                            <table class="j-table">
+                                <thead>
+                                <tr id="testRes">
+                                    <th>ID</th>
+                                    <th>预测结果</th>
+                                    <th>var1</th>
+                                    <th>var2</th>
+                                    <th>var3</th>
+                                </tr>
+                                </thead>
+                                <tbody id="testResBody">
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>23%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- //model-report-contents -->
+            </div>
+            <!-- //model-report-details -->
+        </div>
+        <!-- //main -->
+    </div>
+    <!-- content -->
+</div>
+<!-- j-container -->
+
+</body>
+</html>

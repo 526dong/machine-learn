@@ -1,0 +1,84 @@
+package com.ccx.models.dataexchange;
+
+import com.ccx.models.annotation.CheckHttpRequst;
+import com.ccx.models.service.impl.dataexchange.VariableExchangeService;
+import com.ccx.models.service.impl.dataexchange.impl.PutOutExchangeServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+@Controller
+@RequestMapping("/")
+public class DataexchangeController {
+    private  final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private PutOutExchangeServiceImpl putOutExchangeService;
+
+    @Autowired
+    private VariableExchangeService variableExchangeService;
+
+    /**
+     * 变量统计
+     * @param request
+     * @param bean
+     * @return
+     *//*
+    @PostMapping("/variable/api")
+    @ResponseBody
+    @CheckHttpRequst(type="ip")
+    public Map<String,Object> statistics(HttpServletRequest request, @RequestBody String bean){
+        Map<String,Object> map = new HashMap<>();
+        try{
+            variableExchangeService.saveVariable(bean);
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.info("变量统计信息存储失败，数据为"+bean);
+            map.put("resCode","9999");
+            map.put("resMsg","系统异常");
+            return  map;
+        }
+        map.put("resCode","0000");
+        map.put("resMsg","成功");
+        return map;
+    }*/
+
+    /**
+     * 模型项目输出结果
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/output/api")
+    @ResponseBody
+    @CheckHttpRequst(type="ip")
+    public Map<String,Object> mdResult(HttpServletRequest request, @RequestBody String bean){
+        Map<String,Object> map = new HashMap<>();
+        try{
+            putOutExchangeService.saveOutPut(bean);
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.info("模型项目输出存储失败，数据为"+bean);
+            map.put("resCode","9999");
+            map.put("resMsg","系统异常");
+            return  map;
+        }
+        map.put("resCode","0000");
+        map.put("resMsg","成功");
+        return map;
+    }
+}

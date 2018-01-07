@@ -1,0 +1,39 @@
+package com.ccx.models.service.impl.dataexchange.impl;
+
+import com.ccx.models.manager.HttpDataExchangeManager;
+import com.ccx.models.service.impl.dataexchange.PutOutExchangeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+/**
+ * @Description:数据交换-模型输出
+ * @author:lilong
+ * @Date: 2017/11/22
+ */
+@Service
+public class PutOutExchangeServiceImpl implements PutOutExchangeService {
+
+    @Autowired
+    HttpDataExchangeManager httpDataExchangeManager;
+
+    /**
+     * 发送模型请求给模型组 （异步请求，请求获取模型输出所有信息）
+     * @param id
+     * @return
+     */
+    @Override
+    public Map<String,Object> sendTOModel(Integer id){
+        return httpDataExchangeManager.sendMsgToModel(id,1);
+    }
+
+    /**
+     * 保存模型输出信息
+     * @param bean
+     */
+    @Override
+    public void saveOutPut(String bean){
+
+    }
+}

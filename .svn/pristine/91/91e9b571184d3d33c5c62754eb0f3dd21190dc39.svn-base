@@ -1,0 +1,57 @@
+package com.ccx.models.service.impl.modelsLibrary;
+
+import com.ccx.models.api.modelsLibrary.ModelsLibraryApi;
+import com.ccx.models.mapper.modelsLibrary.ModelsLibraryMapper;
+import com.ccx.models.model.ModelsExtract;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service("ModelsLibraryApi")
+public class ModelsLibraryServiceImpl implements ModelsLibraryApi {
+		
+	@Autowired
+    private ModelsLibraryMapper modelsLibraryMapper;
+
+    /**
+     * @Description: 根据模型name获取模型list
+     * @Author: wxn
+     * @Date: 2017/12/12 11:13:04
+     * @Param:modelName
+     * @Return
+     */
+	@Override
+	public List<ModelsExtract> getModelsExtractListByName(String modelName) {
+		return modelsLibraryMapper.getModelsExtractListByName(modelName);
+	}
+
+	/**
+	 * @Description:
+	 * @Author: wxn
+	 * @Date: 2017/12/12 13:21:02
+	 * @Param: [programId, arithmeticId]
+	 * @Return java.util.List<com.ccx.models.model.ModelsExtract>
+	 */
+	@Override
+	public List<ModelsExtract> getModelsExtractListById(Long programId,Long arithmeticId){
+		return modelsLibraryMapper.getModelsExtractListById(programId,arithmeticId);
+	}
+
+	/**
+	 * @Description:保存模型信息
+	 * @Author: wxn
+	 * @Date: 2017/12/12 13:33:22
+	 * @Param: [modelsExtract]
+	 * @Return int
+	 */
+	@Override
+	public int saveModelsExtract(ModelsExtract modelsExtract){
+		return modelsLibraryMapper.saveModelsExtract(modelsExtract);
+	}
+
+
+
+
+
+}

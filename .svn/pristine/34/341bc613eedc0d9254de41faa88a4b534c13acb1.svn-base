@@ -1,0 +1,14 @@
+package com.ccx.models.mapper.laboratory;
+
+import java.util.LinkedHashMap;
+
+public interface ModelsReportMapper {
+
+    /**
+     * 根据项目id获取项目基本信息
+     * @param programId
+     * @return
+     */
+    LinkedHashMap<String, Object> getProgramMapById(Long programId);
+	
+}

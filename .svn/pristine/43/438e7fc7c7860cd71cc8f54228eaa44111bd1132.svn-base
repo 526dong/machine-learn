@@ -1,0 +1,15 @@
+package com.ccx.models.service.impl.dataexchange;
+
+import java.util.Map;
+
+/**
+ * @Description:
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+public interface VariableExchangeService {
+
+    Map<String,Object> sendTOModel(Integer id);
+
+    void saveVariable(String bean);
+}

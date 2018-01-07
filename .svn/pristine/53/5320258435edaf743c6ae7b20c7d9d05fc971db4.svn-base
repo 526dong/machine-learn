@@ -1,0 +1,192 @@
+package com.ccx.models.bean;
+
+import com.ccx.models.util.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Description:模型输出bean
+ * @author:lilong
+ * @Date: 2017/11/21
+ */
+public class ProgramOutPutBean {
+
+    //项目基础信息
+    private Base base;
+
+    //项目字段信息
+    private List<Field> fields;
+
+    /**
+     * 基础信息表
+     */
+    public static class Base {
+        //项目Id
+        private Integer pId;
+
+        //项目名称
+        private String programName;
+
+        //数据文件路径
+        private String fileUrl;
+
+        //数据文件类型
+        private String fileType;
+
+        //数据文件行数
+        private Integer length;
+
+        //数据标记targetName;
+        private String targetName;
+
+        //数据标记indexName;
+        private String indexName;
+
+        //算法(Xgbost、RF、GBM)
+        private String arithmetic;
+
+
+        public Base() {
+        }
+
+        public Base(Integer pId, String programName, String fileUrl, String fileType, Integer length, String targetName, String indexName, String arithmetic) {
+            this.pId = pId;
+            this.programName = programName;
+            this.fileUrl = fileUrl;
+            this.fileType = fileType;
+            this.length = length;
+            this.targetName = targetName;
+            this.indexName = indexName;
+            this.arithmetic = arithmetic;
+        }
+
+        public Integer getpId() {
+            return pId;
+        }
+
+        public void setpId(Integer pId) {
+            this.pId = pId;
+        }
+
+        public String getProgramName() {
+            return programName;
+        }
+
+        public void setProgramName(String programName) {
+            this.programName = programName;
+        }
+
+        public String getFileUrl() {
+            return fileUrl;
+        }
+
+        public void setFileUrl(String fileUrl) {
+            this.fileUrl = fileUrl;
+        }
+
+        public String getTargetName() {
+            return targetName;
+        }
+
+        public void setTargetName(String targetName) {
+            this.targetName = targetName;
+        }
+
+        public String getIndexName() {
+            return indexName;
+        }
+
+        public void setIndexName(String indexName) {
+            this.indexName = indexName;
+        }
+
+        public String getArithmetic() {
+            return arithmetic;
+        }
+
+        public void setArithmetic(String arithmetic) {
+            this.arithmetic = arithmetic;
+        }
+
+        public String getFileType() {
+            return fileType;
+        }
+
+        public void setFileType(String fileType) {
+            this.fileType = fileType;
+        }
+
+        public Integer getLength() {
+            return length;
+        }
+
+        public void setLength(Integer length) {
+            this.length = length;
+        }
+    }
+
+    /**
+     * 字段信息
+     */
+    public static class Field{
+        //字段名称
+        private String fileName;
+
+        //字段类型 0-离散型变量，1-连续型变量
+        private Integer fieldType;
+
+        public Field() {
+        }
+
+        public Field(String fileName, Integer fieldType) {
+            this.fileName = fileName;
+            this.fieldType = fieldType;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public Integer getFieldType() {
+            return fieldType;
+        }
+
+        public void setFieldType(Integer fieldType) {
+            this.fieldType = fieldType;
+        }
+    }
+
+    public Base getBase() {
+        return base;
+    }
+
+    public void setBase(Base base) {
+        this.base = base;
+    }
+
+    public List<Field> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<Field> fields) {
+        this.fields = fields;
+    }
+
+    public static void main(String[] args) {
+        ProgramOutPutBean programOutPutBean=new ProgramOutPutBean();
+        Base base = new Base(1,"现金贷模型","d://xx.csv","csv",10000,"name","cid", "Xgbost");
+        List<Field> fields=new ArrayList<>();
+        fields.add(new Field("name",1));
+        fields.add(new Field("age",0));
+        fields.add(new Field("cid",1));
+        fields.add(new Field("bankCardId",1));
+        programOutPutBean.setBase(base);
+        programOutPutBean.setFields(fields);
+        System.out.println(JsonUtils.toJson(programOutPutBean));
+    }
+}

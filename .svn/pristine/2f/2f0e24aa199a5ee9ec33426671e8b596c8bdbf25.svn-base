@@ -1,0 +1,281 @@
+package com.ccx.models.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.ccx.models.mapper.ResourceMapper;
+import com.ccx.models.mapper.RoleMapper;
+import com.ccx.models.mapper.RoleResourceMapper;
+import com.ccx.models.mapper.UserRoleMapper;
+import com.ccx.models.model.Role;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.ccx.models.api.RoleApi;
+import com.ccx.models.model.PermissionBean;
+import com.ccx.models.model.RoleResource;
+import com.ccx.models.model.vo.Tree;
+import com.github.pagehelper.PageInfo;
+
+@Service("roleApi")
+public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleApi {
+
+	@Autowired
+	private RoleMapper roleMapper;
+
+	@Autowired
+	private UserRoleMapper userRoleMapper;
+
+	@Autowired
+	private RoleResourceMapper roleResMapper;
+
+	@Autowired
+	private ResourceMapper resMapper;
+
+	public List<Role> selectAll() {
+		EntityWrapper<Role> wrapper = new EntityWrapper<Role>();
+		wrapper.orderBy("seq");
+		return roleMapper.selectList(wrapper);
+	}
+
+	@Override
+	public Map<String, Set<String>> selectResourceMapByUserId(Long userId) {
+		Map<String, Set<String>> resourceMap = new HashMap<String, Set<String>>();
+		// 查询用户对应的角色
+		List<Long> roleIdList = userRoleMapper.selectRoleIdListByUserId(userId);
+		// 存储用户地址
+		Set<String> urlSet = new HashSet<String>();
+		// 存储角色信息
+		Set<String> roles = new HashSet<String>();
+		for (Long roleId : roleIdList) {
+			// 查询角色对应的资源
+			List<Map<Long, String>> resourceList = roleMapper.selectResourceListByRoleId(roleId);
+			if (null != resourceList) {
+				for (Map<Long, String> map : resourceList) {
+					if (StringUtils.isNotBlank(map.get("url"))) {
+						urlSet.add(map.get("url"));
+					}
+				}
+			}
+			Role role = roleMapper.selectById(roleId);
+			if (role != null) {
+				roles.add(role.getName());
+			}
+		}
+		// 将地址和角色信息放入map
+		resourceMap.put("urls", urlSet);
+		resourceMap.put("roles", roles);
+		return resourceMap;
+	}
+
+	@Override
+	public Object selectTree() {
+		List<Tree> trees = new ArrayList<Tree>();
+		List<Role> roles = this.selectAll();
+		for (Role role : roles) {
+			Tree tree = new Tree();
+			tree.setId(role.getId());
+			tree.setText(role.getName());
+
+			trees.add(tree);
+		}
+		return trees;
+	}
+
+	/**
+	 * 
+	 * @Title: RoleServiceImpl   
+	 * @Description: 查询该角色下是否存在用户 
+	 * @param: @param roleId
+	 * @param: @return
+	 * @throws
+	 */
+	@Override
+	public int selectUserByRoleId(long roleId){
+		return roleMapper.selectUserByRoleId(roleId);
+	}
+	
+	@Override
+	public String deleteByRoleId(long id) {
+		String result = "999";
+    	try {
+    		int msg = roleMapper.deleteByRoleId(id);
+    		if(msg>0){
+				//删除该角色之前拥有的权限
+				resMapper.delRolePermissionByRole(id);
+    			result = "0000";
+    		}else{
+    			result = "999";
+    		}
+		} catch (Exception e) {
+			result = "999";
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	@Override
+	public Role selectRoleById(Long id) {
+		Role role = roleMapper.selectRoleById(id);
+		return role;
+	}
+
+	@Override
+	public void updateTO(Role uRole) {
+		roleMapper.updateRoleById(uRole);
+	}
+
+	@Override
+	public void doAddRole(Role role) {
+		roleMapper.doAddRole(role);
+	}
+
+	/**
+	 * @Description: 根据用户id查询角色信息
+	 * @Author: wxn
+	 * @Date: 2017/11/29 11:38:57
+	 */
+	@Override
+	public Role getRoleByUserId(long userId){
+		return roleMapper.getRoleByUserId(userId);
+	}
+	
+	/**
+	 * 
+	 * @Title: RoleServiceImpl   
+	 * @Description: 校验角色是否唯一(这里用一句话描述这个方法的作用)   
+	 * @param: @param map
+	 * @param: @return
+	 * @throws
+	 */
+	@Override
+	public List<Role> getRoleByName(String roleName){
+		return roleMapper.getRoleByName(roleName);
+	}
+
+	// 分配权限
+	@Override
+	public void addRes2Role(Long roleId, String resIds) {
+		// int count = 0;
+		// 先删除原有的角色资源表中的数据
+		roleResMapper.deleteByRoleId(roleId);
+
+		if (StringUtils.isNotBlank(resIds)) {
+			String[] idArray = null;
+
+			if (StringUtils.contains(resIds, ",")) {
+				idArray = resIds.split(",");
+			} else {
+				idArray = new String[] { resIds };
+			}
+			// 添加新的角色资源对应关系。
+			for (int i = 0; i < idArray.length; i++) {
+				if (StringUtils.isNotBlank(idArray[i])) {
+					Long id = resMapper.selectByMyself(idArray[i]);
+					RoleResource roleRes = new RoleResource();
+					roleRes.setRoleId(roleId);
+					roleRes.setResourceId(id);
+					roleResMapper.insertSelective(roleRes);
+				}
+
+			}
+		}
+	}
+
+	@Override
+	public List<Role> findAllRole() {
+		List<Role> list = roleMapper.findAllRole();
+		return list;
+	}
+
+	@Override
+	public PageInfo<Role> findAll(Map<String, Object> params) {
+		List<Role> list = roleMapper.findAll(params);
+		PageInfo<Role> pages = new PageInfo<Role>(list);
+		return pages;
+	}
+
+	/**
+	 * 获取角色list
+	 * @return
+	 */
+	@Override
+	public List<Map<String, Object>> findRoleList() {
+		List<Map<String, Object>> listMap=roleMapper.findRoleList();
+		return listMap;
+	}
+
+
+	
+	
+	@Override
+	public JSONArray treeData(HttpServletRequest request, List<RoleResource> roleRes) {
+		JSONArray array = new JSONArray();
+		List<Long> resList = new ArrayList<>();
+		for (RoleResource roRes : roleRes) {
+			resList.add(roRes.getResourceId());
+		}
+
+		// 根据父节点查询子节点
+		String parentId = request.getParameter("id");
+		List<PermissionBean> list = resMapper.selectResByPid(parentId);
+		for (PermissionBean resource : list) {
+			List<PermissionBean> sonList = resMapper.selectResByPid(resource.getMyselfId());
+			JSONObject obj = new JSONObject();
+			obj.put("id", resource.getMyselfId());
+			obj.put("pId", resource.getParentId());
+			obj.put("name", resource.getPermissionName());
+
+			if (resList.contains(resource.getId())) {
+				obj.put("checked", true);
+			}
+
+			if (!sonList.isEmpty()) {
+				obj.put("isParent", true);
+			}
+			array.add(obj);
+		}
+		return array;
+	}
+
+	@Override
+	public JSONArray showTree(List<RoleResource> roleRes,long insId) {
+		JSONArray array = new JSONArray();
+		List<Long> resList = new ArrayList<>();
+		for (RoleResource roRes : roleRes) {
+			resList.add(roRes.getResourceId());
+		}
+		List<PermissionBean> pList = resMapper.selectResByPidd(insId);
+		for (PermissionBean resource : pList) {
+			JSONObject obje = new JSONObject();
+			List<PermissionBean> list = resMapper.selectResByPid(resource.getMyselfId());
+			obje.put("id", resource.getMyselfId());
+			obje.put("pId", resource.getParentId());
+			obje.put("name", resource.getPermissionName());
+			if (!list.isEmpty()) {
+				obje.put("isParent", true);
+			}
+			if (resList.contains(resource.getId())) {
+				obje.put("checked", true);
+			}
+			array.add(obje);
+		}
+		return array;
+	}
+
+	
+	
+	
+	
+}

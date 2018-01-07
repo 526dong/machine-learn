@@ -1,0 +1,166 @@
+package com.ccx.models.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class ModelsVarCategoryCount {
+    private Integer id;
+
+    private Long dataFileId;
+
+    private Integer fieldId;
+
+    private String varName;
+
+    private String type;
+
+    private Integer missingN;
+
+    private BigDecimal missingPct;
+
+    private Integer nunique;
+
+    private Integer top1;
+
+    private Short top1Pct;
+
+    private Integer top2;
+
+    private Short top2Pct;
+
+    private Integer top3;
+
+    private Short top3Pct;
+
+    private String vList;
+
+    private Date createTime;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Long getDataFileId() {
+        return dataFileId;
+    }
+
+    public void setDataFileId(Long dataFileId) {
+        this.dataFileId = dataFileId;
+    }
+
+    public Integer getFieldId() {
+        return fieldId;
+    }
+
+    public void setFieldId(Integer fieldId) {
+        this.fieldId = fieldId;
+    }
+
+    public String getVarName() {
+        return varName;
+    }
+
+    public void setVarName(String varName) {
+        this.varName = varName == null ? null : varName.trim();
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type == null ? null : type.trim();
+    }
+
+    public Integer getMissingN() {
+        return missingN;
+    }
+
+    public void setMissingN(Integer missingN) {
+        this.missingN = missingN;
+    }
+
+    public BigDecimal getMissingPct() {
+        return missingPct;
+    }
+
+    public void setMissingPct(BigDecimal missingPct) {
+        this.missingPct = missingPct;
+    }
+
+    public Integer getNunique() {
+        return nunique;
+    }
+
+    public void setNunique(Integer nunique) {
+        this.nunique = nunique;
+    }
+
+    public Integer getTop1() {
+        return top1;
+    }
+
+    public void setTop1(Integer top1) {
+        this.top1 = top1;
+    }
+
+    public Short getTop1Pct() {
+        return top1Pct;
+    }
+
+    public void setTop1Pct(Short top1Pct) {
+        this.top1Pct = top1Pct;
+    }
+
+    public Integer getTop2() {
+        return top2;
+    }
+
+    public void setTop2(Integer top2) {
+        this.top2 = top2;
+    }
+
+    public Short getTop2Pct() {
+        return top2Pct;
+    }
+
+    public void setTop2Pct(Short top2Pct) {
+        this.top2Pct = top2Pct;
+    }
+
+    public Integer getTop3() {
+        return top3;
+    }
+
+    public void setTop3(Integer top3) {
+        this.top3 = top3;
+    }
+
+    public Short getTop3Pct() {
+        return top3Pct;
+    }
+
+    public void setTop3Pct(Short top3Pct) {
+        this.top3Pct = top3Pct;
+    }
+
+    public String getvList() {
+        return vList;
+    }
+
+    public void setvList(String vList) {
+        this.vList = vList == null ? null : vList.trim();
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+}

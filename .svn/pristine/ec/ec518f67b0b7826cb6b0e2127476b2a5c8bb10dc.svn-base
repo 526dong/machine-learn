@@ -1,0 +1,26 @@
+<%@ page language="java" pageEncoding="UTF-8"%>
+<div class="header" id="header">
+	<div class="header-content">
+		<a class="header-logo" href="index.html"></a>
+		<a class="logo-name" href="index.html">机器学习平台</a>
+		<div class="header-crtl">
+			<span class="header-crtl-arrow"></span>
+			<ul class="header-crtl-list">
+				<li>资料一</li>
+				<li>资料一</li>
+				<li><a href="javascript:void(0);" onclick="logout();">退出</a></li>
+			</ul>
+		</div>
+		<span class="login-name">${risk_crm_user.loginName}</span>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+    //退出确认
+    function logout() {
+        $.post('${ctx}/logout', function(result) {
+            window.location.href='${ctx }/login';
+        }, 'json');
+    }
+</script>

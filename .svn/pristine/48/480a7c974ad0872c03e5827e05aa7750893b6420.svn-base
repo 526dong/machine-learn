@@ -1,0 +1,190 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../commons/taglibs.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>数据文件-文件详情</title>
+	<link type="text/css" href="${ctx}/resources/css/style.css" rel="stylesheet" />
+	<script type="text/javascript" src="${ctx}/resources/js/main.js"></script>
+</head>
+<script type="text/javascript">
+/*页面初始化*/
+$(function(){
+	/*文件详情*/
+	getData();
+});
+/*文件详情*/
+function getData(){
+	//数据文件id
+	var dataFileId = '${dataFileId}';
+    //是否更新标识
+    var isUpdate = '${isUpdate}';
+
+	$.ajax({
+		url:"${ctx}/modelsDataFile/findFileInfo",
+		type:'POST',
+		data:{
+			"dataFileId":dataFileId,
+			"isUpdate":isUpdate
+		},
+		async: false,
+		success:function(data){
+			if (200 == data.code) {
+                //处理数据文件
+                dealDataFile(data.data);
+			} else {
+				jAlert(data.msg);
+				console.error(data.msg);
+			}
+		}
+	});
+}
+//处理数据文件
+function dealDataFile(data) {
+    //文件信息
+    var fileInfo = data.dataFile;
+    if(fileInfo != null) {
+        var htmlContent = createFileInfo(fileInfo);
+        $("#fileDetail").html(htmlContent);
+    }
+
+    //文件变量信息
+    var fileValueTitle = data.fileInfoList;
+	if(fileValueTitle != null) {
+        var htmlContent = createFileValueTiTle(fileValueTitle);
+        $("#fileValueTitle").html(htmlContent);
+    }
+
+    //文件变量值信息
+    var fileValue = data.rowFileInfoList;
+    if(fileValue != null) {
+        var htmlContent = createFileValue(fileValue);
+        $("#fileValue").html(htmlContent);
+    }
+}
+//创建文件详情信息
+function createFileInfo(data) {
+	var htmlContent = "";
+    htmlContent += "<div class='file-details-name-size'><em>"+ data.name +"</em><b>"+ data.size +"</b></div>";
+    htmlContent += "<p class='file-details-desc'>描述: <span>"+ data.description +"</span></p>";
+    return htmlContent;
+}
+//创建文件变量信息
+function createFileValueTiTle(data) {
+    var htmlContent = "";
+
+    //数据集合长度
+    var len = data.length;
+
+    if (len == 0) {
+        htmlContent += "<div class='file-details-name-size' style='text-align: center'><em>数据文件中暂无变量信息</em></div>";
+	} else {
+        for (var i = 0;i < len;i++) {
+            //文件变量信息
+            var myFileInfo = data[i].fileInfo;
+            //变量类型：离散/连续
+            var valueType = "";
+
+            if (myFileInfo.type == 0) {
+                valueType = "离散型";
+			} else if (myFileInfo.type == 1) {
+                valueType = "连续型";
+			}
+
+            htmlContent += "<th>"+myFileInfo.name+"("+valueType+")</th>";
+		}
+	}
+
+	return htmlContent;
+}
+//创建文件变量和变量值信息
+function createFileValue(data) {
+    var htmlContent = "";
+
+    //数据集合长度
+    var len = data.length;
+
+    if (len == 0) {
+        htmlContent += "<div class='file-details-name-size' style='text-align: center'><em>数据文件中暂无变量值信息</em></div>";
+    } else {
+        //按照行进行排列
+        for (var i = 0; i < len; i++) {
+            var rowFileValue = data[i].fileValueList;
+            htmlContent += "<tr>";
+
+            //一行的变量值
+            for (var j = 0; j < rowFileValue.length; j++) {
+                htmlContent += "<td style='text-align: center'>" + rowFileValue[j].fileValue.value + "</td>";
+            }
+
+            htmlContent += "</tr>";
+        }
+    }
+
+    return htmlContent;
+}
+//数据标记
+function dataMark() {
+    //数据文件id
+    var id = '${dataFileId}';
+
+    window.location.href = "${ctx}/modelsDataFile/dataMark?id="+id;
+}
+//变量分析
+function dataAnalysis() {
+    //数据文件id
+    var id = '${dataFileId}';
+
+    window.location.href = "${ctx}/modelsDataFile/varAnalysis?dataFileId="+id;
+}
+</script>
+<body>
+<img id="website-bgImg" class="website-bg website-bg-show" src="${ctx}/resources/img/bg.jpg" alt="星空万象">
+<!-- //网站背景 -->
+<div class="j-container">
+	<%--头文件====开始--%>
+	<jsp:include page="../commons/topHead.jsp"/>
+	<!-- //header -->
+	<div class="content">
+		<%--导航栏====开始--%>
+		<jsp:include page="../commons/leftNavigation.jsp"/>
+		<%--导航栏====结束--%>
+		<!-- //side-nav -->
+		<div class="main">
+			<div class="main-header clearfix">
+				<div class="page-title">
+					<h3>数据文件</h3>
+					<p>文件详情</p>
+				</div>
+				<div class="value-analysis-btn fr">
+					<span class="j-button" onclick="dataMark();">类型标记</span>
+					<span class="j-button" onclick="dataAnalysis();">变量分析</span>
+				</div>
+			</div>
+			<!-- //main-header -->
+			<div class="file-details">
+				<div class="file-details-header">
+					<div class="file-details-icon"></div>
+					<div id="fileDetail" class="file-details-header-right"></div>
+				</div>
+				<!-- //file-details-header -->
+				<div class="value-info">
+					<table class="j-table">
+						<thead>
+							<%--表头列名--%>
+							<tr id="fileValueTitle"></tr>
+						</thead>
+						<tbody id="fileValue"></tbody>
+					</table>
+				</div>
+				<!-- //value-info -->
+			</div>
+			<!-- //file-details -->
+		</div>
+		<!-- //main -->
+	</div>
+	<!-- //content -->
+</div>
+<!-- //j-container -->
+</body>
+</html>

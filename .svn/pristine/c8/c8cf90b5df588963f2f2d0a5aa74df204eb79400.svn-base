@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccx.models.mapper.UserMapper">
+	<resultMap id="BaseResultMap" type="com.ccx.models.model.User" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="user_type" property="userType" jdbcType="TINYINT" />
+    <result column="institution_id" property="institutionId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="is_del" property="isDel" jdbcType="TINYINT" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="loginNum" property="loginNum" jdbcType="INTEGER" />
+    <result column="loginTime" property="loginTime" jdbcType="TIMESTAMP" />
+    <result column="warnFlag" property="warnFlag" jdbcType="INTEGER" />
+    <result column="warnTime" property="warnTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, login_name, name, password, phone, email, user_type, institution_id, status, 
+    is_del, loginNum, loginTime,warnFlag,warnTime,creater, create_time
+  </sql>
+  
+  <resultMap id="BaseModuleResultMap" type="com.ccx.models.model.Module" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="institution_id" property="institutionId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="myself_id" property="myselfId" jdbcType="VARCHAR" />
+    <result column="start_date" property="startDate" jdbcType="DATE" />
+    <result column="end_date" property="endDate" jdbcType="DATE" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="allor" property="allor" jdbcType="VARCHAR" />
+    <result column="allor_time" property="allorTime" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="TINYINT" />
+    <result column="is_del" property="isDel" jdbcType="TINYINT" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="icon_url" property="iconUrl" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Module_Column_List" >
+    id, institution_id, name, myself_id, start_date, end_date, description, allor, allor_time, 
+    state, is_del, creater, create_time
+  </sql>
+  
+  <resultMap id="UserNumResultMap" type="com.ccx.models.model.UserNum" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="institution_id" property="institutionId" jdbcType="INTEGER" />
+    <result column="limitNum" property="limitnum" jdbcType="INTEGER" />
+    <result column="creater" property="creater" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="UserNum_Column_List" >
+    id, institution_id, limitNum, creater, create_time
+  </sql>
+  
+	
+	<select id="selectListByLoginName" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		abs_user_fg
+		WHERE login_name = #{loginName} and is_del = 0
+	</select>
+
+	<select id="selectUserPage" resultType="Map">
+		SELECT
+		us.id AS id,
+		us.login_name AS loginName,
+		us.NAME AS 'name',
+		us.phone AS phone,
+		us.email AS email,
+		us.user_type AS userType,
+		us.STATUS AS status,
+		us.institution_id AS institutionId,
+		us.create_time AS createTime,
+		uo.name AS organizationName,
+		GROUP_CONCAT(ro.name) AS 'rolesList'
+		FROM
+		abs_user_fg us
+		LEFT JOIN abs_user_role_fg ur ON us.id = ur.user_id
+		LEFT JOIN abs_role_fg
+		ro ON ur.role_id = ro.id
+		LEFT JOIN abs_institution uo ON uo.id =
+		us.institution_id
+		<where>
+			<if test="name != null and name != ''">
+				us.name = #{name}
+			</if>
+			<if test="institutionId != null ">
+				and us.institution_id = #{institutionId}
+			</if>
+			<if test="startTime != null ">
+				<![CDATA[and us.create_time >=#{startTime} ]]>
+			</if>
+			<if test="endTime != null ">
+				<![CDATA[and us.create_time <=#{endTime} ]]>
+			</if>
+		</where>
+		GROUP BY us.id
+	</select>
+
+	<select id="findAll" resultType="com.ccx.models.model.vo.UserVo">
+		SELECT
+		us.id AS id,
+		us.login_name AS loginName,
+		us.password AS password,
+		us.NAME AS name,
+		us.phone AS phone,
+		us.email AS email,
+		us.STATUS AS status,
+		us.create_time AS createTime,
+		ro.name AS roleName,
+		us.is_del AS isDel
+		from abs_user_fg us
+		LEFT JOIN abs_user_role_fg ur ON us.id = ur.user_id
+		LEFT JOIN abs_role_fg ro ON ur.role_id = ro.id
+		<where>
+			us.is_del = 0
+			<if test="null!= insId and ''!= insId " > 
+	    		and us.institution_id = #{insId}
+	    	</if>
+			<if test="null!= userStatus and ''!= userStatus and '0000'!= userStatus" > 
+	    		and us.STATUS = #{userStatus}
+	    	</if>
+	    	<if test="null!= userRole and ''!= userRole and '0000'!= userRole" > 
+	    		and ro.id = #{userRole}
+	    	</if>
+	    	<if test="null!= keyWord and ''!= keyWord" > 
+	    		and (
+	    			us.NAME like concat('%',#{keyWord},'%')
+	    			or
+	    			us.login_name like concat('%',#{keyWord},'%')
+	    			or
+	    			ro.name like concat('%',#{keyWord},'%')
+	    			) 
+	    	</if>
+  		</where>
+  	order by us.create_time desc
+	</select>
+	
+	<!-- 通过机构id获取该机构下最多可设置的账号数量 -->
+	  <select id="getUserNumByInsId" parameterType="java.lang.Long" resultMap="UserNumResultMap">
+			SELECT
+				<include refid="UserNum_Column_List" />
+			FROM
+				abs_user_num_fg
+			WHERE
+				institution_id = #{insId,jdbcType=INTEGER}
+	  </select>
+  
+   <!-- 获取该机构下已经创建的账号数量 -->
+  <select id="getHasUserNum" parameterType="java.lang.Long" resultType="Integer">
+		SELECT
+			count(0) AS hasUserNum
+		FROM
+			abs_user_fg
+		WHERE 1=1 
+			and is_del = 0
+			and institution_id = #{insId,jdbcType=INTEGER}
+  </select>
+
+	<select id="selectUserById" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select 
+		id, login_name, name, password, phone, email, user_type, institution_id, status, 
+    	is_del, creater, loginNum, loginTime, create_time
+		from abs_user_fg
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 修改用户信息 -->
+	<update id="updateTO" parameterType="com.ccx.models.model.User">
+		update abs_user_fg
+		<set>
+        <if test="loginName != null">
+            login_name = #{loginName,jdbcType=VARCHAR},
+        </if>
+        <if test="name != null">
+            name = #{name,jdbcType=VARCHAR},
+        </if>
+        <if test="password != null">
+            password = #{password,jdbcType=VARCHAR},
+        </if>
+        <if test="phone != null">
+            phone = #{phone,jdbcType=VARCHAR},
+        </if>
+        <if test="email != null">
+            email = #{email,jdbcType=VARCHAR},
+        </if>
+        <if test="institutionId != null">
+            institution_id = #{institutionId,jdbcType=VARCHAR},
+        </if>
+        <if test="status != null">
+            status = #{status,jdbcType=INTEGER},
+        </if>
+        <if test="loginNum != null">
+            loginNum = #{loginNum,jdbcType=INTEGER},
+        </if>
+        <if test="loginTime != null">
+            loginTime = #{loginTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="warnFlag != null">
+            warnFlag = #{warnFlag,jdbcType=INTEGER},
+        </if>
+        <if test="warnTime != null">
+            warnTime = #{warnTime,jdbcType=TIMESTAMP},
+        </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+</update>
+	
+	<!-- 保存新增用户,并返回主键值 -->
+	<insert id="doAddUser" parameterType="com.ccx.models.model.User" useGeneratedKeys="true" keyProperty="id">
+		insert into abs_user_fg
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        id,
+	      </if>
+	      <if test="loginName != null" >
+	        login_name,
+	      </if>
+	      <if test="name != null" >
+	        name,
+	      </if>
+	      <if test="password != null" >
+	        password,
+	      </if>
+	      <if test="phone != null" >
+	        phone,
+	      </if>
+	      <if test="email != null" >
+	        email,
+	      </if>
+	      <if test="userType != null" >
+	        user_type,
+	      </if>
+	      <if test="institutionId != null" >
+	        institution_id,
+	      </if>
+	      <if test="status != null" >
+	        status,
+	      </if>
+	      <if test="isDel != null" >
+	        is_del,
+	      </if>
+	      <if test="creater != null" >
+	        creater,
+	      </if>
+	      <if test="createTime != null" >
+	        create_time,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        #{id,jdbcType=BIGINT},
+	      </if>
+	      <if test="loginName != null" >
+	        #{loginName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="name != null" >
+	        #{name,jdbcType=VARCHAR},
+	      </if>
+	      <if test="password != null" >
+	        #{password,jdbcType=VARCHAR},
+	      </if>
+	      <if test="phone != null" >
+	        #{phone,jdbcType=VARCHAR},
+	      </if>
+	      <if test="email != null" >
+	        #{email,jdbcType=VARCHAR},
+	      </if>
+	      <if test="userType != null" >
+	        #{userType,jdbcType=TINYINT},
+	      </if>
+	      <if test="institutionId != null" >
+	        #{institutionId,jdbcType=INTEGER},
+	      </if>
+	      <if test="status != null" >
+	        #{status,jdbcType=TINYINT},
+	      </if>
+	      <if test="isDel != null" >
+	        #{isDel,jdbcType=TINYINT},
+	      </if>
+	      <if test="creater != null" >
+	        #{creater,jdbcType=VARCHAR},
+	      </if>
+	      <if test="createTime != null" >
+	        #{createTime,jdbcType=TIMESTAMP},
+	      </if>
+	    </trim>
+	</insert>
+	
+	<select id="getUserByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from abs_user_fg
+		where 1=1 and is_del = 0 and login_name = #{loginName,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getUserListByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from abs_user_fg
+		where 1=1 and is_del = 0 and login_name = #{loginName,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 冻结用户 -->
+	<update id="freezeUser" parameterType="java.lang.Long">
+		update abs_user_fg
+		set status = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 解冻用户 -->
+	<update id="unfreezeUser" parameterType="java.lang.Long">
+		update abs_user_fg
+		set status = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!-- 用户被锁定时 -->
+	<update id="lockUser" parameterType="java.lang.Long">
+		update abs_user_fg
+		set status = 2
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="deleteUser" parameterType="java.lang.Long">
+		update abs_user_fg
+		set is_del = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<!--查机构模块list-->
+  <select id="getModuleByInsId" resultMap="BaseModuleResultMap" parameterType="java.lang.Long">
+    SELECT
+		a.id,
+		a.institution_id,
+		a. NAME,
+		a.myself_id,
+		a.start_date,
+		a.end_date,
+		a.description,
+		a.allor,
+		a.allor_time,
+		a.state,
+		a.is_del,
+		a.creater,
+		a.create_time,
+		b.icon_url
+	FROM
+		abs_module a
+	LEFT JOIN abs_resource_fg b ON a.myself_id = b.MYSELF_ID
+	WHERE
+		1 = 1
+	AND a.is_del = 0
+	AND a.state = 0
+    	<![CDATA[ 
+    	and current_date() >= start_date 
+    	and current_date() <= end_date 
+    	]]>
+    	and institution_id = #{0}
+  </select>
+  
+  <!--查询当前登陆人所拥有的模块-->
+  <select id="getMyModuleByInsId" resultMap="BaseModuleResultMap" parameterType="java.lang.Long">
+    SELECT
+		a.id,
+		a.institution_id,
+		a. NAME,
+		a.myself_id,
+		a.start_date,
+		a.end_date,
+		a.description,
+		a.allor,
+		a.allor_time,
+		a.state,
+		a.is_del,
+		a.creater,
+		a.create_time,
+		b.icon_url
+	FROM
+		abs_module a
+	LEFT JOIN abs_resource_fg b ON a.myself_id = b.MYSELF_ID
+	WHERE
+		1 = 1
+	AND a.is_del = 0
+	AND a.state = 0
+    	<![CDATA[ 
+    	and current_date() >= start_date 
+    	and current_date() <= end_date 
+    	]]>
+    AND a.institution_id = #{insId}
+	AND a.myself_id IN (
+		SELECT
+			arf.MYSELF_ID
+		FROM
+			abs_role_resource_fg arrf,
+			abs_resource_fg arf,
+			abs_user_role_fg aurf
+		WHERE
+			aurf.user_id = #{userId}
+		AND	aurf.role_id = arrf.role_id
+		AND arrf.resource_id = arf.ID
+	)
+	ORDER BY b.SEQUENCE_NUM
+  </select>
+  
+  <!--查询当前登陆人所拥有的模块,不限制日期-->
+  <select id="getMyCanUseModuleByInsId" resultMap="BaseModuleResultMap" parameterType="java.lang.Long">
+    SELECT
+		a.id,
+		a.institution_id,
+		a. NAME,
+		a.myself_id,
+		a.start_date,
+		a.end_date,
+		a.description,
+		a.allor,
+		a.allor_time,
+		a.state,
+		a.is_del,
+		a.creater,
+		a.create_time,
+		b.icon_url
+	FROM
+		abs_module a
+	LEFT JOIN abs_resource_fg b ON a.myself_id = b.MYSELF_ID
+	WHERE
+		1 = 1
+	AND a.is_del = 0
+	AND a.state in (0,2,3)
+    AND a.institution_id = #{insId}
+	AND a.myself_id IN (
+		SELECT
+			arf.MYSELF_ID
+		FROM
+			abs_role_resource_fg arrf,
+			abs_resource_fg arf,
+			abs_user_role_fg aurf
+		WHERE
+			aurf.user_id = #{userId}
+		AND	aurf.role_id = arrf.role_id
+		AND arrf.resource_id = arf.ID
+	)
+	ORDER BY b.SEQUENCE_NUM
+  </select>
+  	
+  
+  
+</mapper>
