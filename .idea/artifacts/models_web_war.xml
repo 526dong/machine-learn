@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="models-web:war">
-    <output-path>$PROJECT_DIR$/models-web/target</output-path>
-    <root id="archive" name="ccx-models.war">
-      <element id="artifact" artifact-name="models-web:war exploded" />
-    </root>
-  </artifact>
-</component>
